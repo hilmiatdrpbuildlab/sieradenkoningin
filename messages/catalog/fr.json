@@ -1,0 +1,20 @@
+{
+	"$schema": "https://inlang.com/schema/inlang-message-format",
+	"badge_new": "Nouveau",
+	"badge_limited": "Édition limitée",
+	"badge_bestseller": "Best-seller",
+	"badge_soldout": "Épuisé",
+	"badge_sale": "Soldes",
+	"wishlist_add": "Ajouter {name} à votre liste de souhaits",
+	"wishlist_remove": "Retirer {name} de votre liste de souhaits",
+	"quick_add": "Ajout rapide",
+	"quick_choose": "Choisir une variante",
+	"quick_add_label": "Ajout rapide : {name}",
+	"price_now": "Maintenant",
+	"price_was": ", au lieu de",
+	"price_incl_vat": "TVA incluse",
+	"available_in": "Disponible en",
+	"metal_gold": "Or",
+	"metal_rosegold": "Or rose",
+	"metal_silver": "Argent"
+}

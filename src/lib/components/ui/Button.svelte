@@ -12,6 +12,7 @@
 	import type { HTMLButtonAttributes, HTMLAnchorAttributes } from 'svelte/elements';
 	import Icon from './Icon.svelte';
 	import type { IconName } from './icons.ts';
+	import { m } from '#lib/paraglide/messages.js';
 
 	type Variant = 'primary' | 'outline' | 'ghost' | 'link' | 'gold' | 'danger';
 	type Size = 'sm' | 'md' | 'lg';
@@ -55,7 +56,7 @@
 {#snippet content()}
 	{#if loading}
 		<span class="spinner" aria-hidden="true"></span>
-		<span class="sr-only">Bezig…</span>
+		<span class="sr-only">{m.ui_loading()}</span>
 	{:else if icon}
 		<Icon name={icon} size={size === 'sm' ? 16 : 18} />
 	{/if}
@@ -136,11 +137,11 @@
 	.btn--link:hover { background-size: 0% 1px; background-position: 100% 100%; transition: background-size var(--dur-slow) var(--motion-out); }
 
 	/* Special occasions only — gift cards, VIP. Max one per view. */
-	.btn--gold { background: var(--sk-gradient-gold); color: var(--sk-burgundy); background-size: 200% 100%; }
+	.btn--gold { background: var(--ui-gold-gradient); color: var(--sk-burgundy); background-size: 200% 100%; }
 	.btn--gold:hover { background-position: 100% 0; box-shadow: var(--elev-glow); }
 
-	.btn--danger { background: var(--sk-danger); color: var(--sk-white); }
-	.btn--danger:hover { background: #7f2222; }
+	.btn--danger { background: var(--ui-danger); color: var(--ui-action-text); }
+	.btn--danger:hover { background: color-mix(in srgb, var(--ui-danger) 82%, black); }
 
 	.btn:focus-visible { outline: none; box-shadow: var(--elev-focus); }
 	.btn:disabled { opacity: 0.45; cursor: not-allowed; }

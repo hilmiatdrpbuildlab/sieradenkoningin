@@ -23,7 +23,8 @@ export default defineConfig({
 		sveltekit({
 			adapter: adapter(),
 			csp: {
-				mode: 'auto',
+				// Hashes (not nonces) so CDN-cached HTML stays valid (§4.6).
+				mode: 'hash',
 				directives: {
 					'default-src': ['self'],
 					'script-src': ['self', TURNSTILE, ...ANALYTICS],

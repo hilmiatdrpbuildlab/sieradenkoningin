@@ -1,0 +1,20 @@
+{
+	"$schema": "https://inlang.com/schema/inlang-message-format",
+	"badge_new": "Nieuw",
+	"badge_limited": "Limited",
+	"badge_bestseller": "Bestseller",
+	"badge_soldout": "Uitverkocht",
+	"badge_sale": "Sale",
+	"wishlist_add": "{name} bewaren op je verlanglijst",
+	"wishlist_remove": "{name} verwijderen van je verlanglijst",
+	"quick_add": "Snel toevoegen",
+	"quick_choose": "Kies je variant",
+	"quick_add_label": "Snel toevoegen: {name}",
+	"price_now": "Nu",
+	"price_was": ", was",
+	"price_incl_vat": "Incl. btw",
+	"available_in": "Beschikbaar in",
+	"metal_gold": "Goud",
+	"metal_rosegold": "Roségoud",
+	"metal_silver": "Zilver"
+}

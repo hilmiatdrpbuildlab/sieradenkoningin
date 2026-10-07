@@ -72,6 +72,21 @@
   --ui-border-focus: var(--sk-cognac);
 
   --ui-sale: var(--sk-ruby);
+  --ui-danger: var(--sk-danger);
+  --ui-danger-bg: var(--sk-danger-bg);
+  --ui-success: var(--sk-success);
+  --ui-success-bg: var(--sk-success-bg);
+  --ui-warning: var(--sk-warning);
+  --ui-warning-bg: var(--sk-warning-bg);
+  --ui-info: var(--sk-info);
+  --ui-info-bg: var(--sk-info-bg);
+  --ui-gold-gradient: var(--sk-gradient-gold);
+  --ui-scrim-soft: rgb(36 13 14 / 0.45);
+  --ui-glass: color-mix(in srgb, var(--sk-cream) 92%, transparent);
+  /* metal swatches (product variants) */
+  --ui-swatch-gold: linear-gradient(135deg, #e6cfa1, #b8904f);
+  --ui-swatch-rosegold: linear-gradient(135deg, #ecc6b8, #b9806e);
+  --ui-swatch-silver: linear-gradient(135deg, #f2f2f2, #a9a9a9);
   --ui-overlay: rgb(36 13 14 / 0.55);     /* modal / drawer scrim         */
   --ui-focus-ring: rgb(135 85 67 / 0.45);
 
@@ -216,6 +231,7 @@
   --ui-border-strong: rgb(235 225 216 / 0.5);
   --ui-border-focus: var(--sk-gold);
   --ui-focus-ring: rgb(201 164 106 / 0.55);
+  --ui-danger: var(--sk-gold-light);
   background-color: var(--ui-bg);
   color: var(--ui-text);
 }
