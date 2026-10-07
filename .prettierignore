@@ -1,0 +1,14 @@
+node_modules
+.svelte-kit
+.data
+.wrangler
+build
+drizzle
+src/lib/paraglide
+package-lock.json
+static
+docs
+EXECUTION_PLAN.md
+test-results
+playwright-report
+project.inlang
