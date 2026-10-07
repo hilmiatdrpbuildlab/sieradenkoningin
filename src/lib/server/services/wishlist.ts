@@ -21,7 +21,7 @@ export function wishlistOwner(cookies: Cookies, customerId?: string | null, crea
 	let token = cookies.get(WISHLIST_COOKIE) ?? null;
 	if (!token && create) {
 		token = randomToken(24);
-		cookies.set(WISHLIST_COOKIE, token, { path: '/', httpOnly: true, secure: true, sameSite: 'lax', maxAge: 365 * 86400 });
+		cookies.set(WISHLIST_COOKIE, token, { path: '/', httpOnly: true, sameSite: 'lax', maxAge: 365 * 86400 });
 	}
 	return token ? { customerId: null, guestToken: token } : null;
 }

@@ -58,7 +58,7 @@ const i18n: Handle = async ({ event, resolve }) => {
 	}
 	const [, first] = event.url.pathname.split('/');
 	if (isLang(first) && event.cookies.get(LANG_COOKIE) !== first && event.request.method === 'GET') {
-		event.cookies.set(LANG_COOKIE, first, { path: '/', maxAge: 31536000, httpOnly: false, sameSite: 'lax', secure: true });
+		event.cookies.set(LANG_COOKIE, first, { path: '/', maxAge: 31536000, httpOnly: false, sameSite: 'lax' });
 	}
 	return paraglideMiddleware(event.request, () =>
 		resolve(event, {
@@ -111,7 +111,7 @@ const maintenance: Handle = async ({ event, resolve }) => {
 	if (!m.enabled || event.locals.admin) return resolve(event);
 	const bypass = event.url.searchParams.get('preview');
 	if (m.bypassToken && bypass === m.bypassToken) {
-		event.cookies.set('sk_preview', m.bypassToken, { path: '/', httpOnly: true, secure: true, sameSite: 'lax', maxAge: 14 * 86400 });
+		event.cookies.set('sk_preview', m.bypassToken, { path: '/', httpOnly: true, sameSite: 'lax', maxAge: 14 * 86400 });
 		return resolve(event);
 	}
 	if (m.bypassToken && event.cookies.get('sk_preview') === m.bypassToken) return resolve(event);

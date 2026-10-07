@@ -64,7 +64,7 @@ export function setSessionCookie(cookies: Cookies, userType: UserType, token: st
 	cookies.set(policy.cookie, token, {
 		path: '/',
 		httpOnly: true,
-		secure: true,
+		// `secure` defaults to true in SvelteKit except on http://localhost (dev, e2e).
 		sameSite: policy.sameSite,
 		expires: expiresAt
 	});
