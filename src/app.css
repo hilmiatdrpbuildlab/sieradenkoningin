@@ -1,0 +1,216 @@
+/* =============================================================================
+   app.css — global entry (import once in src/routes/+layout.svelte)
+   Tailwind CSS v4 (CSS-first config). Tokens live in tokens.css; @theme inline
+   exposes them as utilities (bg-bg, text-muted, font-display, shadow-md …)
+   while keeping the CSS variable as the runtime value, so [data-surface] and
+   [data-theme] re-maps automatically flow into every utility.
+   ============================================================================= */
+@import 'tailwindcss';
+@import './lib/styles/tokens.css';
+
+/* Self-host fonts (GDPR: Belgian/EU sites should not hot-link Google Fonts).
+   `npm i @fontsource-variable/playfair-display @fontsource-variable/montserrat @fontsource/allura`
+   then import them in +layout.svelte. Only Latin subsets; Allura 400 only. */
+
+@custom-variant admin (&:where([data-theme='admin'], [data-theme='admin'] *));
+@custom-variant inverse (&:where([data-surface='inverse'], [data-surface='inverse'] *));
+
+@theme inline {
+  /* Reset Tailwind's default palette so only brand colours exist */
+  --color-*: initial;
+
+  /* brand primitives */
+  --color-burgundy: var(--sk-burgundy);
+  --color-espresso: var(--sk-espresso);
+  --color-cognac: var(--sk-cognac);
+  --color-camel: var(--sk-camel);
+  --color-cream: var(--sk-cream);
+  --color-gold: var(--sk-gold);
+  --color-ruby: var(--sk-ruby);
+  --color-white: var(--sk-white);
+  --color-transparent: transparent;
+  --color-current: currentColor;
+
+  /* semantic (preferred in components) */
+  --color-bg: var(--ui-bg);
+  --color-surface: var(--ui-surface);
+  --color-sunken: var(--ui-surface-sunken);
+  --color-fg: var(--ui-text);
+  --color-strong: var(--ui-text-strong);
+  --color-muted: var(--ui-text-muted);
+  --color-subtle: var(--ui-text-subtle);
+  --color-accent: var(--ui-accent);
+  --color-ornament: var(--ui-ornament);
+  --color-action: var(--ui-action);
+  --color-action-hover: var(--ui-action-hover);
+  --color-on-action: var(--ui-action-text);
+  --color-line: var(--ui-border);
+  --color-line-strong: var(--ui-border-strong);
+  --color-sale: var(--ui-sale);
+  --color-success: var(--sk-success);
+  --color-success-bg: var(--sk-success-bg);
+  --color-warning: var(--sk-warning);
+  --color-warning-bg: var(--sk-warning-bg);
+  --color-danger: var(--sk-danger);
+  --color-danger-bg: var(--sk-danger-bg);
+  --color-info: var(--sk-info);
+  --color-info-bg: var(--sk-info-bg);
+
+  --font-display: var(--ff-display);
+  --font-script: var(--ff-script);
+  --font-body: var(--ff-body);
+  --font-sans: var(--ff-body);
+
+  --text-2xs: var(--fs-2xs);
+  --text-xs: var(--fs-xs);
+  --text-sm: var(--fs-sm);
+  --text-base: var(--fs-base);
+  --text-lg: var(--fs-lg);
+  --text-xl: var(--fs-xl);
+  --text-2xl: var(--fs-2xl);
+  --text-3xl: var(--fs-3xl);
+  --text-4xl: var(--fs-4xl);
+  --text-5xl: var(--fs-5xl);
+  --text-script: var(--fs-script);
+
+  --tracking-wide: var(--ls-wide);
+  --tracking-wider: var(--ls-wider);
+  --tracking-widest: var(--ls-widest);
+
+  --spacing: 0.25rem; /* Tailwind v4 multiplier → p-4 = 1rem, matches --space-4 */
+  --spacing-section: var(--section-y);
+  --spacing-section-sm: var(--section-y-sm);
+  --spacing-gutter: var(--gutter);
+  --spacing-header: var(--header-h);
+
+  --radius-xs: var(--r-xs);
+  --radius-sm: var(--r-sm);
+  --radius-md: var(--r-md);
+
+  --shadow-xs: var(--elev-xs);
+  --shadow-sm: var(--elev-sm);
+  --shadow-md: var(--elev-md);
+  --shadow-lg: var(--elev-lg);
+  --shadow-xl: var(--elev-xl);
+  --shadow-glow: var(--elev-glow);
+
+  --ease-lux: var(--motion-out);
+
+  --aspect-product: var(--ratio-product);
+  --aspect-editorial: var(--ratio-editorial);
+
+  /* Breakpoints (mobile-first). xs covers iPhone mini/SE → 375px */
+  --breakpoint-xs: 23.4375rem; /*  375 */
+  --breakpoint-sm: 40rem;      /*  640 large phones / landscape */
+  --breakpoint-md: 48rem;      /*  768 tablets portrait */
+  --breakpoint-lg: 64rem;      /* 1024 tablets landscape / small laptops */
+  --breakpoint-xl: 80rem;      /* 1280 desktop */
+  --breakpoint-2xl: 96rem;     /* 1536 large desktop */
+}
+
+/* ---------------------------------------------------------------------------
+   Base layer
+   ------------------------------------------------------------------------ */
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    scroll-padding-top: calc(var(--header-h) + var(--space-4));
+  }
+  body {
+    background: var(--ui-bg);
+    color: var(--ui-text);
+    font-family: var(--ff-body);
+    font-size: var(--fs-base);
+    line-height: var(--lh-normal);
+    font-weight: var(--fw-regular);
+  }
+  h1, h2, h3, .h1, .h2, .h3 {
+    font-family: var(--ff-display);
+    color: var(--ui-text-strong);
+    font-weight: var(--fw-regular);
+    line-height: var(--lh-tight);
+    letter-spacing: var(--ls-tight);
+    text-wrap: balance;
+  }
+  h1, .h1 { font-size: var(--fs-4xl); }
+  h2, .h2 { font-size: var(--fs-3xl); }
+  h3, .h3 { font-size: var(--fs-2xl); }
+  h4, .h4 { font-family: var(--ff-body); font-size: var(--fs-sm); font-weight: var(--fw-medium); letter-spacing: var(--ls-wider); text-transform: uppercase; }
+  p { text-wrap: pretty; }
+  a { color: inherit; text-underline-offset: 0.2em; text-decoration-thickness: 1px; }
+  ::selection { background: var(--sk-burgundy); color: var(--sk-cream); }
+  :focus-visible { outline: 2px solid var(--ui-border-focus); outline-offset: 3px; }
+  img { display: block; max-width: 100%; height: auto; }
+}
+
+/* ---------------------------------------------------------------------------
+   Brand typographic utilities
+   ------------------------------------------------------------------------ */
+@utility eyebrow {
+  font-family: var(--ff-body);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  letter-spacing: var(--ls-wider);
+  text-transform: uppercase;
+  color: var(--ui-text-muted);
+}
+@utility display {
+  font-family: var(--ff-display);
+  font-size: var(--fs-5xl);
+  line-height: 1.02;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+@utility script {
+  /* Allura: max ONE word/short phrase per view. Never body copy, never < 28px. */
+  font-family: var(--ff-script);
+  font-size: var(--fs-script);
+  line-height: 1;
+  color: var(--ui-ornament);
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+}
+@utility container-lux {
+  width: 100%;
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+@utility text-gold-foil {
+  background: var(--sk-gradient-gold);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+@utility hairline-divider {
+  /* —— ✦ —— ornamental divider from the brand board */
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  color: var(--ui-ornament);
+  &::before, &::after { content: ''; flex: 1; max-width: 4rem; height: 1px; background: currentColor; opacity: 0.6; }
+}
+
+/* ---------------------------------------------------------------------------
+   Metric-matched fallbacks (P4-07: no layout shift while web fonts swap in)
+   ------------------------------------------------------------------------ */
+@font-face {
+  font-family: 'Playfair Fallback';
+  src: local('Times New Roman'), local('Georgia');
+  size-adjust: 112%;
+  ascent-override: 96%;
+  descent-override: 22%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: 'Montserrat Fallback';
+  src: local('Arial'), local('Helvetica');
+  size-adjust: 113%;
+  ascent-override: 85%;
+  descent-override: 22%;
+  line-gap-override: 0%;
+}
+

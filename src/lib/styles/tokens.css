@@ -1,0 +1,259 @@
+/* =============================================================================
+   SIERADENKONINGIN — DESIGN TOKENS
+   Source of truth: brand_color_palette.md + brand_identity_guidelines.md
+   Three tiers:
+     1. Primitives   (--sk-*)        raw brand values. Never used in components.
+     2. Semantic     (--ui-*, …)  purpose-based. Components use ONLY these.
+     3. Contextual   ([data-surface], [data-theme="admin"]) re-map semantics.
+   Framework-agnostic: works with plain CSS, Svelte <style>, or Tailwind v4
+   (see src/app.css which maps these into @theme).
+   ============================================================================= */
+
+:root {
+  /* ---------------------------------------------------------------------------
+     1. PRIMITIVES — the five brand colours (exact hex from the brand board)
+     ------------------------------------------------------------------------ */
+  --sk-burgundy: #391617; /* Royal Burgundy  */
+  --sk-espresso: #492520; /* Dark Espresso   */
+  --sk-cognac: #875543;   /* Warm Cognac     */
+  --sk-camel: #b89985;    /* Soft Camel      */
+  --sk-cream: #ebe1d8;    /* Luxurious Cream */
+
+  /* Derived tints/shades — built only from the brand hues so nothing "foreign"
+     enters the palette. Needed for hover states, hairlines and admin density. */
+  --sk-burgundy-900: #240d0e; /* deepest — overlays, footer bottom bar        */
+  --sk-burgundy-700: #4a1d1f; /* hover on burgundy buttons                    */
+  --sk-cognac-700: #74463a;   /* AA-safe link hover on cream (6.1:1)          */
+  --sk-camel-300: #d9cbbf;    /* hairline borders on cream                    */
+  --sk-cream-50: #f6f1ec;     /* raised surface on cream (cards, admin panes) */
+  --sk-cream-100: #f1e9e2;    /* subtle fill / zebra rows                     */
+  --sk-white: #ffffff;
+
+  /* Material accents (from product inspiration: gold metal + ruby stones).
+     Decorative only — never for body text on light backgrounds.            */
+  --sk-gold: #c9a46a;          /* on burgundy: 6.9:1 ✓                        */
+  --sk-gold-light: #e6cfa1;
+  --sk-gold-deep: #9c7a45;
+  --sk-rosegold: #c99a8a;
+  --sk-ruby: #7a1f2b;          /* stone red — sale/“limited” badges (7.9:1 on cream) */
+  --sk-gradient-gold: linear-gradient(135deg, #9c7a45 0%, #e6cfa1 45%, #c9a46a 60%, #9c7a45 100%);
+
+  /* Functional (admin + form feedback). Muted & warm to stay on-brand.      */
+  --sk-success: #3f5e3a;  --sk-success-bg: #e3e8dc;
+  --sk-warning: #8a5a12;  --sk-warning-bg: #f3e6cc;
+  --sk-danger: #9b2c2c;   --sk-danger-bg: #f3dcd8;
+  --sk-info: #3d5568;     --sk-info-bg: #dde4ea;
+
+  /* ---------------------------------------------------------------------------
+     2. SEMANTIC — colour roles (light / cream context = default)
+     Contrast ratios measured against --ui-bg (#EBE1D8).
+     ------------------------------------------------------------------------ */
+  --ui-bg: var(--sk-cream);               /* page background              */
+  --ui-surface: var(--sk-cream-50);       /* cards, drawers, inputs       */
+  --ui-surface-sunken: var(--sk-cream-100);
+  --ui-surface-inverse: var(--sk-burgundy);
+
+  --ui-text: var(--sk-espresso);          /* 10.4:1 ✓ body + headings     */
+  --ui-text-strong: var(--sk-burgundy);   /* 12.5:1 ✓ display headings    */
+  --ui-text-muted: var(--sk-cognac);      /* 4.8:1 ✓ AA (normal text)     */
+  --ui-text-subtle: var(--sk-camel);      /* 2.0:1 ✗ DECORATIVE ONLY      */
+  --ui-text-inverse: var(--sk-cream);     /* on burgundy 12.5:1 ✓         */
+
+  --ui-accent: var(--sk-cognac);          /* links, icons, focus          */
+  --ui-accent-hover: var(--sk-cognac-700);
+  --ui-ornament: var(--sk-gold);          /* crowns, sparkles, dividers   */
+
+  --ui-action: var(--sk-burgundy);        /* primary CTA fill             */
+  --ui-action-hover: var(--sk-espresso);
+  --ui-action-text: var(--sk-cream);
+
+  --ui-border: var(--sk-camel-300);       /* hairlines                    */
+  --ui-border-strong: var(--sk-camel);    /* inputs, outlined buttons     */
+  --ui-border-focus: var(--sk-cognac);
+
+  --ui-sale: var(--sk-ruby);
+  --ui-overlay: rgb(36 13 14 / 0.55);     /* modal / drawer scrim         */
+  --ui-focus-ring: rgb(135 85 67 / 0.45);
+
+  /* ---------------------------------------------------------------------------
+     TYPOGRAPHY
+     ------------------------------------------------------------------------ */
+  --ff-serif: 'Playfair Display Variable', 'Playfair Display', 'Playfair Fallback', 'Times New Roman', Georgia, serif; /* brand serif, never re-mapped */
+  --ff-display: var(--ff-serif);
+  --ff-script: 'Allura', 'Snell Roundhand', cursive;
+  --ff-body: 'Montserrat Variable', 'Montserrat', 'Montserrat Fallback', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  /* Fluid scale (min @ 360px → max @ 1440px), ratio ≈ 1.25 → 1.333 */
+  --fs-2xs: 0.6875rem;                                   /* 11px — legal, overlines */
+  --fs-xs: 0.75rem;                                      /* 12px — labels, badges   */
+  --fs-sm: 0.875rem;                                     /* 14px — UI, meta         */
+  --fs-base: 1rem;                                       /* 16px — body             */
+  --fs-lg: clamp(1.0625rem, 1rem + 0.25vw, 1.25rem);     /* 17→20 lead              */
+  --fs-xl: clamp(1.25rem, 1.15rem + 0.45vw, 1.5rem);     /* 20→24 h4                */
+  --fs-2xl: clamp(1.5rem, 1.3rem + 0.8vw, 2rem);         /* 24→32 h3                */
+  --fs-3xl: clamp(1.875rem, 1.5rem + 1.5vw, 2.75rem);    /* 30→44 h2                */
+  --fs-4xl: clamp(2.25rem, 1.7rem + 2.4vw, 3.75rem);     /* 36→60 h1                */
+  --fs-5xl: clamp(2.75rem, 1.9rem + 3.8vw, 5.25rem);     /* 44→84 hero display      */
+  --fs-script: clamp(2rem, 1.6rem + 2vw, 3.5rem);        /* Allura accents          */
+
+  --lh-tight: 1.1;
+  --lh-snug: 1.25;
+  --lh-normal: 1.6;
+  --lh-relaxed: 1.75;
+
+  --ls-tight: -0.01em;
+  --ls-normal: 0;
+  --ls-wide: 0.08em;     /* buttons, nav                              */
+  --ls-wider: 0.18em;    /* overlines — "MORE THAN JEWELRY"           */
+  --ls-widest: 0.32em;   /* wordmark sub-line — "J E W E L R Y"       */
+
+  --fw-light: 300;
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+
+  /* ---------------------------------------------------------------------------
+     SPACING — 4px base, 8px rhythm. Section spacing is fluid for the
+     generous editorial whitespace of a luxury storefront.
+     ------------------------------------------------------------------------ */
+  --space-0: 0;
+  --space-1: 0.25rem;  /*  4 */
+  --space-2: 0.5rem;   /*  8 */
+  --space-3: 0.75rem;  /* 12 */
+  --space-4: 1rem;     /* 16 */
+  --space-5: 1.25rem;  /* 20 */
+  --space-6: 1.5rem;   /* 24 */
+  --space-8: 2rem;     /* 32 */
+  --space-10: 2.5rem;  /* 40 */
+  --space-12: 3rem;    /* 48 */
+  --space-16: 4rem;    /* 64 */
+  --space-20: 5rem;    /* 80 */
+  --space-24: 6rem;    /* 96 */
+  --space-32: 8rem;    /* 128 */
+
+  --section-y: clamp(4rem, 2.5rem + 6vw, 9rem);    /* 64 → 144 between sections */
+  --section-y-sm: clamp(2.5rem, 1.75rem + 3vw, 5rem);
+  --gutter: clamp(1rem, 0.5rem + 2.5vw, 3rem);     /* page side padding 16 → 48 */
+  --grid-gap: clamp(0.75rem, 0.5rem + 1vw, 1.5rem);
+
+  /* Layout */
+  --container-max: 90rem;      /* 1440 */
+  --container-text: 42rem;     /* 672 — readable measure */
+  --header-h: 4rem;            /* 64 mobile */
+  --announce-h: 2.25rem;       /* 36 promo bar */
+  --drawer-w: min(28rem, 100vw);
+
+  /* ---------------------------------------------------------------------------
+     SHAPE — luxury = crisp. Mostly square; radius reserved for chips/avatars.
+     ------------------------------------------------------------------------ */
+  --r-none: 0;
+  --r-xs: 2px;     /* buttons, inputs  */
+  --r-sm: 4px;     /* admin cards      */
+  --r-md: 8px;     /* admin panels     */
+  --r-full: 9999px;
+  --border-hairline: 1px;
+
+  /* ---------------------------------------------------------------------------
+     ELEVATION — warm, espresso-tinted, very soft. Never grey/black shadows.
+     ------------------------------------------------------------------------ */
+  --elev-xs: 0 1px 2px rgb(73 37 32 / 0.06);
+  --elev-sm: 0 2px 8px -2px rgb(73 37 32 / 0.10);
+  --elev-md: 0 8px 24px -8px rgb(73 37 32 / 0.16);
+  --elev-lg: 0 20px 48px -16px rgb(57 22 23 / 0.24);
+  --elev-xl: 0 32px 80px -24px rgb(36 13 14 / 0.35);   /* drawers, modals */
+  --elev-glow: 0 0 0 1px rgb(201 164 106 / 0.35), 0 0 24px rgb(201 164 106 / 0.18); /* gold halo */
+  --elev-focus: 0 0 0 3px var(--ui-focus-ring);
+
+  /* ---------------------------------------------------------------------------
+     MOTION — slow, silky, never bouncy.
+     ------------------------------------------------------------------------ */
+  --motion-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --motion-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-fast: 150ms;
+  --dur-base: 300ms;
+  --dur-slow: 600ms;
+  --dur-reveal: 900ms;
+
+  /* Z-index scale */
+  --z-base: 0;
+  --z-sticky: 20;
+  --z-header: 30;
+  --z-overlay: 40;
+  --z-drawer: 50;
+  --z-toast: 60;
+
+  /* Aspect ratios — product photography */
+  --ratio-product: 4 / 5;
+  --ratio-editorial: 3 / 4;
+  --ratio-hero: 16 / 9;
+  --ratio-square: 1 / 1;
+}
+
+@media (min-width: 64rem) {
+  :root { --header-h: 5rem; }
+}
+
+/* =============================================================================
+   3. CONTEXTUAL RE-MAPS
+   ============================================================================= */
+
+/* Dark "moody boutique" sections: hero, editorial bands, footer.
+   Usage: <section data-surface="inverse"> … </section>                     */
+[data-surface='inverse'] {
+  --ui-bg: var(--sk-burgundy);
+  --ui-surface: var(--sk-burgundy-700);
+  --ui-surface-sunken: var(--sk-burgundy-900);
+  --ui-text: var(--sk-cream);              /* 12.5:1 ✓ */
+  --ui-text-strong: var(--sk-cream);
+  --ui-text-muted: var(--sk-camel);        /* 6.1:1 ✓ (cognac fails here: 2.6) */
+  --ui-text-subtle: rgb(235 225 216 / 0.6);
+  --ui-accent: var(--sk-gold);             /* 6.9:1 ✓ */
+  --ui-accent-hover: var(--sk-gold-light);
+  --ui-action: var(--sk-cream);
+  --ui-action-hover: var(--sk-white);
+  --ui-action-text: var(--sk-burgundy);
+  --ui-border: rgb(235 225 216 / 0.18);
+  --ui-border-strong: rgb(235 225 216 / 0.5);
+  --ui-border-focus: var(--sk-gold);
+  --ui-focus-ring: rgb(201 164 106 / 0.55);
+  background-color: var(--ui-bg);
+  color: var(--ui-text);
+}
+
+/* Espresso variant (the "A DAILY REMINDER" tiles on the board) */
+[data-surface='espresso'] {
+  --ui-bg: var(--sk-espresso);
+  --ui-text: var(--sk-cream);
+  --ui-text-muted: var(--sk-camel);        /* 5.1:1 ✓ */
+  --ui-accent: var(--sk-gold);
+  --ui-border: rgb(235 225 216 / 0.18);
+  background-color: var(--ui-bg);
+  color: var(--ui-text);
+}
+
+/* ADMIN CMS — same DNA, tuned for density & long work sessions:
+   lighter surfaces, Montserrat for headings, tighter spacing, tabular figures. */
+[data-theme='admin'] {
+  --ui-bg: var(--sk-cream-100);
+  --ui-surface: var(--sk-white);
+  --ui-surface-sunken: var(--sk-cream-50);
+  --ui-border: #e4d9cf;
+  --ff-display: var(--ff-body);           /* no serif in data UIs */
+  --fs-base: 0.875rem;                      /* 14px base for density */
+  --r-xs: 4px;
+  --header-h: 3.5rem;
+  --sidebar-w: 16rem;
+  --sidebar-w-collapsed: 4.5rem;
+  --row-h: 3rem;
+  --row-h-compact: 2.5rem;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-fast: 0ms;
+    --dur-base: 0ms;
+    --dur-slow: 0ms;
+    --dur-reveal: 0ms;
+  }
+}

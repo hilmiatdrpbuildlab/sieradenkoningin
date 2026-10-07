@@ -1,0 +1,21 @@
+{
+	// Cloudflare Workers config (adapter-cloudflare 8). Secrets: `wrangler secret put <NAME>`
+	// (DATABASE_URL, SESSION_SECRET, TOTP_ENC_KEY, STORAGE_*, MOLLIE_API_KEY, SENDCLOUD_*, POSTMARK_TOKEN,
+	//  BREVO_*, TURNSTILE_SECRET, CRON_SECRET, SENTRY_DSN). See docs/RUNBOOK.md.
+	"$schema": "./node_modules/wrangler/config-schema.json",
+	"name": "sieradenkoningin",
+	"main": ".svelte-kit/cloudflare/_worker.js",
+	"compatibility_date": "2026-10-07",
+	"compatibility_flags": ["nodejs_compat"],
+	"assets": {
+		"binding": "ASSETS",
+		"directory": ".svelte-kit/cloudflare"
+	},
+	"observability": { "enabled": true },
+	// Cron triggers call the jobs endpoint (src/routes/api/jobs/+server.ts) via scripts/cron-worker (P5-04):
+	// every 5 min → release expired stock reservations + process queued jobs; daily → report + cleanup.
+	"triggers": { "crons": ["*/5 * * * *", "0 5 * * *"] },
+	"vars": {
+		"PUBLIC_SITE_URL": "https://example.invalid"
+	}
+}
