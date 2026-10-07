@@ -26,7 +26,7 @@ defineCustomServerStrategy('custom-path', {
 export const LANG_COOKIE = 'sk_lang';
 
 const isAdminPath = (p: string) => p === '/admin' || p.startsWith('/admin/');
-const ADMIN_PUBLIC = ['/admin/login', '/admin/invite'];
+const ADMIN_PUBLIC = ['/admin/login', '/admin/invite', '/admin/logout'];
 const isAdminPublic = (p: string) => ADMIN_PUBLIC.some((x) => p === x || p.startsWith(x + '/'));
 
 /** 1. Per-request services (Workers: no shared mutable module state between requests). */
@@ -76,7 +76,7 @@ const auth: Handle = async ({ event, resolve }) => {
 		const session = await readSession(db, event.cookies, 'admin');
 		if (session) {
 			const [user] = await db.select().from(adminUsers).where(eq(adminUsers.id, session.userId));
-			if (user?.active && (session.twoFactorVerified || isAdminPublic(path))) {
+			if (user?.active && session.twoFactorVerified) {
 				event.locals.admin = { id: user.id, name: user.name, email: user.email, role: user.role as Role, sessionId: session.id };
 			}
 		}

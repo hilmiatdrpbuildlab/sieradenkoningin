@@ -24,7 +24,8 @@
 		"db:migrate": "node --experimental-strip-types scripts/migrate.ts",
 		"db:seed": "node --experimental-strip-types scripts/seed.ts",
 		"db:studio": "drizzle-kit studio",
-		"pretest": "svelte-kit sync"
+		"pretest": "svelte-kit sync",
+		"admin:reset": "node --experimental-strip-types scripts/admin-reset.ts"
 	},
 	"devDependencies": {
 		"@axe-core/playwright": "^4.13.0",
@@ -37,6 +38,7 @@
 		"@tailwindcss/vite": "^4.3.3",
 		"@types/node": "^26.6.4",
 		"@types/pg": "^8.23.1",
+		"@types/qrcode": "^1.5.6",
 		"drizzle-kit": "^0.31.11",
 		"eslint": "^10.12.0",
 		"eslint-plugin-svelte": "^3.23.0",
@@ -62,6 +64,7 @@
 		"hash-wasm": "^4.12.0",
 		"pdf-lib": "^1.17.1",
 		"pg": "^8.23.1",
+		"qrcode": "^1.5.4",
 		"zod": "^4.6.5"
 	}
 }
