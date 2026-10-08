@@ -31,6 +31,11 @@ export const variables = defineEnvVars({
 	BREVO_API_KEY: { schema: optional },
 	BREVO_LIST_ID: { schema: optional },
 	TURNSTILE_SECRET: { description: 'Cloudflare Turnstile secret. Empty → always passes', schema: optional },
+	DEMO_SKIP_2FA: {
+		description:
+			'"1" skips admin 2FA — honoured ONLY together with PUBLIC_STAGING=1 (demo deploys). Never in production',
+		schema: optional
+	},
 	CRON_SECRET: { description: 'Bearer token for /api/jobs/* endpoints', schema: optional },
 	SENTRY_DSN: { schema: optional },
 	PUBLIC_SITE_URL: { public: true, schema: (v) => v || 'http://localhost:5173' },

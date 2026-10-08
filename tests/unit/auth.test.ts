@@ -95,3 +95,12 @@ describe('crypto helpers', () => {
 		expect(safeEqual(t, randomToken())).toBe(false);
 	});
 });
+
+describe('demo 2FA skip', () => {
+	it('only applies when both DEMO_SKIP_2FA and PUBLIC_STAGING are "1"', async () => {
+		const { skip2fa } = await import('#lib/server/auth/admin.ts');
+		expect(skip2fa('1', '1')).toBe(true);
+		expect(skip2fa('1', '')).toBe(false); // production: 2FA stays mandatory
+		expect(skip2fa('', '1')).toBe(false);
+	});
+});

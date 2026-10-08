@@ -19,6 +19,8 @@
 	"vars": {
 		"PUBLIC_SITE_URL": "https://sieradenkoningin.goosebumpsevents.workers.dev",
 		// Staging/demo deploy: noindex + staging notice. Remove (or set "") for the live launch.
-		"PUBLIC_STAGING": "1"
+		"PUBLIC_STAGING": "1",
+		// Demo only: admin login without 2FA. Ignored unless PUBLIC_STAGING=1. Remove for the live launch.
+		"DEMO_SKIP_2FA": "1"
 	}
 }

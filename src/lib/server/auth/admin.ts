@@ -71,3 +71,6 @@ export function safeNext(next: string | null) {
 		? next
 		: '/admin';
 }
+
+/** Demo deploys only: mandatory admin 2FA (§7.4) is skipped when BOTH DEMO_SKIP_2FA and PUBLIC_STAGING are "1". */
+export const skip2fa = (demoSkip: string, staging: string) => demoSkip === '1' && staging === '1';

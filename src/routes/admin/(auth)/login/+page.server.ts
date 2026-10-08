@@ -1,12 +1,14 @@
 import { fail, redirect } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
+import * as env from '$app/env/private';
+import { PUBLIC_STAGING } from '$app/env/public';
 import type { Actions, PageServerLoad } from './$types';
 import { adminUsers } from '#lib/server/db/schema.ts';
 import { verifyPassword } from '#lib/server/auth/password.ts';
 import { createSession, destroySession } from '#lib/server/auth/session.ts';
 import { rateLimit, resetRateLimit } from '#lib/server/auth/rate-limit.ts';
-import { LOGIN_LIMIT, safeNext } from '#lib/server/auth/admin.ts';
+import { LOGIN_LIMIT, safeNext, skip2fa } from '#lib/server/auth/admin.ts';
 import { audit } from '#lib/server/services/audit.ts';
 
 const Login = z.object({
@@ -45,9 +47,11 @@ export const actions: Actions = {
 
 		await resetRateLimit(locals.db, key);
 		await destroySession(locals.db, cookies, 'admin');
+		const skip = skip2fa(env.DEMO_SKIP_2FA, PUBLIC_STAGING);
 		await createSession(locals.db, cookies, 'admin', user.id, {
 			ip: locals.ip,
-			ua: request.headers.get('user-agent') ?? undefined
+			ua: request.headers.get('user-agent') ?? undefined,
+			twoFactorVerified: skip
 		});
 		await audit(
 			locals.db,
@@ -55,6 +59,7 @@ export const actions: Actions = {
 			{ action: 'login_password', entity: 'admin_user', entityId: user.id }
 		);
 
+		if (skip) redirect(303, safeNext(url.searchParams.get('next')));
 		const next = encodeURIComponent(safeNext(url.searchParams.get('next')));
 		redirect(303, user.totpEnabledAt ? `/admin/login/2fa?next=${next}` : `/admin/login/enrol?next=${next}`);
 	}
