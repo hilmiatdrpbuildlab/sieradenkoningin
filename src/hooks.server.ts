@@ -77,6 +77,8 @@ const i18n: Handle = async ({ event, resolve }) => {
 	return paraglideMiddleware(event.request, () =>
 		resolve(event, {
 			transformPageChunk: ({ html }) => html.replace('%lang%', htmlLang(event.locals.lang)),
+			// Preload the two text fonts (Latin, variable) so headlines don't swap visibly; measured neutral
+			// for Lighthouse FCP/LCP in P4-07, positive for real users.
 			preload: ({ type, path }) =>
 				type === 'js' || type === 'css' || (type === 'font' && /(playfair|montserrat).*latin-wght-normal/.test(path))
 		})

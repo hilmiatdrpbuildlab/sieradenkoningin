@@ -1,5 +1,6 @@
 /** Inventory adjustments (P1-04). Stock is never set blindly: every change is a delta with a reason. */
 import { z } from 'zod';
+import './common.ts'; // sets zod jitless mode (CSP: no eval)
 
 /** Reasons an admin may pick by hand ('sale' / 'reservation_release' are written by checkout only). */
 export const MANUAL_STOCK_REASONS = ['adjust', 'return', 'import'] as const;

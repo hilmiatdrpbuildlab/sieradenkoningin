@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import './common.ts'; // sets zod jitless mode (CSP: no eval)
 
 export const addToCartSchema = z.object({
 	variantId: z.string().uuid(),

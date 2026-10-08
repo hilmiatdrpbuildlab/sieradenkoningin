@@ -1,8 +1,4 @@
 import type { HandleClientError } from '@sveltejs/kit/hooks';
-import { z } from 'zod';
-
-// zod 4 JIT probes `new Function`; the CSP forbids eval (see #lib/schemas/common.ts).
-z.config({ jitless: true });
 import { defineCustomClientStrategy } from '#lib/paraglide/runtime.js';
 
 // The document language is fixed per page load (language switches are full reloads), so the

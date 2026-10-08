@@ -114,29 +114,32 @@
 </header>
 
 <Drawer bind:open={menuOpen} side="left" title={m.nav_menu()}>
-	<nav aria-label={m.nav_categories()}>
-		<ul class="mm-list">
-			{#each categories as item (item.key)}
-				<li>
-					<a href={item.href}>
-						<Icon name={item.icon as IconName} size={30} stroke={1} class="mm-ico" />
-						<span>{item.label}</span>
-						<Icon name="chevron-right" size={16} />
-					</a>
-				</li>
-			{/each}
-		</ul>
-		<ul class="mm-links">
-			{#each extraLinks as item (item.href)}<li><a href={item.href}>{item.label}</a></li>{/each}
-			<li><a href={L('/account')}><Icon name="user" size={18} /> {m.nav_account()}</a></li>
-			<li><a href={L('/wishlist')}><Icon name="heart" size={18} /> {m.nav_wishlist()}</a></li>
-			<li><a href={L('/search')} onclick={search}><Icon name="search" size={18} /> {m.nav_search()}</a></li>
-		</ul>
-	</nav>
-	<div class="mm-foot">
-		<LanguageSwitch {lang} variant="full" />
-		<p class="script" aria-hidden="true">{m.menu_signoff()}</p>
-	</div>
+	<!-- Contents render only while open (JS-only menu; keeps the initial DOM small, P4-07). -->
+	{#if menuOpen}
+		<nav aria-label={m.nav_categories()}>
+			<ul class="mm-list">
+				{#each categories as item (item.key)}
+					<li>
+						<a href={item.href}>
+							<Icon name={item.icon as IconName} size={30} stroke={1} class="mm-ico" />
+							<span>{item.label}</span>
+							<Icon name="chevron-right" size={16} />
+						</a>
+					</li>
+				{/each}
+			</ul>
+			<ul class="mm-links">
+				{#each extraLinks as item (item.href)}<li><a href={item.href}>{item.label}</a></li>{/each}
+				<li><a href={L('/account')}><Icon name="user" size={18} /> {m.nav_account()}</a></li>
+				<li><a href={L('/wishlist')}><Icon name="heart" size={18} /> {m.nav_wishlist()}</a></li>
+				<li><a href={L('/search')} onclick={search}><Icon name="search" size={18} /> {m.nav_search()}</a></li>
+			</ul>
+		</nav>
+		<div class="mm-foot">
+			<LanguageSwitch {lang} variant="full" />
+			<p class="script" aria-hidden="true">{m.menu_signoff()}</p>
+		</div>
+	{/if}
 </Drawer>
 
 <style>

@@ -27,6 +27,8 @@ export default defineConfig({
 		sveltekit({
 			// Build-time wrangler config: keeps the generated worker away from the deploy entry (cloudflare/worker.js).
 			adapter: adapter({ config: 'wrangler.build.jsonc' }),
+			// P4-07: inline all CSS — no render-blocking stylesheet requests on first visit (~6 kB Brotli per page).
+			inlineStyleThreshold: 64 * 1024,
 			// Built-in origin check off: it rejects Mollie webhooks (no Origin header). The same rule is
 			// re-applied in hooks.server.ts (src/lib/server/csrf.ts) with /api/webhooks/* exempted.
 			csrf: { trustedOrigins: ['*'] },

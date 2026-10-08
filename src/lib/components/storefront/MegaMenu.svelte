@@ -60,26 +60,28 @@
 		<Icon name="chevron-down" size={12} />
 	</button>
 	<div id="mega{uid}" class="panel" class:open hidden={!open}>
-		<div class="inner container-lux">
-			<ul class="cats">
-				{#each categories as c (c.key)}
-					<li>
-						<a href={c.href} onclick={() => (open = false)}>
-							<Icon name={c.icon as IconName} size={36} stroke={1} />
-							<span>{c.label}</span>
+		{#if open}
+			<div class="inner container-lux">
+				<ul class="cats">
+					{#each categories as c (c.key)}
+						<li>
+							<a href={c.href} onclick={() => (open = false)}>
+								<Icon name={c.icon as IconName} size={36} stroke={1} />
+								<span>{c.label}</span>
+							</a>
+						</li>
+					{/each}
+				</ul>
+				<div class="tiles">
+					{#each tiles as t (t.href)}
+						<a class="tile" href={t.href} onclick={() => (open = false)}>
+							<img src={t.image} alt="" loading="lazy" width="400" height="500" />
+							<span class="eyebrow">{t.label}</span>
 						</a>
-					</li>
-				{/each}
-			</ul>
-			<div class="tiles">
-				{#each tiles as t (t.href)}
-					<a class="tile" href={t.href} onclick={() => (open = false)}>
-						<img src={t.image} alt="" loading="lazy" width="400" height="500" />
-						<span class="eyebrow">{t.label}</span>
-					</a>
-				{/each}
+					{/each}
+				</div>
 			</div>
-		</div>
+		{/if}
 		<p class="sr-only">{m.nav_categories()}</p>
 	</div>
 </div>

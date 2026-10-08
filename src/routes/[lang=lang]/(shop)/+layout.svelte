@@ -5,10 +5,7 @@
 	import { PUBLIC_SITE_URL } from '$app/env/public';
 	import SiteHeader from '#lib/components/storefront/SiteHeader.svelte';
 	import SiteFooter from '#lib/components/storefront/SiteFooter.svelte';
-	import CartDrawer from '#lib/components/storefront/CartDrawer.svelte';
 	import Toast from '#lib/components/ui/Toast.svelte';
-	import SearchOverlay from '#lib/components/storefront/SearchOverlay.svelte';
-	import CookieConsent from '#lib/components/storefront/CookieConsent.svelte';
 	import Analytics from '#lib/components/storefront/Analytics.svelte';
 	import { setConsentContext } from '#lib/stores/consent.svelte.ts';
 	import { createAnalytics, setAnalyticsContext } from '#lib/analytics.ts';
@@ -100,10 +97,23 @@
 	showNewsletter={!isHome}
 	oncookies={() => consent.openSettings()}
 />
-<CartDrawer paymentMethods={data.paymentMethods} />
+<!-- Dialogs are code-split and only loaded when opened (P4-07: keeps the initial JS under budget). -->
+{#if cart.open}
+	{#await import('#lib/components/storefront/CartDrawer.svelte') then { default: CartDrawer }}
+		<CartDrawer paymentMethods={data.paymentMethods} />
+	{/await}
+{/if}
 <Toast />
-<SearchOverlay bind:open={searchOpen} lang={data.lang} />
-<CookieConsent lang={data.lang} />
+{#if searchOpen}
+	{#await import('#lib/components/storefront/SearchOverlay.svelte') then { default: SearchOverlay }}
+		<SearchOverlay bind:open={searchOpen} lang={data.lang} />
+	{/await}
+{/if}
+{#if consent.open}
+	{#await import('#lib/components/storefront/CookieConsent.svelte') then { default: CookieConsent }}
+		<CookieConsent lang={data.lang} />
+	{/await}
+{/if}
 <Analytics settings={data.analytics} />
 
 <style>
