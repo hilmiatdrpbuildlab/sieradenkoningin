@@ -25,7 +25,8 @@
 		"db:seed": "node --experimental-strip-types scripts/seed.ts",
 		"db:studio": "drizzle-kit studio",
 		"pretest": "svelte-kit sync",
-		"admin:reset": "node --experimental-strip-types scripts/admin-reset.ts"
+		"admin:reset": "node --experimental-strip-types scripts/admin-reset.ts",
+		"bench:search": "node --experimental-strip-types scripts/bench-search.ts"
 	},
 	"devDependencies": {
 		"@axe-core/playwright": "^4.13.0",
