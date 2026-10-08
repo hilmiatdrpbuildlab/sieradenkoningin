@@ -67,6 +67,7 @@ were established while building, which the plan does not spell out.
   allocated with `allocate()`, reconciles to the cent). Discounts: `services/discounts.ts`.
 
 ## Cloudflare build vs deploy
+
 - `vite.config.ts` → `adapter({ config: 'wrangler.build.jsonc' })`: the adapter writes the generated worker to
   `.svelte-kit/cloudflare/_worker.js` (it overwrites whatever file `main` points to).
 - `wrangler.jsonc` (deploy) has `main: cloudflare/worker.js`, a hand-written wrapper that imports the generated
