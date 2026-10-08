@@ -17,6 +17,9 @@ Beheer: **https://‹jouw-domein›/admin** · Schermafbeeldingen staan in `docs
 **Toestel kwijt en geen herstelcodes meer?** Een andere eigenaar kan bij *Gebruikers* op “2FA resetten” klikken. Ben je de enige eigenaar, zie §2.6 (technische reset).
 
 ### 2. Rollen en gebruikers (*Instellingen → Gebruikers*)
+
+![gebruikers](runbook/17-gebruikers.png)
+![auditlog](runbook/18-auditlog.png)
 | Rol | Mag |
 |---|---|
 | Eigenaar | Alles, inclusief instellingen, gebruikers, auditlog, rapporten, terugbetalingen en klantgegevens verwijderen |
@@ -29,6 +32,11 @@ Beheer: **https://‹jouw-domein›/admin** · Schermafbeeldingen staan in `docs
 - **Auditlog:** elke wijziging in het beheer staat in *Instellingen → Auditlog* (wie, wat, wanneer, welke velden).
 
 ### 3. Producten toevoegen (*Catalogus → Producten → Nieuw product*)
+
+![producten](runbook/04-producten.png)
+![product bewerken](runbook/05-product-bewerken.png)
+![media](runbook/08-media.png)
+![import](runbook/07-import.png)
 1. **Naam, omschrijving, “Met betekenis”, onderhoud en materiaal** in het Nederlands; de Franse tab is aanbevolen (een oranje markering toont ontbrekende vertalingen).
 2. **Categorie, prijs** (incl. 21% btw, bv. `49,95`) en eventueel een **oude prijs** voor solden.
    - Bij een prijsverlaging toont de winkel automatisch de wettelijk verplichte “laagste prijs van de voorbije 30 dagen”.
@@ -43,6 +51,8 @@ Handig: **Dupliceren** (voor een gelijkaardig stuk), **Archiveren** (uit de wink
 **Veel producten tegelijk?** *Catalogus → Import / export*: download het CSV-sjabloon, vul het in Excel in, upload → je ziet eerst een **proefrun** (wat nieuw is, wat wijzigt, welke rijen fouten bevatten) → bevestig.
 
 ### 4. Voorraad (*Catalogus → Voorraad*)
+
+![voorraad](runbook/06-voorraad.png)
 - Filter op “lage voorraad” of “uitverkocht”.
 - Pas de voorraad aan met + of −, **altijd met een reden** (bv. “telling”, “beschadigd”). Elke wijziging komt in de voorraadhistoriek.
 - Voorraad kan nooit negatief worden.
@@ -50,6 +60,9 @@ Handig: **Dupliceren** (voor een gelijkaardig stuk), **Archiveren** (uit de wink
 - Klanten die op “Mail me” klikten bij een uitverkochte variant, krijgen automatisch één e-mail zodra er weer voorraad is.
 
 ### 5. Bestellingen verwerken (*Verkoop → Bestellingen*)
+
+![bestellingen](runbook/02-bestellingen.png)
+![bestelling detail](runbook/03-bestelling-detail.png)
 Statussen: **In afwachting** (nog niet betaald) → **Betaald** → **In behandeling** → **Verzonden** → **Geleverd**. Daarnaast: Geannuleerd / Terugbetaald.
 
 **Dagelijkse routine**
@@ -76,15 +89,22 @@ Je kan nooit meer terugbetalen dan er betaald werd.
 - Twijfel over de status? Kijk in je **Mollie-dashboard** bij de betaling met hetzelfde bestelnummer. De winkel vraagt de status altijd zelf op bij Mollie.
 
 ### 8. Klanten (*Verkoop → Klanten*)
+
+![klanten](runbook/09-klanten.png)
 - Zoeken op naam, e-mail of telefoon; per klant: bestellingen, adressen, interne notities en tags (bv. `vip`).
 - **Privacyverzoek (GDPR):** eigenaar → *Gegevens exporteren* (JSON-bestand) of *Account verwijderen* (onomkeerbaar; bestellingen blijven voor de boekhouding bewaard, zonder persoonsgegevens die niet op de factuur moeten). Klanten kunnen dit ook zelf in hun account.
 
 ### 9. Kortingscodes (*Verkoop → Kortingscodes*)
+
+![kortingscodes](runbook/10-kortingscodes.png)
 - Code (bv. `VALENTIJN15`), type (percentage, vast bedrag, gratis verzending), eventueel minimum bestelbedrag, geldigheid (Belgische tijd), maximaal aantal keer en per klant.
 - Eén code per bestelling. Gebruik telt pas na betaling.
 - Een gebruikte code kan je niet verwijderen (boekhouding), wel deactiveren.
 
 ### 10. De homepage en pagina's aanpassen (*Content → Pagina's*)
+
+![pagina home](runbook/11-pagina-home.png)
+![menus](runbook/12-menus.png)
 - Open **Home** (of een andere pagina). De pagina bestaat uit **blokken**: hero, categorieën, productrij, quote, editoriaal beeld + tekst, banner, tekst, FAQ, nieuwsbrief, maattabel …
 - **Toevoegen:** “Blok toevoegen”. **Volgorde:** slepen of de pijltjes ↑ ↓. **Verbergen:** het oogje.
 - **Plannen:** stel “zichtbaar vanaf / tot” in (bv. een Valentijn-hero van 1 tot 14 februari). De wissel gebeurt automatisch op dat moment.
@@ -93,9 +113,14 @@ Je kan nooit meer terugbetalen dan er betaald werd.
 - *Content → Menu's*: hoofdmenu en de kolommen onderaan de site. *Content → FAQ*: vragen en antwoorden per groep. *Content → Aankondiging*: de balk bovenaan de site (met optionele start- en einddatum).
 
 ### 11. Juridische teksten (*Instellingen → Juridisch*)
+
+![juridisch](runbook/16-juridisch.png)
 Plak hier de door je jurist nagelezen teksten (voorwaarden, privacy, cookies, herroeping, toegankelijkheid) in NL en FR en vink **“nagelezen door jurist”** aan. Tot dan tonen die pagina's een duidelijke plaatshouder. De **wettelijke vermeldingen** worden automatisch gevuld met de gegevens uit *Instellingen → Winkel* (naam, adres, KBO, btw).
 
 ### 12. Instellingen
+
+![instellingen winkel](runbook/14-instellingen-winkel.png)
+![verzending](runbook/15-verzending.png)
 - **Winkel:** bedrijfsgegevens (verschijnen op facturen), retourtermijn (min. 14 dagen), **onderhoudsmodus**.
 - **Verzending:** gratis verzending vanaf (standaard € 50), uiterste besteltijd voor “morgen in huis”, tarieven per zone. De zone Nederland & Luxemburg staat klaar maar is uitgeschakeld.
 - **Betalingen:** welke betaalmethoden de kassa toont (Bancontact staat altijd eerst). Activeer dezelfde methoden in je Mollie-dashboard.
@@ -106,6 +131,9 @@ Plak hier de door je jurist nagelezen teksten (voorwaarden, privacy, cookies, he
 *Instellingen → Winkel → Winkel tijdelijk sluiten*. Bezoekers zien een nette onderhoudspagina; ingelogde beheerders zien de winkel gewoon. Met de **preview-link** (zelfde pagina) kunnen genodigden de winkel toch bekijken (soft launch). Zet het vinkje uit om de winkel te heropenen.
 
 ### 14. Rapporten en dashboard
+
+![dashboard](runbook/01-dashboard.png)
+![rapporten](runbook/13-rapporten.png)
 - **Dashboard:** netto-omzet, bestellingen, gemiddelde orderwaarde en terugbetalingen (vandaag / 7 / 30 dagen, met vergelijking), te verwerken bestellingen, lage voorraad, topproducten.
 - **Rapporten:** kies een periode → omzet per dag, per categorie, per product, **btw-overzicht per maand** (voor je boekhouder) en kortingscodes. Elk overzicht kan je als **CSV** (Excel) downloaden.
 

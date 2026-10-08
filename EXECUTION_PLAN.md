@@ -357,25 +357,25 @@ Do, Accept and Verify.
 
 ### 9.0 Phase 0 — Foundation (weeks 1–2)
 
-- [ ] **P0-01 · Scaffold SvelteKit 3 app at repo root** — DEV · Depends: — · 0.5d
+- [x] **P0-01 · Scaffold SvelteKit 3 app at repo root** — DEV · Depends: — · 0.5d
   - Files: `package.json`, `vite.config.ts`, `tsconfig.json`, `wrangler.jsonc`, `src/app.html`, `.gitignore`, `.nvmrc` (Node 22), `.env.example`
   - Do: init a SvelteKit 3 + TS project; add `#lib` imports; `sveltekit({ adapter: adapter() })` + `@tailwindcss/vite`; `<html lang="%lang%">` placeholder for i18n; wrangler compatibility date = today, `nodejs_compat` flag.
   - Accept: [ ] `npm run build` succeeds · [ ] `npm run dev` serves `/` · [ ] no `svelte.config.js` exists
   - Verify: `npm run build && npm run check`
 
-- [ ] **P0-02 · Integrate the existing design system** — DEV · Depends: P0-01 · 0.5d
+- [x] **P0-02 · Integrate the existing design system** — DEV · Depends: P0-01 · 0.5d
   - Files: move `design-system/src/**` → `src/**` (merge, don't overwrite P0-01 files blindly); `design-system/DESIGN_SYSTEM.md` → `docs/DESIGN_SYSTEM.md`; `design-system/previews` → `docs/previews`; `design-system/assets/icons` → `static/brand/icons`; root `brand_*.md|jpg` → `docs/brand/`
   - Do: install `@fontsource-variable/playfair-display @fontsource-variable/montserrat @fontsource/allura`, import them in the root layout; delete the emptied `design-system/` folder only after the build passes.
   - Accept: [ ] all existing components compile · [ ] `svelte-check` 0 errors · [ ] a temporary `/dev/kitchen-sink` route renders Button, Icon (all 6 category icons), ProductCard, CartDrawer, DataTable, StatCard (route guarded to `dev` only)
   - Verify: `npm run check && npm run build`
 
-- [ ] **P0-03 · Tooling & scripts** — DEV · Depends: P0-01 · 0.5d
+- [x] **P0-03 · Tooling & scripts** — DEV · Depends: P0-01 · 0.5d
   - Files: `eslint.config.js`, `.prettierrc`, `vitest.config.ts`, `playwright.config.ts`, `package.json` scripts
   - Scripts: `dev, build, preview, check, lint, format, test, test:e2e, db:generate, db:migrate, db:seed, db:studio`.
   - Playwright projects: `chromium-desktop` (1440), `webkit-mobile` (390), `chromium-tablet` (768). Chromium path: `/opt/pw-browsers/chromium` if present, otherwise default.
   - Accept: [ ] one passing sample unit test and one passing e2e smoke test (`/` returns 200)
 
-- [ ] **P0-04 · CI pipeline** — DEV · Depends: P0-03 · 0.5d
+- [x] **P0-04 · CI pipeline** — DEV · Depends: P0-03 · 0.5d
   - Files: `.github/workflows/ci.yml`
   - Do: on PR → install, lint, check, unit, build; on preview deploy → e2e against the preview URL. Cache npm.
   - Accept: [ ] workflow file valid (`actionlint` if available) · [ ] documents required repo secrets in comments
@@ -385,32 +385,32 @@ Do, Accept and Verify.
   - Secrets: `DATABASE_URL`, `STORAGE_*`, `PUBLIC_MEDIA_URL`, `SESSION_SECRET`, `TOTP_ENC_KEY`.
   - **Agent fallback until done:** local Postgres via `docker compose` (or a Neon free branch if provided), storage `mock` adapter writing to `.data/uploads`.
 
-- [ ] **P0-06 · Full database schema, migration, seed** — DEV · Depends: P0-02 · 2d
+- [x] **P0-06 · Full database schema, migration, seed** — DEV · Depends: P0-02 · 2d
   - Files: `src/lib/server/db/schema.ts`, `drizzle.config.ts`, `drizzle/*`, `src/lib/server/db/seed.ts`
   - Do: implement every table in §6 with indexes (FKs, `products(category_id,status)`, `orders(status,placed_at)`, trigram index on product names), sequences for order and invoice numbers, extensions. Seed: 6 categories (NL/FR names + slugs), settings defaults (D3, D4, D9), shipping zone BE, one owner admin (email from env `SEED_ADMIN_EMAIL`, random password printed once), 24 `DEMO` products (4 per category) with placeholder images from `static/brand/placeholder.svg`.
   - Accept: [ ] `db:migrate` on an empty DB succeeds · [ ] `db:seed` is idempotent · [ ] unit test asserts that money columns are integers
   - Verify: `npm run db:migrate && npm run db:seed && npm run test`
 
-- [ ] **P0-07 · i18n & localized routing** — DEV · Depends: P0-02 · 1.5d
+- [x] **P0-07 · i18n & localized routing** — DEV · Depends: P0-02 · 1.5d
   - Files: `project.inlang/`, `messages/{nl,fr}.json`, `src/lib/i18n/*`, `src/params/lang.ts`, `src/hooks.ts`
   - Do: Paraglide setup; `[lang=lang]` matcher (`nl|fr`); localized path map (§7.1); `localizeHref(path, lang)`; language switcher in the header that keeps the current page; `hreflang` + `x-default`; root `/` → negotiated redirect (302) with a cookie remembering the choice.
   - Accept: [ ] `/nl/ringen` and `/fr/bagues` resolve to the same route · [ ] switcher round-trips on 5 sample routes · [ ] unit tests for the path map in both directions
 
-- [ ] **P0-08 · Layouts: shop + admin shells** — DEV · Depends: P0-07 · 1.5d
+- [x] **P0-08 · Layouts: shop + admin shells** — DEV · Depends: P0-07 · 1.5d
   - Files: `src/routes/[lang=lang]/(shop)/+layout.{svelte,server.ts}`, `src/routes/admin/+layout.{svelte,server.ts}`, new `storefront/SiteFooter.svelte`, `storefront/MegaMenu.svelte`, `admin/AdminTopbar.svelte`
   - Do: shop layout = announcement (from `settings`) + SiteHeader (overlay on home only) + slot + SiteFooter + CartDrawer + Toast region. Footer per DESIGN_SYSTEM §2.1 (newsletter form stub, 4 link columns from `menus`, payment marks with Bancontact first, language switch, legal links). Admin layout = `data-theme="admin"` grid with AdminSidebar (collapse cookie) + AdminTopbar (mobile menu button, breadcrumbs, "Bekijk winkel").
   - Accept: [ ] shells render at 390/768/1440 · [ ] mobile menu, mega menu and footer accordion are keyboard-operable
 
-- [ ] **P0-09 · Admin authentication, 2FA, roles, audit** — DEV · Depends: P0-06 · 2d
+- [x] **P0-09 · Admin authentication, 2FA, roles, audit** — DEV · Depends: P0-06 · 2d
   - Files: `src/lib/server/auth/{password,session,totp,guard}.ts`, `src/lib/server/services/audit.ts`, `src/routes/admin/login/*`, `src/hooks.server.ts`
   - Do: password hashing with Argon2id via a WASM lib (e.g. `hash-wasm`). Measure CPU time on Workers; if over the plan limit, switch to scrypt with OWASP parameters and document why. Sessions: random 32-byte token, store SHA-256 hash, cookie `sk_admin` HttpOnly/Secure/SameSite=Strict, 12h idle and 7d absolute expiry. TOTP 2FA mandatory (enrol on first login, encrypted secret, recovery codes). Login rate limit: 5 attempts per 15 min per IP+email. `can()` permission map (§7.4); extend the `App.Locals.admin.role` union in `app.d.ts` with `support`. `audit()` helper. Replace the `getAdminSession` placeholder.
   - Accept: [ ] unit tests: hash/verify, session expiry, permission matrix, TOTP window · [ ] e2e: login → 2FA enrol → dashboard → logout · [ ] unauthenticated `/admin/*` redirects; `/admin/api/*` returns 401
 
-- [ ] **P0-10 · Security headers, errors, maintenance** — DEV · Depends: P0-08 · 0.5d
+- [x] **P0-10 · Security headers, errors, maintenance** — DEV · Depends: P0-08 · 0.5d
   - Do: CSP (self + Mollie + Cloudflare Turnstile + analytics hosts), HSTS, Referrer-Policy, Permissions-Policy; branded `+error.svelte` (404/500, NL/FR); maintenance mode from `settings.maintenance` (admins bypass) returning 503 with `Retry-After`.
   - Accept: [ ] headers asserted in an e2e test · [ ] maintenance page renders and admins bypass it
 
-- [ ] **P0-11 · Remaining UI primitives** — DEV · Depends: P0-02 · 2d
+- [x] **P0-11 · Remaining UI primitives** — DEV · Depends: P0-02 · 2d
   - Files: `src/lib/components/ui/{Field,Input,Select,Checkbox,Radio,Textarea,Dialog,Drawer,Toast,Skeleton,Tooltip,Badge,Tabs,Accordion,Breadcrumbs,Pagination,EmptyState,ConfirmDialog,QuantityStepper}.svelte`
   - Do: follow DESIGN_SYSTEM §2.4. Storefront inputs are 48px tall with a bottom border; admin inputs are 40px with a full border (via `[data-theme=admin]`). Field wires label, hint and error with `aria-describedby`. Dialog and Drawer use native `<dialog>`.
   - Accept: [ ] each primitive rendered on the kitchen-sink route · [ ] axe shows no violations on the kitchen sink
@@ -419,49 +419,49 @@ Do, Accept and Verify.
 
 ### 9.1 Phase 1 — Catalog & products (weeks 3–5)
 
-- [ ] **P1-01 · Admin product list & product form** — DEV · Depends: P0-09, P0-11 · 3d
+- [x] **P1-01 · Admin product list & product form** — DEV · Depends: P0-09, P0-11 · 3d
   - Files: `src/routes/admin/products/**`, `src/lib/components/admin/{ProductForm,VariantTable,I18nTabs,SeoFields,SaveBar}.svelte`, `src/lib/schemas/product.ts`, `src/lib/server/services/catalog.ts`
   - Do: list = DataTable with search, status/category filters, server-side sort and paging. Form = NL/FR tabs (name, description, meaning), category, material, price/compare-at in €, status, featured, engravable, GPSR fields, SEO (title, description, slug with auto-slugify), ImageUploader (alt text NL required, FR optional), variant matrix (metal × size → SKU, stock, price override). Sticky save bar with unsaved-change detection. Duplicate and archive actions. Writing `price` appends to `price_history`. Activating a product requires ≥ 1 image with alt text and ≥ 1 variant.
   - Accept: [ ] create/edit/duplicate/archive work without JS (progressive enhancement) · [ ] validation errors show inline in NL · [ ] audit rows written · [ ] e2e `admin-product.spec.ts`
 
-- [ ] **P1-02 · Admin categories, collections, relations** — DEV · Depends: P1-01 · 1.5d
+- [x] **P1-02 · Admin categories, collections, relations** — DEV · Depends: P1-01 · 1.5d
   - Do: category edit (names, slugs per language, description, SEO, order). Collections: manual (drag order) or rule-based (`{category?, tag?, new_within_days?, on_sale?, price_lt?}`). Product relations editor (related, complete-the-set) on the product form.
   - Accept: [ ] rule collection "Nieuw" auto-lists products created in the last 30 days · [ ] unit tests for the rule evaluator
 
-- [ ] **P1-03 · Media library** — DEV · Depends: P1-01 · 1d
+- [x] **P1-03 · Media library** — DEV · Depends: P1-01 · 1d
   - Do: grid of `media` with search, alt text editing, usage count, delete only when unused (deletion queued to storage).
   - Accept: [ ] images uploaded in the product form appear in the library · [ ] used media cannot be deleted
 
-- [ ] **P1-04 · Inventory & CSV import/export** — DEV · Depends: P1-01 · 1.5d
+- [x] **P1-04 · Inventory & CSV import/export** — DEV · Depends: P1-01 · 1.5d
   - Do: `/admin/inventory` = variant-level table with inline stock adjust (reason required → `stock_movements`), low-stock filter. `/admin/import`: CSV template download; dry-run preview showing creates/updates/errors; commit. Export products+variants+stock CSV.
   - Accept: [ ] importing 50 rows dry-runs and commits with per-row errors · [ ] stock never goes negative (DB check constraint)
 
-- [ ] **P1-05 · Image delivery helper** — DEV · Depends: P0-06 · 0.5d
+- [x] **P1-05 · Image delivery helper** — DEV · Depends: P0-06 · 0.5d
   - Files: `src/lib/utils/images.ts`
   - Do: `srcset(key, widths=[400,800,1200,1600])` producing Cloudflare Image Transformation URLs (`/cdn-cgi/image/width=…,format=auto,quality=82/<PUBLIC_MEDIA_URL>/<key>`); a dev fallback serves originals.
   - Accept: [ ] unit tests · [ ] ProductCard and Hero use it
 
-- [ ] **P1-06 · Home page (static block config for now)** — DEV · Depends: P0-08, P1-05 · 2d
+- [x] **P1-06 · Home page (static block config for now)** — DEV · Depends: P0-08, P1-05 · 2d
   - Files: `src/routes/[lang=lang]/(shop)/+page.{svelte,server.ts}`, `src/lib/components/blocks/*`, `storefront/{CategoryStrip,ProductRail,QuoteBand,EditorialSplit,UspBar,NewsletterForm}.svelte`, `src/lib/actions/reveal.ts`
   - Do: render blocks from a typed array (the same shape as `page_blocks`, so P4-01 only swaps the source): Hero (overlay) → USP bar → CategoryStrip (6 HD icons, 72px) → rail "Nieuw" → QuoteBand → EditorialSplit "Met betekenis" → rail "Bestsellers" → newsletter. `use:reveal` respects reduced motion.
   - Accept: [ ] LCP image has `fetchpriority=high` · [ ] matches DESIGN_SYSTEM spacing tokens · [ ] NL/FR
 
-- [ ] **P1-07 · Category & collection listing** — DEV · Depends: P1-02, P1-06 · 2.5d
+- [x] **P1-07 · Category & collection listing** — DEV · Depends: P1-02, P1-06 · 2.5d
   - Files: `[lang=lang]/(shop)/c/[category]/*`, `collections/[slug]/*`, `storefront/{ProductGrid,FilterBar,FilterSheet,SortSelect}.svelte`, `services/catalog.ts`
   - Do: URL-param filters (metal, stone colour tag, price range, size, in stock), sort (featured, new, price ↑↓), "load more" (24 per page, real `?page=` links for SEO), breadcrumb, category intro text, empty state. On mobile, filters open in a bottom sheet with an applied-count badge. Canonical URL without filter params. Cache headers per DESIGN_SYSTEM §4.6.
   - Accept: [ ] filters combine correctly (unit tests on the query builder) · [ ] back button restores state · [ ] e2e `listing.spec.ts`
 
-- [ ] **P1-08 · Product detail page (PDP)** — DEV · Depends: P1-07 · 3d
+- [x] **P1-08 · Product detail page (PDP)** — DEV · Depends: P1-07 · 3d
   - Files: `[lang=lang]/(shop)/p/[slug]/*`, `storefront/{PdpGallery,BuyBox,VariantPicker,SizeGuideDialog,PdpAccordions,RecentlyViewed}.svelte`
   - Do: gallery (desktop thumbnails + zoom; mobile scroll-snap carousel with dots). BuyBox: name, price incl. btw, sale price + lowest-30-day price note when on sale (Omnibus), metal radio group, size select with maatgids dialog, quantity, add-to-cart (disabled until P2-01; then wired), stock messaging ("Nog 2 op voorraad"), delivery promise from settings. Accordions: Details, Met betekenis, Verzending & retour, Onderhoud. Rails: complete-the-set, related, recently viewed (localStorage, try/catch). JSON-LD Product/Offer/BreadcrumbList. Variant reflected in `?variant=`.
   - Accept: [ ] switching variant updates price, stock and URL without reload · [ ] structured data validates (schema-dts types) · [ ] e2e `pdp.spec.ts`
 
-- [ ] **P1-09 · Search** — DEV · Depends: P1-07 · 2d
+- [x] **P1-09 · Search** — DEV · Depends: P1-07 · 2d
   - Files: `services/search.ts`, `storefront/SearchOverlay.svelte`, `[lang=lang]/(shop)/search/*`
   - Do: generated `tsvector` columns per language + `pg_trgm` fuzzy fallback + `unaccent`. Overlay: debounced 200ms query endpoint returning 6 products + matching categories, popular searches from settings. Results page reuses ProductGrid + filters. "Geen resultaten" state suggests categories.
   - Accept: [ ] "klavr" finds "Klaver" (typo tolerance) · [ ] FR query "trèfle" works with/without accent · [ ] p95 query < 150ms on 1,000 seeded products
 
-- [ ] **P1-10 · Wishlist (guest + account-ready)** — DEV · Depends: P1-08 · 1d
+- [x] **P1-10 · Wishlist (guest + account-ready)** — DEV · Depends: P1-08 · 1d
   - Do: guest token cookie (`sk_wl`, 1 year), add/remove from ProductCard and PDP, wishlist page, share link (read-only token). Merge-on-login hook prepared for P3-01.
   - Accept: [ ] works without an account · [ ] heart state is consistent across pages
 
@@ -472,44 +472,44 @@ Do, Accept and Verify.
 
 ### 9.2 Phase 2 — Cart, checkout, payment (weeks 6–8)
 
-- [ ] **P2-01 · Server cart & API** — DEV · Depends: P1-08 · 2d
+- [x] **P2-01 · Server cart & API** — DEV · Depends: P1-08 · 2d
   - Files: `services/cart.ts`, `src/routes/api/cart/+server.ts`, `stores/cart.svelte.ts` (wire up), shop `+layout.server.ts`
   - Do: cart identified by cookie `sk_cart`; prices **always recomputed server-side** from variants (never trust the client). API: GET, POST `{variantId, qty, giftWrap?, engraving?}`, PATCH `{lineId, qty}`, DELETE. Quantity capped by available stock (stock − active reservations). Returns `{lines, subtotal, discount, shippingEstimate, toFreeShipping}`. Add-to-cart opens the drawer and shows a toast.
   - Accept: [ ] unit tests: totals, caps, rounding · [ ] e2e: add from PDP and card, change quantity in drawer, persists on reload
 
-- [ ] **P2-02 · Cart page, promo codes, free-shipping bar** — DEV · Depends: P2-01 · 1.5d
+- [x] **P2-02 · Cart page, promo codes, free-shipping bar** — DEV · Depends: P2-01 · 1.5d
   - Do: full cart page (same data as the drawer) with upsell rail. Discount engine in `services/discounts.ts` (percent, amount, free shipping, min subtotal, date window, usage limits, per-customer limit). Promo field in drawer and page. Free-shipping threshold from `settings`.
   - Accept: [ ] unit tests cover every discount rule and stacking (max 1 code) · [ ] invalid or expired codes show a clear NL/FR message
 
-- [ ] **P2-03 · Admin discounts & shipping settings** — DEV · Depends: P2-02, P0-09 · 1.5d
+- [x] **P2-03 · Admin discounts & shipping settings** — DEV · Depends: P2-02, P0-09 · 1.5d
   - Do: `/admin/discounts` CRUD with usage stats. `/admin/settings/shipping`: zones, methods (home, pickup), prices, free-from threshold, cut-off time for "morgen in huis".
   - Accept: [ ] changes reflect in cart totals immediately · [ ] audit logged
 
-- [ ] **P2-04 · Checkout page** — DEV · Depends: P2-02 · 3d
+- [x] **P2-04 · Checkout page** — DEV · Depends: P2-02 · 3d
   - Files: `[lang=lang]/(shop)/checkout/*`, `services/checkout.ts`, `schemas/checkout.ts`, `storefront/{CheckoutForm,AddressFields,ShippingOptions,OrderSummary}.svelte`
   - Do: one page with sections Contact → Delivery address → Shipping method (home / pickup point; picker stub until P3-05) → Billing (same as delivery toggle, optional company + VAT number with BE format validation) → Gift (wrap, message ≤ 200 chars) → Payment method choice → Terms checkbox → button labelled `m.checkout_pay_obligation()` ("Bestellen met betaalverplichting"). Guest checkout by default, "log in" link. Summary sticky on desktop, collapsible on mobile. Form action validates with zod and recomputes everything server-side.
   - Accept: [ ] works with JS disabled up to the payment redirect · [ ] errors are focus-managed and announced · [ ] e2e `checkout.spec.ts` (mock payments adapter)
 
-- [ ] **P2-05 · Stock reservation** — DEV · Depends: P2-04 · 1d
+- [x] **P2-05 · Stock reservation** — DEV · Depends: P2-04 · 1d
   - Do: on checkout submit, reserve stock for 15 min inside a transaction (`Pool`, `SELECT … FOR UPDATE`). Release on payment failure or expiry via cron (every 5 min). Decrement real stock only on `paid`.
   - Accept: [ ] concurrency test: two checkouts for the last unit → exactly one succeeds
 
-- [ ] **P2-06 · Mollie payments** — DEV · Depends: P2-05 · 2d
+- [x] **P2-06 · Mollie payments** — DEV · Depends: P2-05 · 2d
   - Files: `adapters/payments.ts` (mollie + mock), `src/routes/api/webhooks/mollie/+server.ts`, `services/orders.ts`
   - Do: create payment (amount, description = order number, redirectUrl = thanks page, webhookUrl, locale nl_BE/fr_BE, method preselected). Webhook: receives an id → **fetches the payment from the Mollie API** (never trusts the body) → idempotent transition of the order state machine `pending → paid | failed | canceled | expired`. On `paid`: decrement stock, consume reservation, record discount redemption, assign invoice number, enqueue confirmation email. Redirect page polls status briefly when the webhook is late.
   - Fallback: mock adapter with buttons "simulate paid / failed" in dev.
   - Accept: [ ] state machine unit-tested (including duplicate webhooks) · [ ] e2e with mock: paid and failed paths · [ ] manual test with Mollie test keys documented in §12
 
-- [ ] **P2-07 · Order creation, numbering, VAT** — DEV · Depends: P2-04 · 1d
+- [x] **P2-07 · Order creation, numbering, VAT** — DEV · Depends: P2-04 · 1d
   - Do: `SK-YYYY-NNNNNN` from a DB sequence; order lines snapshot name/sku/price/vat; VAT computed per line (`vatIncluded()`), totals reconcile to the cent (unit test with 100 random carts).
   - Accept: [ ] sum(lines) + shipping − discount = total for all test cases
 
-- [ ] **P2-08 · Thank-you page & transactional email** — DEV · Depends: P2-06 · 2d
+- [x] **P2-08 · Thank-you page & transactional email** — DEV · Depends: P2-06 · 2d
   - Files: `adapters/email.ts` (postmark + mock), `components/email/*`, `services/email.ts`
   - Do: email templates as Svelte components rendered to HTML via `svelte/server` `render()`, inline styles, light theme, brand header with crown, NL/FR. Templates: order confirmation, payment failed. `email_log`. Thank-you page: order summary, "account aanmaken" prompt for guests, delivery estimate.
   - Accept: [ ] snapshot tests of rendered email HTML in NL and FR · [ ] mock adapter writes `.data/emails/*.html` for review
 
-- [ ] **P2-09 · Admin orders (list + detail)** — DEV · Depends: P2-06 · 2d
+- [x] **P2-09 · Admin orders (list + detail)** — DEV · Depends: P2-06 · 2d
   - Do: list with filters (status, date, payment status, search by number/email/name), bulk "mark processing". Detail: lines, totals, customer, addresses, payment info, timeline from `order_events`, internal notes, status actions, printable packing slip (print CSS).
   - Accept: [ ] role matrix enforced · [ ] e2e: place order → appears in admin → mark processing
 
@@ -517,45 +517,45 @@ Do, Accept and Verify.
 
 ### 9.3 Phase 3 — Accounts, fulfilment, operations (weeks 9–11; includes holiday buffer)
 
-- [ ] **P3-01 · Customer authentication** — DEV · Depends: P0-09, P2-08 · 2d
+- [x] **P3-01 · Customer authentication** — DEV · Depends: P0-09, P2-08 · 2d
   - Do: register (email verify), login (password or magic link), forgot/reset password, logout, rate limits, Turnstile on register/forgot. On login: merge guest cart and wishlist, and link guest orders with the same verified email.
   - Accept: [ ] e2e full auth flows · [ ] tokens single-use, 30-min expiry
 
-- [ ] **P3-02 · Account area** — DEV · Depends: P3-01 · 2d
+- [x] **P3-02 · Account area** — DEV · Depends: P3-01 · 2d
   - Do: overview, orders list/detail (status timeline, track link, invoice download), addresses CRUD (default address), wishlist, settings (name, password, locale, newsletter preference), **export my data** (JSON download) and **delete my account** (anonymize orders, keep the legal invoice data).
   - Accept: [ ] GDPR export contains profile, addresses, orders, wishlist · [ ] deletion is irreversible and confirmed by dialog + password
 
-- [ ] **P3-03 · Invoice PDF** — DEV · Depends: P2-07 · 1.5d
+- [x] **P3-03 · Invoice PDF** — DEV · Depends: P2-07 · 1.5d
   - Do: generate a PDF with `pdf-lib` on `paid` (queue job): seller block (name, address, KBO/VAT from settings), invoice number + date, buyer (VAT number if given), lines, VAT 21% breakdown, totals. Store in object storage, signed download URL for owner/admin only.
   - Accept: [ ] snapshot test of the text layer · [ ] invoice numbers are sequential with no gaps
 
-- [ ] **P3-04 · Order tracking page** — DEV · Depends: P2-09 · 0.5d
+- [x] **P3-04 · Order tracking page** — DEV · Depends: P2-09 · 0.5d
   - Do: form (order number + email) → status timeline + tracking link; rate-limited; Turnstile.
   - Accept: [ ] wrong email reveals nothing (same response)
 
-- [ ] **P3-05 · Sendcloud shipping** — DEV · Depends: P2-09 · 2.5d
+- [x] **P3-05 · Sendcloud shipping** — DEV · Depends: P2-09 · 2.5d
   - Files: `adapters/shipping.ts` (sendcloud + mock), `api/webhooks/sendcloud/+server.ts`, checkout `ShippingOptions` (service point picker)
   - Do: service-point picker in checkout (bpost points + lockers by postal code); admin "Create label" (single + bulk) → label PDF to storage → print; tracking webhook (verify signature) updates `shipments` → order `shipped`/`delivered` → "shipped" email with track & trace.
   - Fallback: mock adapter returning a fake label + tracking.
   - Accept: [ ] e2e with mock: order → label → shipped email logged
 
-- [ ] **P3-06 · Refunds** — DEV · Depends: P2-06 · 1d
+- [x] **P3-06 · Refunds** — DEV · Depends: P2-06 · 1d
   - Do: admin full/partial refund (amount or lines), optional restock, Mollie refund API, `refunds` + `order_events`, refund email.
   - Accept: [ ] cannot refund more than captured · [ ] permission `orders:refund` enforced
 
-- [ ] **P3-07 · Admin customers** — DEV · Depends: P3-01 · 1d
+- [x] **P3-07 · Admin customers** — DEV · Depends: P3-01 · 1d
   - Do: list (search, total spent, order count, newsletter), detail (orders, addresses, notes, tags), GDPR export/delete actions (owner only).
   - Accept: [ ] audit logged · [ ] role matrix enforced
 
-- [ ] **P3-08 · Dashboard & reports** — DEV · Depends: P2-09 · 2d
+- [x] **P3-08 · Dashboard & reports** — DEV · Depends: P2-09 · 2d
   - Do: dashboard StatCards (revenue, orders, AOV, conversion if analytics available) for today/7/30 days with deltas; "to process" orders list; low-stock list; top products. Reports: sales by day/category/product, VAT report per month, discount performance, CSV export. Charts follow `dataviz` guidance and brand tokens.
   - Accept: [ ] numbers reconcile with order totals (unit test on the aggregation queries)
 
-- [ ] **P3-09 · Back-in-stock alerts** — DEV · Depends: P1-08, P2-08 · 1d
+- [x] **P3-09 · Back-in-stock alerts** — DEV · Depends: P1-08, P2-08 · 1d
   - Do: "Mail me" on out-of-stock variants (email + locale, Turnstile); when stock goes from 0 to > 0, a queue job sends the alert once.
   - Accept: [ ] no duplicate sends (unit test)
 
-- [ ] **P3-10 · Admin users, roles, audit viewer** — DEV · Depends: P0-09 · 1d
+- [x] **P3-10 · Admin users, roles, audit viewer** — DEV · Depends: P0-09 · 1d
   - Do: invite admin by email (set password + 2FA on first login), change role, deactivate; audit log viewer with filters.
   - Accept: [ ] last owner cannot be demoted or deactivated
 
@@ -563,29 +563,29 @@ Do, Accept and Verify.
 
 ### 9.4 Phase 4 — Content, marketing, SEO (weeks 12–13)
 
-- [ ] **P4-01 · CMS page builder** — DEV · Depends: P1-06 · 3d
+- [x] **P4-01 · CMS page builder** — DEV · Depends: P1-06 · 3d
   - Files: `admin/content/pages/**`, `components/admin/{BlockEditor,BlockPicker,BlockPreview}.svelte`, `components/blocks/*`, `schemas/page-block.ts`, `services/content.ts`
   - Block types: `hero` (overlay|split, overline, title, script word, lead, image, 2 CTAs), `category_strip`, `product_rail` (collection or manual), `banner` (image + text + CTA), `quote_band` (espresso/inverse), `editorial_split`, `rich_text`, `faq_list`, `newsletter`, `usp_bar`.
   - Do: add, reorder (drag + keyboard buttons), hide, schedule (`visible_from/until`), NL/FR fields, live preview in an iframe at 390/1440, publish/draft. The home page reads from `pages(type=home)`.
   - Accept: [ ] the owner can rebuild the P1-06 home page entirely from admin · [ ] scheduled hero swaps at the set time (unit test with a fake clock)
 
-- [ ] **P4-02 · Menus, announcement, static & help pages** — DEV · Depends: P4-01 · 2d
+- [x] **P4-02 · Menus, announcement, static & help pages** — DEV · Depends: P4-01 · 2d
   - Do: menu editor (main, footer columns); announcement bar text + link + schedule; pages Ons verhaal, Maatgids (ring size table + printable sizer), Materiaal & onderhoud, Verzending & levering, Retourneren (process info); FAQ admin + page with accordion + FAQPage JSON-LD; Contact form (Turnstile, sends to the shop inbox via the email adapter).
   - Accept: [ ] all pages editable in admin in NL/FR
 
-- [ ] **P4-03 · Legal pages & cookie consent** — DEV · Depends: P4-02 · 1.5d
+- [x] **P4-03 · Legal pages & cookie consent** — DEV · Depends: P4-02 · 1.5d
   - Do: legal page type with **placeholder slots** for human-provided text (voorwaarden, privacy, cookies, herroepingsformulier, wettelijke vermeldingen auto-filled from settings: company name, address, KBO, VAT, email, phone; toegankelijkheidsverklaring). Consent banner (necessary / analytics / marketing), equal-weight accept/reject, stored 6 months, re-openable from the footer; nothing non-essential loads before consent.
   - Accept: [ ] e2e: rejecting consent → no analytics requests · [ ] withdrawal form downloadable (PDF) and as an HTML form
 
-- [ ] **P4-04 · SEO** — DEV · Depends: P4-02 · 1.5d
+- [x] **P4-04 · SEO** — DEV · Depends: P4-02 · 1.5d
   - Do: per-page title/description with fallbacks, Open Graph + Twitter images (product primary image), JSON-LD Organization + WebSite SearchAction, `sitemap.xml` (index + per language: products, categories, collections, pages), `robots.txt` (disallow `/admin`, `/api`, cart, checkout, account, filter params), canonical rules, redirects table applied in hooks (301), admin redirect editor.
   - Accept: [ ] sitemap validates · [ ] no duplicate canonical across the NL/FR pair
 
-- [ ] **P4-05 · Analytics** — DEV · Depends: P4-03 · 1d
+- [x] **P4-05 · Analytics** — DEV · Depends: P4-03 · 1d
   - Do: Plausible (cookieless) always; GA4 only after analytics consent, with ecommerce events (`view_item_list`, `view_item`, `add_to_cart`, `begin_checkout`, `purchase` server-confirmed on the thanks page).
   - Accept: [ ] events visible in debug mode · [ ] no PII in event payloads
 
-- [ ] **P4-06 · Newsletter** — DEV · Depends: P2-08 · 1d
+- [x] **P4-06 · Newsletter** — DEV · Depends: P2-08 · 1d
   - Do: footer and home form → double opt-in email → confirmed → sync to the newsletter adapter (brevo + mock); unsubscribe link; source tracking.
   - Accept: [ ] unconfirmed emails never sync
 
@@ -604,11 +604,11 @@ Do, Accept and Verify.
   - Cover: browse → filter → PDP → cart → checkout (paid, failed) → account → track; admin: product CRUD, order → label → ship → refund, CMS edit → publish, discount creation, role restrictions. Run on all 3 Playwright projects.
   - Accept: [ ] green on CI, < 10 min runtime
 
-- [ ] **P5-02 · Accessibility audit** — DEV · Depends: G4 · 1d
+- [x] **P5-02 · Accessibility audit** — DEV · Depends: G4 · 1d
   - Do: axe on every route in the e2e run, keyboard-only walkthrough of the checkout, screen-reader smoke test notes in §12; fix all serious/critical issues.
   - Accept: [ ] 0 axe serious/critical issues
 
-- [ ] **P5-03 · Security review** — DEV · Depends: G4 · 1d
+- [x] **P5-03 · Security review** — DEV · Depends: G4 · 1d
   - Do: authz tests for every admin route × role; webhook spoof tests (Mollie unknown id, Sendcloud bad signature); rate-limit tests; dependency audit; CSP report-only check for violations; secrets scan.
   - Accept: [ ] all tests green · [ ] `npm audit` shows no high/critical vulnerabilities in production deps
 
@@ -616,7 +616,7 @@ Do, Accept and Verify.
   - Do: Sentry (server + client, PII scrubbing), uptime check endpoint `/api/health` (DB ping), cron jobs registered (reservation release, alerts, email retries, orphan media cleanup, daily report email), Neon PITR verified, daily logical export to storage.
   - Accept: [ ] a restore drill to a Neon branch documented in §12
 
-- [ ] **P5-05 · Runbook & admin training material** — DEV · Depends: G4 · 1d
+- [x] **P5-05 · Runbook & admin training material** — DEV · Depends: G4 · 1d
   - Files: `docs/RUNBOOK.md`
   - Do: how to process orders, refund, create labels, add products, edit the home page, create discounts, handle a failed payment, enter maintenance mode, roll back a deploy, rotate secrets. Written in Dutch for the owner, with screenshots from Playwright.
   - Accept: [ ] every admin module has a section
@@ -700,4 +700,23 @@ Format: `YYYY-MM-DD · TASK-ID · done|blocked|note · one line`
 
 ```
 2026-10-07 · — · note · Execution plan created from the development plan doc; design system v0.1 present in design-system/
+2026-10-07 · P0-01 · done · SvelteKit 3.0.1 app scaffolded in sieradenkoningin/ (adapter-cloudflare 8, #lib imports, src/env.ts)
+2026-10-07 · P0-05 · blocked · HUMAN task open. Fallback in use: project-local Postgres 14 cluster (.data/pg, port 54329) + mock storage/payments/shipping/email adapters
+2026-10-07 · — · note · DEVIATION §2.4: DB driver is node-postgres (drizzle-orm/node-postgres) everywhere instead of neon-http + Pool; gives real transactions (SELECT … FOR UPDATE) in dev/tests/prod. pg runs on Workers with nodejs_compat (Neon pooled endpoint or Hyperdrive)
+2026-10-07 · P0-02 · done · design system copied into the app (originals left untouched in ../design-system and ../brand_*); kitchen sink at /dev/kitchen-sink (dev only)
+2026-10-07 · P0-06 · done · full §6 schema + drizzle/0000_extensions.sql (citext, pg_trgm, unaccent, immutable sk_unaccent); seed idempotent; added tables rate_limits, jobs, wishlist_shares
+2026-10-07 · P0-07 · done · Paraglide messages split per area (messages/<area>/{nl,fr}.json); locale = first path segment via custom strategy + AsyncLocalStorage; localized paths in src/lib/i18n/paths.ts (reroute hook)
+2026-10-07 · P0-09 · done · Argon2id via hash-wasm (m=19 MiB, t=2); CPU time on Workers still to be measured on the paid plan (P0-05) — scrypt fallback documented in password.ts
+2026-10-08 · P0-04 · note · actionlint not available locally; workflow reviewed by hand. CI documents required repo secrets
+2026-10-08 · P1-09 · done · search p95 14.5 ms on 1,152 products (npm run bench:search)
+2026-10-08 · P2-06 · note · Mollie verified with the mock adapter only; manual run with Mollie TEST keys pending (needs D1 account)
+2026-10-08 · P2-07 · note · DEVIATION: invoice numbers use an advisory lock + max()+1 per year (gap-free) instead of invoice_number_seq (sequences leave gaps on rollback)
+2026-10-08 · — · note · CSRF: SvelteKit's global origin check rejects Mollie's Origin-less webhook in production; replaced by an equivalent check in hooks.server.ts that exempts /api/webhooks/* (src/lib/server/csrf.ts, unit-tested)
+2026-10-08 · — · note · Cloudflare: adapter builds to .svelte-kit/cloudflare/_worker.js via wrangler.build.jsonc; wrangler.jsonc deploys cloudflare/worker.js (adds Cron scheduled() → /api/jobs). wrangler --dry-run OK (930 KiB gzip)
+2026-10-08 · P5-02 · done · axe (wcag2a/aa/21aa/22aa) on 24 storefront + 13 admin routes: 0 serious/critical, 0 CSP violations. Screen-reader smoke test still to be done by a human (NVDA/VoiceOver)
+2026-10-08 · P5-03 · done · authz matrix 4 roles × 24 admin routes + forbidden mutations; static test: all 89 admin handlers call requirePermission; webhook spoof tests (Mollie unknown id, Sendcloud bad signature); login rate limit; npm audit --omit=dev: 0 vulnerabilities; secrets scan clean
+2026-10-08 · P5-04 · note · done: /api/health, Sentry reporting with PII scrubbing (dependency-free), cron housekeeping, media deletion job, nightly logical export, daily report mail. Open: Neon PITR restore drill (needs P0-05)
+2026-10-08 · P4-07 · note · Lighthouse mobile (local, Brotli proxy, simulated slow 4G): perf 84–89, a11y/BP/SEO 100, CLS ≤ 0.003. JS Brotli: home 85 kB, PDP 87 kB, cart/checkout 77 kB, listing 94 kB. Not yet ≥ 90 perf / < 90 kB on listing — main remaining cost is ~45 small chunks (Paraglide per-message modules); re-measure on Cloudflare with real photography (P4-08)
+2026-10-08 · P5-05 · done · docs/RUNBOOK.md (Dutch): every admin module + ops procedures (failed payment, maintenance, rollback, secret rotation, emergency admin reset, backups); 18 Playwright screenshots in docs/runbook/
+2026-10-08 · V1 · note · V1-01..V1-06 not started: per §9.6 each needs full Files/Do/Accept written before it starts (post-launch phase)
 ```
