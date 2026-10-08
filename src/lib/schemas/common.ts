@@ -1,6 +1,9 @@
 /** Shared zod building blocks (client + server). */
 import { z } from 'zod';
 
+// No JIT: zod 4 probes `new Function`, which the strict CSP (no 'unsafe-eval') blocks and reports.
+z.config({ jitless: true });
+
 export const i18nSchema = z.object({
 	nl: z.string().trim(),
 	fr: z.string().trim().optional(),

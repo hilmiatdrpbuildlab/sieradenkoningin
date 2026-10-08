@@ -48,15 +48,15 @@
 		font-size: var(--fs-2xs);
 		letter-spacing: var(--ls-wider);
 		text-decoration: none;
-		opacity: 0.65;
 	}
 	a[aria-current] {
-		opacity: 1;
+		font-weight: var(--fw-semibold);
 		text-decoration: underline;
 		text-underline-offset: 0.4em;
 	}
 	a:hover {
-		opacity: 1;
+		text-decoration: underline;
+		text-underline-offset: 0.4em;
 	}
 	.langs--compact a + a {
 		position: relative;
