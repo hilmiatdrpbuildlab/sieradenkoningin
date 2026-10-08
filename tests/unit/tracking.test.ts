@@ -40,7 +40,17 @@ beforeAll(async () => {
 			paidAt: new Date('2026-10-01T10:05:00Z')
 		})
 		.returning();
-	await db.insert(s.orderLines).values({ orderId: o.id, sku: 'X', name: { nl: 'DEMO Ring', fr: 'DEMO Bague' }, unitPrice: 4900, qty: 1, vatAmount: 850, lineTotal: 4900 });
+	await db
+		.insert(s.orderLines)
+		.values({
+			orderId: o.id,
+			sku: 'X',
+			name: { nl: 'DEMO Ring', fr: 'DEMO Bague' },
+			unitPrice: 4900,
+			qty: 1,
+			vatAmount: 850,
+			lineTotal: 4900
+		});
 	await db.insert(s.shipments).values({
 		orderId: o.id,
 		carrier: 'bpost',
@@ -48,7 +58,9 @@ beforeAll(async () => {
 		trackingUrl: 'https://track.bpost.cloud/btr/web/#/search?itemCode=3SABC123',
 		status: 'shipped'
 	});
-	await db.insert(s.orderEvents).values({ orderId: o.id, type: 'shipped', createdAt: new Date('2026-10-02T09:00:00Z') });
+	await db
+		.insert(s.orderEvents)
+		.values({ orderId: o.id, type: 'shipped', createdAt: new Date('2026-10-02T09:00:00Z') });
 });
 afterAll(async () => {
 	await cleanup();
@@ -61,7 +73,13 @@ describe('lookupOrderForTracking', () => {
 		expect(r?.number).toBe(NUMBER);
 		expect(r?.lines[0].name).toBe('DEMO Bague');
 		expect(r?.shipments[0]).toMatchObject({ carrier: 'bpost', trackingNumber: '3SABC123' });
-		expect(r?.timeline.map((x) => `${x.key}:${x.state}`)).toEqual(['placed:done', 'paid:done', 'processing:done', 'shipped:current', 'delivered:upcoming']);
+		expect(r?.timeline.map((x) => `${x.key}:${x.state}`)).toEqual([
+			'placed:done',
+			'paid:done',
+			'processing:done',
+			'shipped:current',
+			'delivered:upcoming'
+		]);
 		expect(r?.timeline.find((x) => x.key === 'shipped')?.at).toBe('2026-10-02T09:00:00.000Z');
 	});
 
@@ -74,7 +92,10 @@ describe('lookupOrderForTracking', () => {
 	});
 
 	it('normalises the order number from the form', () => {
-		expect(trackSchema.parse({ number: ' sk-2026-000123 ', email: 'A@B.be' })).toEqual({ number: 'SK-2026-000123', email: 'a@b.be' });
+		expect(trackSchema.parse({ number: ' sk-2026-000123 ', email: 'A@B.be' })).toEqual({
+			number: 'SK-2026-000123',
+			email: 'a@b.be'
+		});
 		expect(trackSchema.safeParse({ number: '123', email: 'a@b.be' }).success).toBe(false);
 	});
 });
@@ -87,13 +108,26 @@ describe('buildTimeline', () => {
 	});
 	it('delivered via shipment status when no event exists', () => {
 		const updatedAt = new Date('2026-10-03T12:00:00Z');
-		const t = buildTimeline({ status: 'delivered', placedAt, paidAt: placedAt }, [], [
-			{ carrier: 'bpost', trackingNumber: null, trackingUrl: null, status: 'delivered', createdAt: placedAt, updatedAt }
-		]);
+		const t = buildTimeline(
+			{ status: 'delivered', placedAt, paidAt: placedAt },
+			[],
+			[
+				{
+					carrier: 'bpost',
+					trackingNumber: null,
+					trackingUrl: null,
+					status: 'delivered',
+					createdAt: placedAt,
+					updatedAt
+				}
+			]
+		);
 		expect(t.at(-1)).toEqual({ key: 'delivered', state: 'current', at: updatedAt.toISOString() });
 	});
 	it('cancelled order ends with a cancelled step after what happened', () => {
-		const t = buildTimeline({ status: 'cancelled', placedAt, paidAt: null }, [{ type: 'status', data: { to: 'cancelled' }, createdAt: placedAt }]);
+		const t = buildTimeline({ status: 'cancelled', placedAt, paidAt: null }, [
+			{ type: 'status', data: { to: 'cancelled' }, createdAt: placedAt }
+		]);
 		expect(t.map((x) => x.key)).toEqual(['placed', 'cancelled']);
 		expect(t[1].state).toBe('current');
 	});

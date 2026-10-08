@@ -17,7 +17,10 @@ export const accountEmail = z
 	.pipe(z.email('email'))
 	.pipe(z.string().max(254, 'email'));
 
-export const newPassword = z.string().min(PASSWORD_MIN_LENGTH, 'password_short').max(PASSWORD_MAX_LENGTH, 'password_long');
+export const newPassword = z
+	.string()
+	.min(PASSWORD_MIN_LENGTH, 'password_short')
+	.max(PASSWORD_MAX_LENGTH, 'password_long');
 
 const name = z.string().trim().min(1, 'required').max(80, 'too_long');
 const optionalText = (max: number) => z.string().trim().max(max, 'too_long').optional().default('');
@@ -56,7 +59,11 @@ export const profileSchema = z.object({
 });
 
 export const passwordChangeSchema = z
-	.object({ current: z.string().min(1, 'required').max(PASSWORD_MAX_LENGTH), password: newPassword, confirm: z.string() })
+	.object({
+		current: z.string().min(1, 'required').max(PASSWORD_MAX_LENGTH),
+		password: newPassword,
+		confirm: z.string()
+	})
 	.refine((v) => v.password === v.confirm, { path: ['confirm'], message: 'password_mismatch' });
 
 export const deleteAccountSchema = z.object({
@@ -68,7 +75,10 @@ export const deleteAccountSchema = z.object({
 export const ADDRESS_COUNTRIES = ['BE', 'NL', 'LU'] as const;
 
 export const addressSchema = z.object({
-	id: z.uuid().optional().or(z.literal('').transform(() => undefined)),
+	id: z
+		.uuid()
+		.optional()
+		.or(z.literal('').transform(() => undefined)),
 	name: z.string().trim().min(1, 'required').max(120, 'too_long'),
 	company: optionalText(120),
 	line1: z.string().trim().min(1, 'required').max(160, 'too_long'),

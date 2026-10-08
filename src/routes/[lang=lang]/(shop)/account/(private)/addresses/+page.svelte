@@ -24,7 +24,13 @@
 
 {#if data.saved}
 	<Notice kind="success">
-		<p>{data.saved === 'deleted' ? m.acct_addr_deleted() : data.saved === 'default' ? m.acct_addr_default_set() : m.acct_addr_saved()}</p>
+		<p>
+			{data.saved === 'deleted'
+				? m.acct_addr_deleted()
+				: data.saved === 'default'
+					? m.acct_addr_default_set()
+					: m.acct_addr_saved()}
+		</p>
 	</Notice>
 {/if}
 {#if form && 'error' in form}
@@ -44,7 +50,8 @@
 			<li class:default={a.isDefault}>
 				{#if a.isDefault}<p class="badge"><Icon name="check" size={14} />{m.acct_addr_default()}</p>{/if}
 				<address>
-					{a.name}<br />{#if a.company}{a.company}<br />{/if}{a.line1}<br />{#if a.line2}{a.line2}<br />{/if}{a.postalCode}
+					{a.name}<br />{#if a.company}{a.company}<br />{/if}{a.line1}<br />{#if a.line2}{a.line2}<br
+						/>{/if}{a.postalCode}
 					{a.city}<br />{a.country}{#if a.phone}<br />{a.phone}{/if}
 				</address>
 				<div class="actions">
@@ -52,12 +59,16 @@
 					{#if !a.isDefault}
 						<form method="POST" action="?/makeDefault">
 							<input type="hidden" name="id" value={a.id} />
-							<button type="submit">{m.acct_addr_make_default_short()}<span class="sr-only"> — {a.name}, {a.line1}</span></button>
+							<button type="submit"
+								>{m.acct_addr_make_default_short()}<span class="sr-only"> — {a.name}, {a.line1}</span></button
+							>
 						</form>
 					{/if}
 					<form method="POST" action="?/delete">
 						<input type="hidden" name="id" value={a.id} />
-						<button type="submit" class="danger">{m.acct_delete()}<span class="sr-only"> — {a.name}, {a.line1}</span></button>
+						<button type="submit" class="danger"
+							>{m.acct_delete()}<span class="sr-only"> — {a.name}, {a.line1}</span></button
+						>
 					</form>
 				</div>
 			</li>

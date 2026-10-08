@@ -16,7 +16,8 @@
 	<OrderList orders={data.orders} lang={data.lang} />
 {:else}
 	<EmptyState title={m.acct_no_orders()} text={m.acct_no_orders_text()}>
-		{#snippet action()}<Button href={localizeHref('/', data.lang)} variant="outline">{m.acct_start_shopping()}</Button>{/snippet}
+		{#snippet action()}<Button href={localizeHref('/', data.lang)} variant="outline">{m.acct_start_shopping()}</Button
+			>{/snippet}
 	</EmptyState>
 {/if}
 

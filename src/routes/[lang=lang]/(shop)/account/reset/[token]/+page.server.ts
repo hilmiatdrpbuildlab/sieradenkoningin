@@ -24,7 +24,10 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 export const actions: Actions = {
 	default: async ({ request, locals, params, cookies }) => {
 		const form = await request.formData();
-		const parsed = resetSchema.safeParse({ password: String(form.get('password') ?? ''), confirm: String(form.get('confirm') ?? '') });
+		const parsed = resetSchema.safeParse({
+			password: String(form.get('password') ?? ''),
+			confirm: String(form.get('confirm') ?? '')
+		});
 		if (!parsed.success) return fail(400, { errors: fieldErrors(parsed.error) });
 		const email = await consumeToken(locals.db, params.token, 'reset');
 		const customer = email ? await findCustomerByEmail(locals.db, email) : null;

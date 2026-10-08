@@ -13,19 +13,26 @@
 
 	let { steps, shipments = [], lang }: { steps: TimelineStep[]; shipments?: ShipmentView[]; lang: Lang } = $props();
 	const stateText = (s: TimelineStep['state']) =>
-		s === 'done' ? m.acct_step_state_done() : s === 'current' ? m.acct_step_state_current() : m.acct_step_state_upcoming();
+		s === 'done'
+			? m.acct_step_state_done()
+			: s === 'current'
+				? m.acct_step_state_current()
+				: m.acct_step_state_upcoming();
 </script>
 
 <ol class="timeline">
 	{#each steps as step (step.key)}
 		<li class={step.state} aria-current={step.state === 'current' ? 'step' : undefined}>
 			<span class="marker" aria-hidden="true">
-				{#if step.state === 'done'}<Icon name="check" size={14} />{:else if step.state === 'current'}<span class="dot"></span>{/if}
+				{#if step.state === 'done'}<Icon name="check" size={14} />{:else if step.state === 'current'}<span class="dot"
+					></span>{/if}
 			</span>
 			<span class="text">
 				<span class="label">{stepLabel(step.key)}</span>
 				<span class="sr-only">({stateText(step.state)})</span>
-				{#if step.at}<time datetime={step.at}>{formatDate(step.at, lang, { day: 'numeric', month: 'long', year: 'numeric' })}</time>{/if}
+				{#if step.at}<time datetime={step.at}
+						>{formatDate(step.at, lang, { day: 'numeric', month: 'long', year: 'numeric' })}</time
+					>{/if}
 			</span>
 		</li>
 	{/each}
@@ -41,7 +48,9 @@
 			</div>
 			{#if s.trackingUrl}
 				<a class="link" href={s.trackingUrl} target="_blank" rel="noopener noreferrer">
-					{m.acct_track_parcel()}<Icon name="external" size={14} /><span class="sr-only">({m.acct_opens_new_window()})</span>
+					{m.acct_track_parcel()}<Icon name="external" size={14} /><span class="sr-only"
+						>({m.acct_opens_new_window()})</span
+					>
 				</a>
 			{/if}
 		</div>

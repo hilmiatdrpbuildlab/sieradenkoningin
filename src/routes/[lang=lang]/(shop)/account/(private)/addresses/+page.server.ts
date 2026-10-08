@@ -37,22 +37,29 @@ export const actions: Actions = {
 		const form = await request.formData();
 		const raw = Object.fromEntries([...form.entries()].map(([k, v]) => [k, String(v)]));
 		const parsed = addressSchema.safeParse({ ...raw, isDefault: raw.isDefault ?? undefined });
-		if (!parsed.success) return fail(400, { errors: fieldErrors(parsed.error), values: { ...raw, isDefault: raw.isDefault === 'on' } });
+		if (!parsed.success)
+			return fail(400, { errors: fieldErrors(parsed.error), values: { ...raw, isDefault: raw.isDefault === 'on' } });
 		const { id: addressId, ...input } = parsed.data;
 		const r = await saveAddress(locals.db, id, addressId, input);
-		if (!r.ok) return fail(r.reason === 'limit' ? 400 : 404, { error: r.reason, values: { ...raw, isDefault: raw.isDefault === 'on' } });
+		if (!r.ok)
+			return fail(r.reason === 'limit' ? 400 : 404, {
+				error: r.reason,
+				values: { ...raw, isDefault: raw.isDefault === 'on' }
+			});
 		redirect(303, `${localizeHref('/account/addresses', params.lang)}?saved=1`);
 	},
 	delete: async ({ request, locals, url, params }) => {
 		const id = me(locals, url, params.lang);
 		const addressId = String((await request.formData()).get('id') ?? '');
-		if (!UUID.test(addressId) || !(await deleteAddress(locals.db, id, addressId))) return fail(404, { error: 'not_found' as const });
+		if (!UUID.test(addressId) || !(await deleteAddress(locals.db, id, addressId)))
+			return fail(404, { error: 'not_found' as const });
 		redirect(303, `${localizeHref('/account/addresses', params.lang)}?saved=deleted`);
 	},
 	makeDefault: async ({ request, locals, url, params }) => {
 		const id = me(locals, url, params.lang);
 		const addressId = String((await request.formData()).get('id') ?? '');
-		if (!UUID.test(addressId) || !(await setDefaultAddress(locals.db, id, addressId))) return fail(404, { error: 'not_found' as const });
+		if (!UUID.test(addressId) || !(await setDefaultAddress(locals.db, id, addressId)))
+			return fail(404, { error: 'not_found' as const });
 		redirect(303, `${localizeHref('/account/addresses', params.lang)}?saved=default`);
 	}
 };

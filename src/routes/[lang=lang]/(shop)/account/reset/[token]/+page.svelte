@@ -36,7 +36,12 @@
 				};
 			}}
 		>
-			<Field label={m.acct_new_password()} required hint={m.acct_password_hint({ min: 10 })} error={errText(errors, 'password')}>
+			<Field
+				label={m.acct_new_password()}
+				required
+				hint={m.acct_password_hint({ min: 10 })}
+				error={errText(errors, 'password')}
+			>
 				<Input name="password" type="password" autocomplete="new-password" minlength={10} />
 			</Field>
 			<Field label={m.acct_confirm_password()} required error={errText(errors, 'confirm')}>

@@ -19,7 +19,10 @@ import type {
 
 type OrderRow = typeof orders.$inferSelect;
 type EventRow = Pick<typeof orderEvents.$inferSelect, 'type' | 'data' | 'createdAt'>;
-type ShipmentRow = Pick<typeof shipments.$inferSelect, 'carrier' | 'trackingNumber' | 'trackingUrl' | 'status' | 'createdAt' | 'updatedAt'>;
+type ShipmentRow = Pick<
+	typeof shipments.$inferSelect,
+	'carrier' | 'trackingNumber' | 'trackingUrl' | 'status' | 'createdAt' | 'updatedAt'
+>;
 
 const FLOW: TimelineStepKey[] = ['placed', 'paid', 'processing', 'shipped', 'delivered'];
 const RANK: Record<string, number> = { pending: 0, paid: 1, processing: 2, shipped: 3, delivered: 4 };
@@ -122,7 +125,12 @@ export interface TrackedOrder {
  * Public lookup: order number AND email must both match (one query). Pending (unpaid) orders are
  * tracked too — the buyer may want to see that payment is still open.
  */
-export async function lookupOrderForTracking(db: Executor, number: string, email: string, lang: Lang): Promise<TrackedOrder | null> {
+export async function lookupOrderForTracking(
+	db: Executor,
+	number: string,
+	email: string,
+	lang: Lang
+): Promise<TrackedOrder | null> {
 	const [order] = await db
 		.select()
 		.from(orders)

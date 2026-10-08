@@ -105,16 +105,31 @@ describe('accounts', () => {
 	});
 
 	it('register: second registration with the same email reports "exists" (caller sends the same response)', async () => {
-		const a = await registerCustomer(db, { email: EMAIL.toUpperCase(), password: PW, firstName: 'Ann', lastName: 'Test', locale: 'nl' });
+		const a = await registerCustomer(db, {
+			email: EMAIL.toUpperCase(),
+			password: PW,
+			firstName: 'Ann',
+			lastName: 'Test',
+			locale: 'nl'
+		});
 		expect(a.kind).toBe('created');
-		const b = await registerCustomer(db, { email: EMAIL, password: 'another password', firstName: 'X', lastName: 'Y', locale: 'fr' });
+		const b = await registerCustomer(db, {
+			email: EMAIL,
+			password: 'another password',
+			firstName: 'X',
+			lastName: 'Y',
+			locale: 'fr'
+		});
 		expect(b.kind).toBe('exists');
 		// The existing password was NOT overwritten.
 		expect((await checkPasswordLogin(db, EMAIL, 'another password')).ok).toBe(false);
 	});
 
 	it('login: unknown email and wrong password give the same result; unverified is flagged', async () => {
-		expect(await checkPasswordLogin(db, 'nobody-auth-test@example.invalid', PW)).toEqual({ ok: false, reason: 'invalid' });
+		expect(await checkPasswordLogin(db, 'nobody-auth-test@example.invalid', PW)).toEqual({
+			ok: false,
+			reason: 'invalid'
+		});
 		expect(await checkPasswordLogin(db, EMAIL, 'wrong password!!')).toEqual({ ok: false, reason: 'invalid' });
 		const r = await checkPasswordLogin(db, EMAIL, PW);
 		expect(r.ok === false && r.reason).toBe('unverified');
@@ -156,7 +171,15 @@ describe('links & redirects', () => {
 
 	it('only accepts same-site paths as ?next (no open redirect)', () => {
 		expect(safeNext('/nl/account/bestellingen')).toBe('/nl/account/bestellingen');
-		for (const bad of ['https://evil.example', '//evil.example', '/\\evil.example', 'nl/account', '/admin', null, '/x\n/y']) {
+		for (const bad of [
+			'https://evil.example',
+			'//evil.example',
+			'/\\evil.example',
+			'nl/account',
+			'/admin',
+			null,
+			'/x\n/y'
+		]) {
 			expect(safeNext(bad)).toBeNull();
 		}
 	});

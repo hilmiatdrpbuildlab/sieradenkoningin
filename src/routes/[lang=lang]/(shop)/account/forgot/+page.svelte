@@ -42,7 +42,13 @@
 				<Notice kind="error"><p>{form.error === 'rate' ? m.acct_err_rate() : m.acct_err_captcha()}</p></Notice>
 			{/if}
 			<Field label={m.acct_email()} required error={errText(errors, 'email')}>
-				<Input name="email" type="email" autocomplete="email" inputmode="email" value={form && 'values' in form ? (form.values?.email ?? '') : ''} />
+				<Input
+					name="email"
+					type="email"
+					autocomplete="email"
+					inputmode="email"
+					value={form && 'values' in form ? (form.values?.email ?? '') : ''}
+				/>
 			</Field>
 			<Turnstile />
 			<Button type="submit" full loading={busy}>{m.acct_forgot_submit()}</Button>

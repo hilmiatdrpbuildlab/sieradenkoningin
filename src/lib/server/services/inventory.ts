@@ -6,6 +6,7 @@
 import { and, asc, desc, eq, ilike, lte, or, sql, type SQL } from 'drizzle-orm';
 import type { Executor } from '../db/index.ts';
 import { categories, products, stockMovements, variants } from '../db/schema.ts';
+import { notifyRestock } from './stock-alerts.ts';
 import { audit } from './audit.ts';
 import type { StockAdjustInput } from '#lib/schemas/inventory.ts';
 
@@ -43,6 +44,9 @@ export async function applyStockDelta(
 			actor: m.actor ?? null
 		});
 	}
+	// Back in stock (0 → >0): queue the back-in-stock alerts (P3-09). Runs in the caller's transaction,
+	// so the job only exists if the restock commits; a no-op when nobody asked to be notified.
+	if (m.delta > 0 && row.stock - m.delta <= 0) await notifyRestock(db, [m.variantId]);
 	return row.stock;
 }
 

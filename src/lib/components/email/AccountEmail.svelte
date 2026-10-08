@@ -43,7 +43,13 @@
 	);
 </script>
 
-<EmailLayout {locale} preheader={copy.preheader} storeName={data.storeName} storeEmail={data.storeEmail} shopUrl={data.shopUrl}>
+<EmailLayout
+	{locale}
+	preheader={copy.preheader}
+	storeName={data.storeName}
+	storeEmail={data.storeEmail}
+	shopUrl={data.shopUrl}
+>
 	<h1 style="margin:0 0 12px;font-family:{serif};font-weight:400;font-size:26px;line-height:1.25;color:{c.burgundy};">
 		{copy.title}
 	</h1>

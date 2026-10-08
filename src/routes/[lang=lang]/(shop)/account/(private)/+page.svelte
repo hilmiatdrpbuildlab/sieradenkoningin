@@ -22,7 +22,9 @@
 <section class="block" aria-labelledby="recent-title">
 	<div class="row">
 		<h2 id="recent-title">{m.acct_recent_orders()}</h2>
-		{#if data.orderCount > 3}<a class="more" href={L('/account/orders')}>{m.acct_all_orders({ count: data.orderCount })}</a>{/if}
+		{#if data.orderCount > 3}<a class="more" href={L('/account/orders')}
+				>{m.acct_all_orders({ count: data.orderCount })}</a
+			>{/if}
 	</div>
 	{#if data.orders.length}
 		<OrderList orders={data.orders} lang={data.lang} />
@@ -38,7 +40,8 @@
 		<h2 id="addr-title">{m.acct_default_address()}</h2>
 		{#if a}
 			<address>
-				{a.name}<br />{#if a.company}{a.company}<br />{/if}{a.line1}<br />{#if a.line2}{a.line2}<br />{/if}{a.postalCode}
+				{a.name}<br />{#if a.company}{a.company}<br />{/if}{a.line1}<br />{#if a.line2}{a.line2}<br
+					/>{/if}{a.postalCode}
 				{a.city}<br />{a.country}
 			</address>
 		{:else}

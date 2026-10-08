@@ -15,7 +15,9 @@
 
 <Seo title={m.acct_order_title({ number: o.number })} noindex />
 
-<a class="back" href={localizeHref('/account/orders', data.lang)}><Icon name="chevron-left" size={16} />{m.acct_back_to_orders()}</a>
+<a class="back" href={localizeHref('/account/orders', data.lang)}
+	><Icon name="chevron-left" size={16} />{m.acct_back_to_orders()}</a
+>
 
 <header class="head">
 	<h1>{m.acct_order_title({ number: o.number })}</h1>
@@ -41,7 +43,9 @@
 		<ul class="lines">
 			{#each o.lines as l, i (i)}
 				<li>
-					{#if l.imageKey}<img src={img(l.imageKey, 160)} alt="" width="64" height="80" loading="lazy" />{:else}<span class="ph"></span>{/if}
+					{#if l.imageKey}<img src={img(l.imageKey, 160)} alt="" width="64" height="80" loading="lazy" />{:else}<span
+							class="ph"
+						></span>{/if}
 					<div class="info">
 						<p class="name">{l.name}</p>
 						{#if l.variantLabel}<p class="sub">{l.variantLabel}</p>{/if}
@@ -53,15 +57,32 @@
 			{/each}
 		</ul>
 		<dl class="totals">
-			<div><dt>{m.acct_subtotal()}</dt><dd>{fp(o.totals.subtotal)}</dd></div>
+			<div>
+				<dt>{m.acct_subtotal()}</dt>
+				<dd>{fp(o.totals.subtotal)}</dd>
+			</div>
 			{#if o.totals.discount > 0}<div>
-					<dt>{m.acct_discount()}{#if o.discountCode}&nbsp;({o.discountCode}){/if}</dt>
+					<dt>
+						{m.acct_discount()}{#if o.discountCode}&nbsp;({o.discountCode}){/if}
+					</dt>
 					<dd>−{fp(o.totals.discount)}</dd>
 				</div>{/if}
-			<div><dt>{m.acct_shipping()}</dt><dd>{o.totals.shipping > 0 ? fp(o.totals.shipping) : m.acct_free()}</dd></div>
-			<div class="grand"><dt>{m.acct_total()}</dt><dd>{fp(o.totals.total)}</dd></div>
-			<div class="vat"><dt>{m.acct_vat_included({ amount: fp(o.totals.vat) })}</dt><dd></dd></div>
-			{#if o.totals.refunded > 0}<div><dt>{m.acct_refunded()}</dt><dd>−{fp(o.totals.refunded)}</dd></div>{/if}
+			<div>
+				<dt>{m.acct_shipping()}</dt>
+				<dd>{o.totals.shipping > 0 ? fp(o.totals.shipping) : m.acct_free()}</dd>
+			</div>
+			<div class="grand">
+				<dt>{m.acct_total()}</dt>
+				<dd>{fp(o.totals.total)}</dd>
+			</div>
+			<div class="vat">
+				<dt>{m.acct_vat_included({ amount: fp(o.totals.vat) })}</dt>
+				<dd></dd>
+			</div>
+			{#if o.totals.refunded > 0}<div>
+					<dt>{m.acct_refunded()}</dt>
+					<dd>−{fp(o.totals.refunded)}</dd>
+				</div>{/if}
 		</dl>
 	</section>
 
@@ -70,11 +91,15 @@
 		<div>
 			<h3>{o.shippingMethod === 'pickup' && o.servicePoint ? m.acct_pickup_point() : m.acct_shipping_address()}</h3>
 			{#if o.shippingMethod === 'pickup' && o.servicePoint}
-				<address>{o.servicePoint.name}<br />{o.servicePoint.street}<br />{o.servicePoint.postalCode} {o.servicePoint.city}</address>
+				<address>
+					{o.servicePoint.name}<br />{o.servicePoint.street}<br />{o.servicePoint.postalCode}
+					{o.servicePoint.city}
+				</address>
 			{:else}
 				{@const a = o.shippingAddress}
 				<address>
-					{a.name}<br />{#if a.company}{a.company}<br />{/if}{a.line1}<br />{#if a.line2}{a.line2}<br />{/if}{a.postalCode}
+					{a.name}<br />{#if a.company}{a.company}<br />{/if}{a.line1}<br />{#if a.line2}{a.line2}<br
+						/>{/if}{a.postalCode}
 					{a.city}<br />{a.country}
 				</address>
 			{/if}
@@ -84,7 +109,8 @@
 			{#if o.billingAddress}
 				{@const b = o.billingAddress}
 				<address>
-					{b.name}<br />{#if b.company}{b.company}<br />{/if}{b.line1}<br />{#if b.line2}{b.line2}<br />{/if}{b.postalCode}
+					{b.name}<br />{#if b.company}{b.company}<br />{/if}{b.line1}<br />{#if b.line2}{b.line2}<br
+						/>{/if}{b.postalCode}
 					{b.city}<br />{b.country}
 				</address>
 			{/if}

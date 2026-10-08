@@ -23,7 +23,9 @@
 	// A no-JS submit lands back on the PDP with ?alert=…
 	const fromUrl = $derived((page.url.searchParams.get('alert') as Result | null) ?? null);
 	const shown = $derived(result ?? fromUrl);
-	const returnTo = $derived(page.url.pathname + page.url.search.replace(/([?&])alert=[^&]*&?/, '$1').replace(/[?&]$/, ''));
+	const returnTo = $derived(
+		page.url.pathname + page.url.search.replace(/([?&])alert=[^&]*&?/, '$1').replace(/[?&]$/, '')
+	);
 
 	$effect(() => {
 		// Switching to another sold-out variant resets the inline state.
@@ -36,7 +38,11 @@
 		const formEl = e.currentTarget as HTMLFormElement;
 		busy = true;
 		try {
-			const res = await fetch(formEl.action, { method: 'POST', body: new FormData(formEl), headers: { accept: 'application/json' } });
+			const res = await fetch(formEl.action, {
+				method: 'POST',
+				body: new FormData(formEl),
+				headers: { accept: 'application/json' }
+			});
 			const body = (await res.json().catch(() => null)) as { result?: Result } | null;
 			result = body?.result ?? 'error';
 		} catch {

@@ -78,8 +78,8 @@ export const actions: Actions = {
 			});
 		}
 		if (d.newsletter) {
-			await subscribe(locals.db, { email: locals.email, siteUrl }, { email: d.email, lang, source: 'register' }).catch((e) =>
-				console.error('[register] newsletter', e)
+			await subscribe(locals.db, { email: locals.email, siteUrl }, { email: d.email, lang, source: 'register' }).catch(
+				(e) => console.error('[register] newsletter', e)
 			);
 		}
 		return { registered: true, email: d.email };

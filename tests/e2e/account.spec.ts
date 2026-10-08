@@ -50,7 +50,7 @@ const uniqueEmail = (tag: string) => `e2e-acct-${tag}-${Date.now()}@example.inva
 const passwordForm = (page: Page) => page.locator('main form[action="?/password"]');
 
 async function register(page: Page, email: string) {
-	await page.goto('/nl/account/registreren');
+	await gotoHydrated(page, '/nl/account/registreren');
 	await page.locator('main input[name=firstName]').fill('Ann');
 	await page.locator('main input[name=lastName]').fill('DEMO');
 	await page.locator('main input[name=email]').fill(email);
@@ -66,8 +66,14 @@ async function verify(page: Page, email: string) {
 	await expect(page.getByRole('status').filter({ hasText: 'Je e-mailadres is bevestigd' })).toBeVisible();
 }
 
+/** Waits until SvelteKit has hydrated, so typed values aren't reset and use:enhance is attached. */
+async function gotoHydrated(page: Page, path: string) {
+	await page.goto(path);
+	await page.waitForLoadState('networkidle');
+}
+
 async function passwordLogin(page: Page, email: string, password: string) {
-	await page.goto('/nl/account/inloggen');
+	await gotoHydrated(page, '/nl/account/inloggen');
 	await passwordForm(page).locator('input[name=email]').fill(email);
 	await passwordForm(page).locator('input[name=password]').fill(password);
 	await passwordForm(page).getByRole('button', { name: 'Inloggen' }).click();
@@ -80,28 +86,51 @@ async function logout(page: Page) {
 
 async function guestOrder(email: string) {
 	const number = `SK-1999-${String(Date.now()).slice(-6)}`;
-	const addr = JSON.stringify({ name: 'Ann DEMO', line1: 'Demostraat 1', postalCode: '9000', city: 'Gent', country: 'BE' });
+	const addr = JSON.stringify({
+		name: 'Ann DEMO',
+		line1: 'Demostraat 1',
+		postalCode: '9000',
+		city: 'Gent',
+		country: 'BE'
+	});
 	const [o] = await query<{ id: string }>(
 		`insert into orders (number, access_token, email, status, payment_status, subtotal, vat_total, total, shipping_address, billing_address, paid_at)
 		 values ($1, 'e2e', $2, 'shipped', 'paid', 4900, 850, 4900, $3, $3, now()) returning id`,
 		[number, email, addr]
 	);
-	await query(`insert into order_lines (order_id, sku, name, unit_price, qty, vat_amount, line_total) values ($1, 'DEMO-E2E', '{"nl":"DEMO Klaverring","fr":"DEMO Bague trèfle"}', 4900, 1, 850, 4900)`, [o.id]);
-	await query(`insert into shipments (order_id, carrier, tracking_number, tracking_url, status) values ($1, 'bpost', '3SDEMO123', 'https://track.example/3SDEMO123', 'shipped')`, [o.id]);
+	await query(
+		`insert into order_lines (order_id, sku, name, unit_price, qty, vat_amount, line_total) values ($1, 'DEMO-E2E', '{"nl":"DEMO Klaverring","fr":"DEMO Bague trèfle"}', 4900, 1, 850, 4900)`,
+		[o.id]
+	);
+	await query(
+		`insert into shipments (order_id, carrier, tracking_number, tracking_url, status) values ($1, 'bpost', '3SDEMO123', 'https://track.example/3SDEMO123', 'shipped')`,
+		[o.id]
+	);
 	await query(`insert into order_events (order_id, type, actor) values ($1, 'shipped', 'e2e')`, [o.id]);
 	return number;
 }
 
 test.describe('customer accounts', () => {
 	// The flows share server-side state (emails, rate limits); one viewport is enough for them.
-	test.beforeEach(({}, info) => test.skip(info.project.name !== 'chromium-desktop', 'flows run on desktop; layouts are checked below'));
+	test.beforeEach(({ browserName: _browser }, info) =>
+		test.skip(info.project.name !== 'chromium-desktop', 'flows run on desktop; layouts are checked below')
+	);
 
-	test('register → verify → logout → password login, with guest cart merge and guest order linking', async ({ page, context, baseURL }) => {
+	test('register → verify → logout → password login, with guest cart merge and guest order linking', async ({
+		page,
+		context,
+		baseURL
+	}) => {
 		const email = uniqueEmail('main');
 		const number = await guestOrder(email);
 		// Guest cart before logging in.
-		const [v] = await query<{ id: string }>("select v.id from variants v join products p on p.id = v.product_id where p.status = 'active' and v.stock > 2 order by v.stock desc limit 1");
-		const r = await context.request.post('/api/cart?lang=nl', { data: { variantId: v.id, qty: 1 }, headers: { origin: baseURL! } });
+		const [v] = await query<{ id: string }>(
+			"select v.id from variants v join products p on p.id = v.product_id where p.status = 'active' and v.stock > 2 order by v.stock desc limit 1"
+		);
+		const r = await context.request.post('/api/cart?lang=nl', {
+			data: { variantId: v.id, qty: 1 },
+			headers: { origin: baseURL! }
+		});
 		expect(r.ok()).toBe(true);
 
 		await register(page, email);
@@ -116,7 +145,10 @@ test.describe('customer accounts', () => {
 		await page.getByRole('link', { name: new RegExp(number) }).click();
 		await expect(page.getByRole('heading', { level: 1 })).toHaveText(`Bestelling ${number}`);
 		await expect(page.locator('ol li[aria-current=step]')).toContainText('Verzonden');
-		await expect(page.getByRole('link', { name: /Volg je pakje/ })).toHaveAttribute('href', 'https://track.example/3SDEMO123');
+		await expect(page.getByRole('link', { name: /Volg je pakje/ })).toHaveAttribute(
+			'href',
+			'https://track.example/3SDEMO123'
+		);
 		// Guest cart now belongs to the customer.
 		const [cart] = await query<{ customer_id: string | null }>(
 			'select c.customer_id from carts c join customers cu on cu.id = c.customer_id where cu.email = $1',
@@ -134,7 +166,7 @@ test.describe('customer accounts', () => {
 		await passwordLogin(page, uniqueEmail('nobody'), PASSWORD);
 		expect(await page.getByRole('alert').textContent()).toBe(wrong);
 
-		await page.goto('/nl/account/inloggen?next=%2Fnl%2Faccount%2Fadressen');
+		await gotoHydrated(page, '/nl/account/inloggen?next=%2Fnl%2Faccount%2Fadressen');
 		await passwordForm(page).locator('input[name=email]').fill(email);
 		await passwordForm(page).locator('input[name=password]').fill(PASSWORD);
 		await passwordForm(page).getByRole('button', { name: 'Inloggen' }).click();
@@ -164,7 +196,10 @@ test.describe('customer accounts', () => {
 		await page.waitForURL(/\/nl\/account$/);
 		await expect(page.getByRole('heading', { level: 1 })).toHaveText('Overzicht');
 		// Magic link proved the email → account verified.
-		const [c] = await query<{ email_verified_at: Date | null }>('select email_verified_at from customers where email = $1', [email]);
+		const [c] = await query<{ email_verified_at: Date | null }>(
+			'select email_verified_at from customers where email = $1',
+			[email]
+		);
 		expect(c.email_verified_at).not.toBeNull();
 
 		await logout(page);
@@ -208,7 +243,9 @@ test.describe('customer accounts', () => {
 		await page.waitForURL(/\/nl\/account$/);
 	});
 
-	test('account area: addresses with one default, settings, GDPR export, deletion with dialog + password', async ({ page }) => {
+	test('account area: addresses with one default, settings, GDPR export, deletion with dialog + password', async ({
+		page
+	}) => {
 		const email = uniqueEmail('area');
 		await guestOrder(email);
 		await register(page, email);
@@ -232,7 +269,10 @@ test.describe('customer accounts', () => {
 		await expect(cards).toHaveCount(2);
 		await expect(cards.first()).toContainText('Werkstraat 2');
 		await expect(page.locator('ul.book > li.default')).toHaveCount(1);
-		await cards.nth(1).getByRole('button', { name: /Verwijderen/ }).click();
+		await cards
+			.nth(1)
+			.getByRole('button', { name: /Verwijderen/ })
+			.click();
 		await expect(page.getByRole('status')).toContainText('verwijderd');
 		await expect(cards).toHaveCount(1);
 
@@ -244,11 +284,16 @@ test.describe('customer accounts', () => {
 		await expect(page.getByRole('status').filter({ hasText: 'Je gegevens zijn opgeslagen' })).toBeVisible();
 		await page.getByRole('button', { name: 'Inschrijven op de nieuwsbrief' }).click();
 		await expect(page.getByRole('status').filter({ hasText: 'bevestig je inschrijving' })).toBeVisible();
-		const [sub] = await query<{ status: string }>('select status from newsletter_subscribers where email = $1', [email]);
+		const [sub] = await query<{ status: string }>('select status from newsletter_subscribers where email = $1', [
+			email
+		]);
 		expect(sub.status).toBe('pending');
 
 		// GDPR export.
-		const [download] = await Promise.all([page.waitForEvent('download'), page.getByRole('link', { name: 'Gegevens downloaden' }).click()]);
+		const [download] = await Promise.all([
+			page.waitForEvent('download'),
+			page.getByRole('link', { name: 'Gegevens downloaden' }).click()
+		]);
 		const data = JSON.parse(readFileSync((await download.path())!, 'utf8'));
 		expect(data.profile.email).toBe(email);
 		expect(data.profile.phone).toBe('+32 470 00 00 00');
@@ -274,13 +319,19 @@ test.describe('customer accounts', () => {
 
 		const gone = await query('select 1 from customers where email = $1', [email]);
 		expect(gone).toHaveLength(0);
-		const [order] = await query<{ customer_id: string | null; email: string }>('select customer_id, email from orders where email = $1', [email]);
+		const [order] = await query<{ customer_id: string | null; email: string }>(
+			'select customer_id, email from orders where email = $1',
+			[email]
+		);
 		expect(order.customer_id).toBeNull(); // invoice data kept, unlinked
 		await passwordLogin(page, email, PASSWORD);
 		await expect(page.getByRole('alert')).toContainText('horen niet bij elkaar');
 	});
 
-	test('order tracking: status + tracking link; a wrong email reveals nothing (same response as no order)', async ({ page, request }) => {
+	test('order tracking: status + tracking link; a wrong email reveals nothing (same response as no order)', async ({
+		page,
+		request
+	}) => {
 		const email = uniqueEmail('track');
 		const number = await guestOrder(email);
 		await page.goto('/nl/bestelling-volgen');
@@ -288,7 +339,10 @@ test.describe('customer accounts', () => {
 		await page.locator('main input[name=email]').fill(email);
 		await page.getByRole('button', { name: 'Bestelling opzoeken' }).click();
 		await expect(page.getByRole('heading', { name: `Bestelling ${number}` })).toBeVisible();
-		await expect(page.getByRole('link', { name: /Volg je pakje/ })).toHaveAttribute('href', 'https://track.example/3SDEMO123');
+		await expect(page.getByRole('link', { name: /Volg je pakje/ })).toHaveAttribute(
+			'href',
+			'https://track.example/3SDEMO123'
+		);
 
 		const post = async (n: string, e: string) => {
 			const res = await request.post('/nl/bestelling-volgen', {
@@ -312,22 +366,32 @@ test.describe('customer accounts', () => {
 			`insert into products (slug, name, category_id, price, status) values ($1, '{"nl":"DEMO Uitverkochte ring","fr":"DEMO Bague épuisée"}', $2, 5900, 'active') returning id`,
 			[slug, cat.id]
 		);
-		const [v] = await query<{ id: string }>(`insert into variants (product_id, sku, metal, size, stock) values ($1, 'DEMO-E2E-BIS', 'gold', '54', 0) returning id`, [p.id]);
+		const [v] = await query<{ id: string }>(
+			`insert into variants (product_id, sku, metal, size, stock) values ($1, 'DEMO-E2E-BIS', 'gold', '54', 0) returning id`,
+			[p.id]
+		);
 		try {
 			await page.goto(`/nl/p/${slug}`);
 			await expect(page.getByText('Mail mij als het terug is')).toBeVisible();
 			await page.locator('form[action="/api/stock-alerts"] input[name=email]').fill(email);
 			await page.getByRole('button', { name: 'Verwittig mij' }).click();
 			await expect(page.getByRole('status').filter({ hasText: 'Genoteerd' })).toBeVisible();
-			const alerts = await query<{ locale: string; notified_at: Date | null }>('select locale, notified_at from stock_alerts where email = $1', [email]);
+			const alerts = await query<{ locale: string; notified_at: Date | null }>(
+				'select locale, notified_at from stock_alerts where email = $1',
+				[email]
+			);
 			expect(alerts).toEqual([{ locale: 'nl', notified_at: null }]);
 
 			// Restock + queue job (same as the cron scan) → exactly one email, never twice.
 			await query('update variants set stock = 3 where id = $1', [v.id]);
 			const cron = () => request.post('/api/jobs', { headers: { authorization: `Bearer ${CRON_SECRET}` } });
-			await query(`insert into jobs (type, payload) values ('stock.alert', $1)`, [JSON.stringify({ variantIds: [v.id] })]);
+			await query(`insert into jobs (type, payload) values ('stock.alert', $1)`, [
+				JSON.stringify({ variantIds: [v.id] })
+			]);
 			expect((await cron()).ok()).toBe(true);
-			await query(`insert into jobs (type, payload) values ('stock.alert', $1)`, [JSON.stringify({ variantIds: [v.id] })]);
+			await query(`insert into jobs (type, payload) values ('stock.alert', $1)`, [
+				JSON.stringify({ variantIds: [v.id] })
+			]);
 			expect((await cron()).ok()).toBe(true);
 			const link = await emailLink('back_in_stock', email, new RegExp(`/nl/p/${slug}\\?variant=`));
 			expect(link).toContain(v.id);
@@ -341,7 +405,9 @@ test.describe('customer accounts', () => {
 
 test.describe('without JavaScript', () => {
 	test.use({ javaScriptEnabled: false });
-	test.beforeEach(({}, info) => test.skip(info.project.name !== 'chromium-desktop', 'desktop only'));
+	test.beforeEach(({ browserName: _browser }, info) =>
+		test.skip(info.project.name !== 'chromium-desktop', 'desktop only')
+	);
 
 	test('login error and order tracking work as plain form posts', async ({ page }) => {
 		await page.goto('/fr/compte/connexion');
@@ -358,8 +424,15 @@ test.describe('without JavaScript', () => {
 	});
 });
 
-test('auth and tracking pages fit the viewport (390/768/1440) and account pages are not indexable', async ({ page }) => {
-	for (const path of ['/nl/account/inloggen', '/fr/compte/inscription', '/nl/account/wachtwoord-vergeten', '/fr/suivi-commande']) {
+test('auth and tracking pages fit the viewport (390/768/1440) and account pages are not indexable', async ({
+	page
+}) => {
+	for (const path of [
+		'/nl/account/inloggen',
+		'/fr/compte/inscription',
+		'/nl/account/wachtwoord-vergeten',
+		'/fr/suivi-commande'
+	]) {
 		if (path.includes('account') || path.includes('compte')) {
 			const res = await page.request.get(path);
 			expect(res.headers()['cache-control']).toBe('private, no-store');
@@ -369,7 +442,10 @@ test('auth and tracking pages fit the viewport (390/768/1440) and account pages 
 		// Measured inside <main> (the shared footer is out of scope here).
 		const overflow = await page.evaluate(() => {
 			const vw = document.documentElement.clientWidth;
-			return Math.max(0, ...Array.from(document.querySelectorAll('main *')).map((el) => el.getBoundingClientRect().right - vw));
+			return Math.max(
+				0,
+				...Array.from(document.querySelectorAll('main *')).map((el) => el.getBoundingClientRect().right - vw)
+			);
 		});
 		expect(overflow, path).toBeLessThanOrEqual(1);
 	}

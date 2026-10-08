@@ -17,7 +17,10 @@ const ERRORS: Record<string, () => string> = {
 };
 
 /** First error of a field as text (keys from the zod schemas → messages). */
-export function errText(errors: Record<string, string[] | undefined> | null | undefined, field: string): string | undefined {
+export function errText(
+	errors: Record<string, string[] | undefined> | null | undefined,
+	field: string
+): string | undefined {
 	const key = errors?.[field]?.[0];
 	if (!key) return undefined;
 	return (ERRORS[key] ?? (() => m.acct_err_generic()))();

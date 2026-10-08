@@ -19,7 +19,8 @@
 		{ path: '/account/settings', label: () => m.acct_nav_settings(), icon: 'settings' }
 	];
 	const internal = $derived(delocalizePath(page.url.pathname).replace(/^\/(nl|fr)/, '') || '/');
-	const isActive = (path: string, exact?: boolean) => (exact ? internal === path : internal === path || internal.startsWith(path + '/'));
+	const isActive = (path: string, exact?: boolean) =>
+		exact ? internal === path : internal === path || internal.startsWith(path + '/');
 </script>
 
 <nav class="acct-nav" aria-label={m.acct_nav_label()}>

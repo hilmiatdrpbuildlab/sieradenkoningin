@@ -17,7 +17,11 @@ export const MAX_ADDRESSES = 20;
 
 // ── Orders ─────────────────────────────────────────────────────────────────────
 
-export async function listCustomerOrders(db: Executor, customerId: string, opts: { limit?: number; offset?: number } = {}) {
+export async function listCustomerOrders(
+	db: Executor,
+	customerId: string,
+	opts: { limit?: number; offset?: number } = {}
+) {
 	const rows = await db
 		.select({
 			number: orders.number,
@@ -216,7 +220,13 @@ export async function updateProfile(
 ) {
 	await db
 		.update(customers)
-		.set({ firstName: input.firstName, lastName: input.lastName, phone: input.phone || null, locale: input.locale, updatedAt: new Date() })
+		.set({
+			firstName: input.firstName,
+			lastName: input.lastName,
+			phone: input.phone || null,
+			locale: input.locale,
+			updatedAt: new Date()
+		})
 		.where(eq(customers.id, customerId));
 }
 
@@ -254,7 +264,11 @@ export async function newsletterOptOut(db: Executor, adapter: NewsletterAdapter,
  * Irreversible deletion (GDPR Art. 17): password re-check, then anonymisation in ONE transaction
  * (orders keep the legally required invoice data; see customers.anonymizeCustomer).
  */
-export async function deleteAccount(db: DB, customerId: string, password: string): Promise<'deleted' | 'wrong_password'> {
+export async function deleteAccount(
+	db: DB,
+	customerId: string,
+	password: string
+): Promise<'deleted' | 'wrong_password'> {
 	if (!(await checkCurrentPassword(db, customerId, password))) return 'wrong_password';
 	await db.transaction(async (tx) => {
 		const ok = await anonymizeCustomer(tx, customerId);

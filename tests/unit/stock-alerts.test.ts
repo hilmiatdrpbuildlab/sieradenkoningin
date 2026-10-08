@@ -43,12 +43,24 @@ async function cleanup() {
 beforeAll(async () => {
 	await migrate(db, { migrationsFolder: './drizzle' });
 	await cleanup();
-	const [cat] = await db.insert(s.categories).values({ key: 'bis-test', slugs: { nl: 'bis-nl', fr: 'bis-fr' }, name: { nl: 'x' }, icon: 'ring' }).returning();
+	const [cat] = await db
+		.insert(s.categories)
+		.values({ key: 'bis-test', slugs: { nl: 'bis-nl', fr: 'bis-fr' }, name: { nl: 'x' }, icon: 'ring' })
+		.returning();
 	const [p] = await db
 		.insert(s.products)
-		.values({ slug: 'bis-test-ring', name: { nl: 'DEMO Klaverring', fr: 'DEMO Bague trèfle' }, categoryId: cat.id, price: 4900, status: 'active' })
+		.values({
+			slug: 'bis-test-ring',
+			name: { nl: 'DEMO Klaverring', fr: 'DEMO Bague trèfle' },
+			categoryId: cat.id,
+			price: 4900,
+			status: 'active'
+		})
 		.returning();
-	const [v] = await db.insert(s.variants).values({ productId: p.id, sku: 'BIS-TEST-1', metal: 'gold', size: '52', stock: 0 }).returning();
+	const [v] = await db
+		.insert(s.variants)
+		.values({ productId: p.id, sku: 'BIS-TEST-1', metal: 'gold', size: '52', stock: 0 })
+		.returning();
 	variantId = v.id;
 });
 afterAll(async () => {
@@ -72,7 +84,13 @@ describe('back-in-stock alerts', () => {
 		expect(rows[0].locale).toBe('fr');
 		await setStock(3);
 		expect(await subscribeStockAlert(db, { email: 'b@bis-test.invalid', variantId, locale: 'nl' })).toBe('in_stock');
-		expect(await subscribeStockAlert(db, { email: 'b@bis-test.invalid', variantId: '00000000-0000-0000-0000-000000000000', locale: 'nl' })).toBe('not_found');
+		expect(
+			await subscribeStockAlert(db, {
+				email: 'b@bis-test.invalid',
+				variantId: '00000000-0000-0000-0000-000000000000',
+				locale: 'nl'
+			})
+		).toBe('not_found');
 	});
 
 	it('sends nothing while the variant is still out of stock', async () => {
@@ -84,7 +102,8 @@ describe('back-in-stock alerts', () => {
 	});
 
 	it('sends each alert exactly once — repeated runs, scan + notify, and concurrent runners', async () => {
-		for (const x of ['d', 'e', 'f']) await subscribeStockAlert(db, { email: `${x}@bis-test.invalid`, variantId, locale: x === 'f' ? 'fr' : 'nl' });
+		for (const x of ['d', 'e', 'f'])
+			await subscribeStockAlert(db, { email: `${x}@bis-test.invalid`, variantId, locale: x === 'f' ? 'fr' : 'nl' });
 		await setStock(2);
 		const { sent, adapter } = mailbox();
 
@@ -95,7 +114,11 @@ describe('back-in-stock alerts', () => {
 		expect(scan.variants).toBe(1);
 		// Only our jobs (the shared test DB may hold other queued jobs).
 		const ids = [jobA!, scan.jobId!];
-		await Promise.all([runJobs(deps(adapter), { ids }), runJobs(deps(adapter), { ids }), sendRestockAlerts(deps(adapter), [variantId])]);
+		await Promise.all([
+			runJobs(deps(adapter), { ids }),
+			runJobs(deps(adapter), { ids }),
+			sendRestockAlerts(deps(adapter), [variantId])
+		]);
 		await runJobs(deps(adapter), { ids });
 		await sendRestockAlerts(deps(adapter), [variantId]);
 		const jobRows = await db.select().from(s.jobs).where(eq(s.jobs.type, 'stock.alert'));
@@ -104,7 +127,10 @@ describe('back-in-stock alerts', () => {
 		expect(sent.map((e) => e.to).sort()).toEqual(['d@bis-test.invalid', 'e@bis-test.invalid', 'f@bis-test.invalid']);
 		expect(sent.find((e) => e.to === 'f@bis-test.invalid')?.subject).toContain('DEMO Bague trèfle');
 		expect(sent[0].html).toContain('https://shop.example/');
-		const pending = await db.select().from(s.stockAlerts).where(and(eq(s.stockAlerts.variantId, variantId)));
+		const pending = await db
+			.select()
+			.from(s.stockAlerts)
+			.where(and(eq(s.stockAlerts.variantId, variantId)));
 		expect(pending.every((a) => a.notifiedAt !== null)).toBe(true);
 		expect(await notifyRestock(db, [variantId])).toBeNull();
 	});

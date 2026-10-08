@@ -55,7 +55,12 @@ export async function findCustomerByEmail(db: Executor, email: string): Promise<
 // ── Tokens ─────────────────────────────────────────────────────────────────────
 
 /** Creates a single-use token for `email` (older unused tokens of the same purpose are revoked). */
-export async function issueToken(db: Executor, email: string, purpose: TokenPurpose, now = new Date()): Promise<string> {
+export async function issueToken(
+	db: Executor,
+	email: string,
+	purpose: TokenPurpose,
+	now = new Date()
+): Promise<string> {
 	const normalized = email.trim().toLowerCase();
 	await db
 		.update(magicLinks)
@@ -271,7 +276,15 @@ const TEMPLATE_BY_KIND = {
  */
 export async function sendAccountEmail(
 	deps: { db: Executor; email: EmailAdapter },
-	input: { to: string; kind: AccountEmailKind; lang: Lang; siteUrl: string; firstName?: string | null; url: string; secondaryUrl?: string | null }
+	input: {
+		to: string;
+		kind: AccountEmailKind;
+		lang: Lang;
+		siteUrl: string;
+		firstName?: string | null;
+		url: string;
+		secondaryUrl?: string | null;
+	}
 ) {
 	const { store, emails } = await getSettings(deps.db, ['store', 'emails']);
 	try {

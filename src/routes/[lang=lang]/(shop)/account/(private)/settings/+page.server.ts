@@ -66,7 +66,10 @@ export const actions: Actions = {
 		await setPassword(locals.db, c.id, parsed.data.password);
 		// Sign out every other device; this browser gets a fresh session.
 		await destroyAllSessions(locals.db, 'customer', c.id);
-		await createSession(locals.db, cookies, 'customer', c.id, { ip: locals.ip, ua: request.headers.get('user-agent') ?? undefined });
+		await createSession(locals.db, cookies, 'customer', c.id, {
+			ip: locals.ip,
+			ua: request.headers.get('user-agent') ?? undefined
+		});
 		return { section: 'password' as const, saved: true };
 	},
 
@@ -98,7 +101,8 @@ export const actions: Actions = {
 			return fail(429, { section: 'delete' as const, error: 'rate' as const });
 		}
 		const r = await deleteAccount(locals.db, c.id, parsed.data.password);
-		if (r === 'wrong_password') return fail(400, { section: 'delete' as const, errors: { password: ['wrong_password'] } });
+		if (r === 'wrong_password')
+			return fail(400, { section: 'delete' as const, errors: { password: ['wrong_password'] } });
 		await logout(locals.db, cookies);
 		redirect(303, `${localizeHref('/account/login', params.lang)}?deleted=1`);
 	}

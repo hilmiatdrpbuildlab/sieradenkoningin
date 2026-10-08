@@ -16,7 +16,8 @@ export interface ShipmentView {
 	status: string;
 }
 
-export type CustomerOrderStatus = 'pending' | 'paid' | 'processing' | 'shipped' | 'delivered' | 'cancelled' | 'refunded';
+export type CustomerOrderStatus =
+	'pending' | 'paid' | 'processing' | 'shipped' | 'delivered' | 'cancelled' | 'refunded';
 
 export interface AddressView {
 	name: string;

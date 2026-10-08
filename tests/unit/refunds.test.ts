@@ -163,11 +163,11 @@ describe('createRefund', () => {
 		expect(queued).toHaveLength(1);
 		await runJobs(d, { ids: [...r.jobIds, ...last.jobIds] });
 		expect(d.email.sent.filter((e) => e.template === 'refund_issued')).toHaveLength(2);
-		const mail = d.email.sent.find((e) => e.template === 'refund_issued')!;
-		expect(mail.subject).toBe(`Remboursement de la commande ${order.number}`);
-		expect(mail.html).toContain(
-			new Intl.NumberFormat('fr-BE', { style: 'currency', currency: 'EUR' }).format(r.amount / 100)
-		);
+		// Both jobs share a run time, so their order is not guaranteed: match the e-mail by amount.
+		const amount = new Intl.NumberFormat('fr-BE', { style: 'currency', currency: 'EUR' }).format(r.amount / 100);
+		const mail = d.email.sent.find((e) => e.template === 'refund_issued' && e.html.includes(amount));
+		expect(mail, `refund e-mail with ${amount}`).toBeDefined();
+		expect(mail!.subject).toBe(`Remboursement de la commande ${order.number}`);
 	});
 
 	it('a provider failure leaves no trace in the totals', async () => {

@@ -59,7 +59,12 @@
 			<Field label={m.acct_email()} required error={errText(errors, 'email')}>
 				<Input name="email" type="email" autocomplete="email" inputmode="email" value={values?.email ?? ''} />
 			</Field>
-			<Field label={m.acct_password()} required hint={m.acct_password_hint({ min: 10 })} error={errText(errors, 'password')}>
+			<Field
+				label={m.acct_password()}
+				required
+				hint={m.acct_password_hint({ min: 10 })}
+				error={errText(errors, 'password')}
+			>
 				<Input name="password" type="password" autocomplete="new-password" minlength={10} />
 			</Field>
 			<Checkbox name="newsletter" checked={values?.newsletter ?? false} description={m.acct_newsletter_optin_hint()}>
@@ -72,7 +77,9 @@
 		{#snippet footer()}
 			<p>
 				{m.acct_have_account()}
-				<a href={data.next ? `${L('/account/login')}?next=${encodeURIComponent(data.next)}` : L('/account/login')}>{m.acct_login_link()}</a>
+				<a href={data.next ? `${L('/account/login')}?next=${encodeURIComponent(data.next)}` : L('/account/login')}
+					>{m.acct_login_link()}</a
+				>
 			</p>
 		{/snippet}
 	</AuthShell>

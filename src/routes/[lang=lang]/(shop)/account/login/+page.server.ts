@@ -42,10 +42,12 @@ export const actions: Actions = {
 		const byIp = await rateLimit(locals.db, `login:ip:${locals.ip}`, ipLimit.max, ipLimit.windowSec);
 		const emailKey = `login:email:${parsed.data.email}`;
 		const byEmail = await rateLimit(locals.db, emailKey, emailLimit.max, emailLimit.windowSec);
-		if (!byIp.allowed || !byEmail.allowed) return fail(429, { form: 'password' as const, error: 'rate' as const, values });
+		if (!byIp.allowed || !byEmail.allowed)
+			return fail(429, { form: 'password' as const, error: 'rate' as const, values });
 
 		const result = await checkPasswordLogin(locals.db, parsed.data.email, parsed.data.password);
-		if (!result.ok && result.reason === 'invalid') return fail(400, { form: 'password' as const, error: 'invalid' as const, values });
+		if (!result.ok && result.reason === 'invalid')
+			return fail(400, { form: 'password' as const, error: 'invalid' as const, values });
 		if (!result.ok) {
 			// Correct password but unverified email: (re)send the verification link.
 			const siteUrl = PUBLIC_SITE_URL || url.origin;
@@ -60,7 +62,10 @@ export const actions: Actions = {
 			});
 			return fail(403, { form: 'password' as const, error: 'unverified' as const, values });
 		}
-		await completeLogin({ db: locals.db, cookies, ip: locals.ip, ua: request.headers.get('user-agent') }, result.customer);
+		await completeLogin(
+			{ db: locals.db, cookies, ip: locals.ip, ua: request.headers.get('user-agent') },
+			result.customer
+		);
 		await resetRateLimit(locals.db, emailKey);
 		redirect(303, next ?? localizeHref('/account', lang));
 	},

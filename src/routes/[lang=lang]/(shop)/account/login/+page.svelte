@@ -48,7 +48,11 @@
 		{#if pw && 'error' in pw}
 			<Notice kind="error">
 				<p>
-					{pw.error === 'rate' ? m.acct_err_rate() : pw.error === 'unverified' ? m.acct_err_unverified() : m.acct_err_login_invalid()}
+					{pw.error === 'rate'
+						? m.acct_err_rate()
+						: pw.error === 'unverified'
+							? m.acct_err_unverified()
+							: m.acct_err_login_invalid()}
 				</p>
 			</Notice>
 		{/if}

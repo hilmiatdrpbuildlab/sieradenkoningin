@@ -4,7 +4,13 @@
  */
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
-import { completeLogin, consumeToken, findCustomerByEmail, markVerified, peekToken } from '#lib/server/services/customer-auth.ts';
+import {
+	completeLogin,
+	consumeToken,
+	findCustomerByEmail,
+	markVerified,
+	peekToken
+} from '#lib/server/services/customer-auth.ts';
 import { localizeHref } from '#lib/i18n/paths.ts';
 
 export const load: PageServerLoad = async ({ locals, url }) => {

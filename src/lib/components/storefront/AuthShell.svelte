@@ -6,7 +6,8 @@
 	import type { Snippet } from 'svelte';
 	import Icon from '#lib/components/ui/Icon.svelte';
 
-	let { title, lead, children, footer }: { title: string; lead?: string; children: Snippet; footer?: Snippet } = $props();
+	let { title, lead, children, footer }: { title: string; lead?: string; children: Snippet; footer?: Snippet } =
+		$props();
 </script>
 
 <section class="auth container-lux">

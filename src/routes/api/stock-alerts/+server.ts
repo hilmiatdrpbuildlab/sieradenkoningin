@@ -13,7 +13,14 @@ import { STOCK_ALERT_LIMIT, subscribeStockAlert } from '#lib/server/services/sto
 import { safeNext } from '#lib/server/services/customer-auth.ts';
 
 type Result = 'ok' | 'in_stock' | 'invalid' | 'captcha' | 'rate' | 'not_found';
-const STATUS: Record<Result, number> = { ok: 200, in_stock: 409, invalid: 400, captcha: 400, rate: 429, not_found: 404 };
+const STATUS: Record<Result, number> = {
+	ok: 200,
+	in_stock: 409,
+	invalid: 400,
+	captcha: 400,
+	rate: 429,
+	not_found: 404
+};
 
 export const POST: RequestHandler = async ({ request, locals }) => {
 	const wantsJson = (request.headers.get('accept') ?? '').includes('application/json');
@@ -26,7 +33,8 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 	const back = safeNext(form.get('return'));
 
 	const respond = (result: Result) => {
-		if (wantsJson || !back) return json({ result }, { status: STATUS[result], headers: { 'cache-control': 'no-store' } });
+		if (wantsJson || !back)
+			return json({ result }, { status: STATUS[result], headers: { 'cache-control': 'no-store' } });
 		const u = new URL(back, 'http://x');
 		u.searchParams.set('alert', result);
 		redirect(303, u.pathname + u.search);
@@ -38,8 +46,12 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		locale: String(form.get('locale') ?? '')
 	});
 	if (!parsed.success) return respond('invalid');
-	if (!(await verifyTurnstile(env.TURNSTILE_SECRET, form.get('cf-turnstile-response'), locals.ip))) return respond('captcha');
-	if (!(await rateLimit(locals.db, `stockalert:ip:${locals.ip}`, STOCK_ALERT_LIMIT.max, STOCK_ALERT_LIMIT.windowSec)).allowed) {
+	if (!(await verifyTurnstile(env.TURNSTILE_SECRET, form.get('cf-turnstile-response'), locals.ip)))
+		return respond('captcha');
+	if (
+		!(await rateLimit(locals.db, `stockalert:ip:${locals.ip}`, STOCK_ALERT_LIMIT.max, STOCK_ALERT_LIMIT.windowSec))
+			.allowed
+	) {
 		return respond('rate');
 	}
 	return respond(await subscribeStockAlert(locals.db, parsed.data));

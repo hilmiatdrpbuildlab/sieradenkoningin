@@ -10,7 +10,13 @@ import { forgotSchema } from '#lib/schemas/account.ts';
 import { fieldErrors } from '#lib/schemas/common.ts';
 import { rateLimit } from '#lib/server/auth/rate-limit.ts';
 import { verifyTurnstile } from '#lib/server/adapters/turnstile.ts';
-import { AUTH_LIMITS, authLink, findCustomerByEmail, issueToken, sendAccountEmail } from '#lib/server/services/customer-auth.ts';
+import {
+	AUTH_LIMITS,
+	authLink,
+	findCustomerByEmail,
+	issueToken,
+	sendAccountEmail
+} from '#lib/server/services/customer-auth.ts';
 
 export const load: PageServerLoad = async ({ url }) => ({ expired: url.searchParams.has('expired') });
 

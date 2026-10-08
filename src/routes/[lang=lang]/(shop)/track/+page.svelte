@@ -27,14 +27,18 @@
 		<section class="result" aria-labelledby="track-result">
 			<h2 id="track-result">{m.track_result_title({ number: order.number })}</h2>
 			<p class="meta">
-				{m.acct_placed_on({ date: formatDate(order.placedAt, data.lang, { day: 'numeric', month: 'long', year: 'numeric' }) })} ·
+				{m.acct_placed_on({
+					date: formatDate(order.placedAt, data.lang, { day: 'numeric', month: 'long', year: 'numeric' })
+				})} ·
 				<strong>{statusLabel(order.status)}</strong>
 			</p>
 			<OrderTimeline steps={order.timeline} shipments={order.shipments} lang={data.lang} />
 			{#if order.lines.length}
 				<ul class="lines">
 					{#each order.lines as l, i (i)}
-						<li>{l.qty} × {l.name}{#if l.variantLabel}<span> — {l.variantLabel}</span>{/if}</li>
+						<li>
+							{l.qty} × {l.name}{#if l.variantLabel}<span> — {l.variantLabel}</span>{/if}
+						</li>
 					{/each}
 				</ul>
 			{/if}
@@ -55,11 +59,25 @@
 		>
 			{#if form && 'error' in form}
 				<Notice kind="error">
-					<p>{form.error === 'rate' ? m.acct_err_rate() : form.error === 'captcha' ? m.acct_err_captcha() : m.track_not_found()}</p>
+					<p>
+						{form.error === 'rate'
+							? m.acct_err_rate()
+							: form.error === 'captcha'
+								? m.acct_err_captcha()
+								: m.track_not_found()}
+					</p>
 				</Notice>
 			{/if}
 			<Field label={m.track_number()} required hint={m.track_number_hint()} error={errText(errors, 'number')}>
-				<Input name="number" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength={20} placeholder="SK-2026-000123" value={values?.number ?? ''} />
+				<Input
+					name="number"
+					autocomplete="off"
+					autocapitalize="characters"
+					spellcheck="false"
+					maxlength={20}
+					placeholder="SK-2026-000123"
+					value={values?.number ?? ''}
+				/>
 			</Field>
 			<Field label={m.acct_email()} required hint={m.track_email_hint()} error={errText(errors, 'email')}>
 				<Input name="email" type="email" autocomplete="email" inputmode="email" value={values?.email ?? ''} />

@@ -19,7 +19,8 @@
 
 	const p = $derived(data.profile);
 	const sec = $derived(form?.section ?? null);
-	const errorsFor = (s: string) => (form && form.section === s && 'errors' in form ? (form.errors as Record<string, string[]>) : null);
+	const errorsFor = (s: string) =>
+		form && form.section === s && 'errors' in form ? (form.errors as Record<string, string[]>) : null;
 	const pv = $derived(form?.section === 'profile' && 'values' in form ? form.values : null);
 	const base = $derived(localizeHref('/account/settings', data.lang));
 	const inlineDelete = $derived(data.showDelete || (sec === 'delete' && !deleteOpen));
@@ -73,13 +74,19 @@
 
 <section aria-labelledby="pw-title" class="panel">
 	<h2 id="pw-title">{m.acct_password_title()}</h2>
-	{#if sec === 'password' && form && 'saved' in form}<Notice kind="success"><p>{m.acct_password_saved()}</p></Notice>{/if}
+	{#if sec === 'password' && form && 'saved' in form}<Notice kind="success"><p>{m.acct_password_saved()}</p></Notice
+		>{/if}
 	{#if sec === 'password' && form && 'error' in form}<Notice kind="error"><p>{m.acct_err_rate()}</p></Notice>{/if}
 	<form method="POST" action="?/password" class="form" novalidate use:enhance={submit('password')}>
 		<Field label={m.acct_current_password()} required error={errText(errorsFor('password'), 'current')}>
 			<Input name="current" type="password" autocomplete="current-password" />
 		</Field>
-		<Field label={m.acct_new_password()} required hint={m.acct_password_hint({ min: 10 })} error={errText(errorsFor('password'), 'password')}>
+		<Field
+			label={m.acct_new_password()}
+			required
+			hint={m.acct_password_hint({ min: 10 })}
+			error={errText(errorsFor('password'), 'password')}
+		>
 			<Input name="password" type="password" autocomplete="new-password" minlength={10} />
 		</Field>
 		<Field label={m.acct_confirm_password()} required error={errText(errorsFor('password'), 'confirm')}>
@@ -92,7 +99,9 @@
 <section aria-labelledby="nl-title" class="panel">
 	<h2 id="nl-title">{m.acct_newsletter_title()}</h2>
 	{#if sec === 'newsletter' && form && 'subscribed' in form}
-		<Notice kind="success"><p>{form.subscribed === 'already' ? m.acct_newsletter_status_on() : m.acct_newsletter_check()}</p></Notice>
+		<Notice kind="success"
+			><p>{form.subscribed === 'already' ? m.acct_newsletter_status_on() : m.acct_newsletter_check()}</p></Notice
+		>
 	{:else if sec === 'newsletter' && form && 'unsubscribed' in form}
 		<Notice kind="success"><p>{m.acct_newsletter_unsubscribed()}</p></Notice>
 	{:else if sec === 'newsletter' && form && 'error' in form}
