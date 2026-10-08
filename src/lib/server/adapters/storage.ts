@@ -2,8 +2,10 @@
  * Object storage adapter (S3-compatible API, decision D7).
  * - `s3`: any S3-compatible bucket (Neon object storage if S3-compatible, Cloudflare R2 otherwise).
  *   Uses aws4fetch (tiny, Web-Crypto based) — the AWS SDK is too heavy for Workers.
- * - `mock`: writes to `.data/uploads` (dev, tests, previews). Files are served by `/media/[...key]`
- *   and "presigned" uploads go to `/admin/api/uploads/put` with an HMAC signature.
+ * - `mock`: writes to `.data/uploads` (dev, tests, previews).
+ * `proxied` (always for mock; for s3 when PUBLIC_MEDIA_URL is empty): files are served by `/media/[...key]`
+ * and uploads go to `/admin/api/uploads/put` with an HMAC signature, so the browser never talks to the
+ * bucket directly (no bucket CORS/CSP needed, private bucket).
  */
 import { AwsClient } from 'aws4fetch';
 import { hmacHex, safeEqual } from '../crypto.ts';
@@ -20,6 +22,8 @@ export interface StorageEnv {
 
 export interface Storage {
 	kind: 's3' | 'mock';
+	/** Uploads/downloads go through the app's own routes instead of bucket URLs. */
+	proxied: boolean;
 	presignPut(key: string, contentType: string, expires?: number): Promise<string>;
 	put(key: string, body: Uint8Array | string, contentType: string): Promise<void>;
 	get(key: string): Promise<{ body: Uint8Array; contentType: string } | null>;
@@ -57,6 +61,7 @@ export function createStorage(env: StorageEnv): Storage {
 		region: env.STORAGE_REGION ?? 'auto'
 	});
 	const objectUrl = (key: string) => `${env.STORAGE_ENDPOINT}/${env.STORAGE_BUCKET}/${key}`;
+	const proxied = !env.PUBLIC_MEDIA_URL;
 	const presign = async (key: string, method: 'GET' | 'PUT', expires: number, contentType?: string) => {
 		const url = new URL(objectUrl(key));
 		url.searchParams.set('X-Amz-Expires', String(expires));
@@ -69,9 +74,14 @@ export function createStorage(env: StorageEnv): Storage {
 
 	return {
 		kind: 's3',
+		proxied,
 		/** Content-Type is signed, so the browser must send the exact same header. */
-		presignPut: (key, contentType, expires = 300) => presign(key, 'PUT', expires, contentType),
-		signedGetUrl: (key, expires = 300) => presign(key, 'GET', expires),
+		presignPut: (key, contentType, expires = 300) =>
+			proxied
+				? appSigned(env, '/admin/api/uploads/put', 'PUT', key, expires)
+				: presign(key, 'PUT', expires, contentType),
+		signedGetUrl: (key, expires = 300) =>
+			proxied ? appSigned(env, '/media/private', 'GET', key, expires) : presign(key, 'GET', expires),
 		async put(key, body, contentType) {
 			const res = await client.fetch(objectUrl(key), {
 				method: 'PUT',
@@ -93,7 +103,7 @@ export function createStorage(env: StorageEnv): Storage {
 			const res = await client.fetch(objectUrl(key), { method: 'DELETE' });
 			if (!res.ok && res.status !== 404) throw new Error(`Storage delete failed: ${res.status}`);
 		},
-		publicUrl: (key) => `${env.PUBLIC_MEDIA_URL || env.STORAGE_ENDPOINT + '/' + env.STORAGE_BUCKET}/${key}`
+		publicUrl: (key) => `${env.PUBLIC_MEDIA_URL || '/media'}/${key}`
 	};
 }
 
@@ -107,21 +117,24 @@ export async function verifyMockSignature(secret: string, method: string, key: s
 	return safeEqual(await mockSignature(secret, method, key, expiresAt), sig);
 }
 
+/** App-route URL signed with SESSION_SECRET (stands in for S3 presigning when proxied). */
+async function appSigned(env: StorageEnv, route: string, method: string, key: string, expires: number) {
+	const exp = Date.now() + expires * 1000;
+	const sig = await mockSignature(env.SESSION_SECRET, method, key, exp);
+	return `${route}?key=${encodeURIComponent(key)}&exp=${exp}&sig=${sig}`;
+}
+
 function createMockStorage(env: StorageEnv): Storage {
 	const fs = () => import('node:fs/promises');
 	const path = (key: string) => {
 		if (!isSafeKey(key)) throw new Error('Invalid storage key');
 		return `${MOCK_DIR}/${key}`;
 	};
-	const signed = async (route: string, method: string, key: string, expires: number) => {
-		const exp = Date.now() + expires * 1000;
-		const sig = await mockSignature(env.SESSION_SECRET, method, key, exp);
-		return `${route}?key=${encodeURIComponent(key)}&exp=${exp}&sig=${sig}`;
-	};
 	return {
 		kind: 'mock',
-		presignPut: (key, _contentType, expires = 300) => signed('/admin/api/uploads/put', 'PUT', key, expires),
-		signedGetUrl: (key, expires = 300) => signed('/media/private', 'GET', key, expires),
+		proxied: true,
+		presignPut: (key, _contentType, expires = 300) => appSigned(env, '/admin/api/uploads/put', 'PUT', key, expires),
+		signedGetUrl: (key, expires = 300) => appSigned(env, '/media/private', 'GET', key, expires),
 		async put(key, body) {
 			const { mkdir, writeFile } = await fs();
 			const p = path(key);

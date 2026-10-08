@@ -49,5 +49,6 @@
 	"rail_view_all": "Bekijk alles",
 	"rail_previous": "Vorige producten",
 	"rail_next": "Volgende producten",
-	"categories_title": "Shop per categorie"
+	"categories_title": "Shop per categorie",
+	"staging_banner": "Testomgeving — bestellingen en betalingen worden gesimuleerd"
 }

@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import { page } from '$app/state';
 	import { afterNavigate } from '$app/navigation';
-	import { PUBLIC_SITE_URL } from '$app/env/public';
+	import { PUBLIC_SITE_URL, PUBLIC_STAGING } from '$app/env/public';
 	import SiteHeader from '#lib/components/storefront/SiteHeader.svelte';
 	import SiteFooter from '#lib/components/storefront/SiteFooter.svelte';
 	import Toast from '#lib/components/ui/Toast.svelte';
@@ -75,6 +75,7 @@
 </svelte:head>
 
 <a class="skip" href="#content">{m.ui_skip_to_content()}</a>
+{#if PUBLIC_STAGING === '1'}<p class="staging" role="note">{m.staging_banner()}</p>{/if}
 
 <SiteHeader
 	lang={data.lang}
@@ -132,5 +133,19 @@
 	}
 	main:focus {
 		outline: none;
+	}
+	/* Staging deploys only (PUBLIC_STAGING=1). Fixed pill so it never shifts the (overlay) header. */
+	.staging {
+		position: fixed;
+		left: var(--space-4);
+		bottom: var(--space-4);
+		z-index: var(--z-toast);
+		margin: 0;
+		padding: var(--space-2) var(--space-4);
+		background: var(--ui-warning-bg);
+		color: var(--ui-text);
+		border: 1px solid var(--ui-warning);
+		font-size: var(--fs-xs);
+		pointer-events: none;
 	}
 </style>

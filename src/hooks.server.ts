@@ -2,7 +2,7 @@ import { error, isHttpError, redirect } from '@sveltejs/kit';
 import { sequence, type Handle, type HandleServerError } from '@sveltejs/kit/hooks';
 import { eq } from 'drizzle-orm';
 import * as env from '$app/env/private';
-import { PUBLIC_MEDIA_URL } from '$app/env/public';
+import { PUBLIC_MEDIA_URL, PUBLIC_STAGING } from '$app/env/public';
 import { createDb } from '#lib/server/db/index.ts';
 import { adminUsers, customers, redirects } from '#lib/server/db/schema.ts';
 import { createStorage } from '#lib/server/adapters/storage.ts';
@@ -187,6 +187,7 @@ const securityHeaders: Handle = async ({ event, resolve }) => {
 	set('x-content-type-options', 'nosniff');
 	set('x-frame-options', 'SAMEORIGIN');
 	const p = event.url.pathname;
+	if (PUBLIC_STAGING === '1') set('x-robots-tag', 'noindex, nofollow');
 	if (isAdminPath(p)) {
 		set('x-robots-tag', 'noindex, nofollow');
 		set('cache-control', 'private, no-store');

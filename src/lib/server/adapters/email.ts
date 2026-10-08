@@ -59,12 +59,17 @@ function createMockEmail(from: string): EmailAdapter {
 	return {
 		provider: 'mock',
 		async send(email) {
-			const { mkdir, writeFile } = await import('node:fs/promises');
 			const id = `mock-${Date.now()}-${crypto.randomUUID().slice(0, 6)}`;
 			const safe = email.to.replace(/[^a-z0-9@._-]/gi, '_');
-			await mkdir('.data/emails', { recursive: true });
 			const header = `<!-- from: ${from} | to: ${email.to} | subject: ${email.subject.replace(/--/g, '—')} -->\n`;
-			await writeFile(`.data/emails/${id}-${email.template}-${safe}.html`, header + email.html);
+			try {
+				const { mkdir, writeFile } = await import('node:fs/promises');
+				await mkdir('.data/emails', { recursive: true });
+				await writeFile(`.data/emails/${id}-${email.template}-${safe}.html`, header + email.html);
+			} catch {
+				// No writable disk (Cloudflare Workers staging): log the template only, never the recipient (PII).
+				console.info(`[mock email] ${id} ${email.template} not sent (no POSTMARK_TOKEN)`);
+			}
 			return { id };
 		}
 	};

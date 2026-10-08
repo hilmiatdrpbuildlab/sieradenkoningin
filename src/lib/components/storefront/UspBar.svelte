@@ -21,13 +21,12 @@
 	}
 	ul {
 		display: flex;
-		gap: var(--space-8);
+		flex-wrap: wrap; /* wraps instead of a non-focusable horizontal scroller (WCAG 2.1.1) */
+		gap: var(--space-2) var(--space-8);
 		justify-content: center;
 		list-style: none;
 		margin: 0 auto;
 		padding-block: var(--space-4);
-		overflow-x: auto;
-		scrollbar-width: none;
 	}
 	li {
 		display: inline-flex;
@@ -40,10 +39,5 @@
 	}
 	li :global(svg) {
 		color: var(--ui-accent);
-	}
-	@media (max-width: 47.99rem) {
-		ul {
-			justify-content: flex-start;
-		}
 	}
 </style>

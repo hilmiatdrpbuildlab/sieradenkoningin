@@ -39,6 +39,11 @@ export const variables = defineEnvVars({
 		description: 'Public/CDN base URL for media (empty → /media served by the mock storage)',
 		schema: optional
 	},
+	PUBLIC_STAGING: {
+		public: true,
+		description: '"1" on staging/demo deploys: noindex everywhere + a visible staging banner in the shop',
+		schema: optional
+	},
 	PUBLIC_TURNSTILE_SITE_KEY: { public: true, schema: optional },
 	PUBLIC_PLAUSIBLE_DOMAIN: { public: true, schema: optional },
 	PUBLIC_GA4_ID: { public: true, schema: optional }

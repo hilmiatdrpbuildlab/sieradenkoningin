@@ -1,6 +1,6 @@
 /**
- * PUT /admin/api/uploads/put?key=&exp=&sig= — upload target of the MOCK storage adapter (dev, tests,
- * previews). Stands in for an S3 presigned PUT: the HMAC signature binds method + key + expiry.
+ * PUT /admin/api/uploads/put?key=&exp=&sig= — upload target when storage is `proxied` (mock adapter, or
+ * S3 without a media CDN). Stands in for an S3 presigned PUT: the HMAC signature binds method + key + expiry.
  */
 import { error } from '@sveltejs/kit';
 import * as env from '$app/env/private';
@@ -12,7 +12,7 @@ import { imageInfo } from '#lib/server/services/media.ts';
 
 export const PUT: RequestHandler = async ({ locals, request, url }) => {
 	requirePermission(locals, 'catalog:write');
-	if (locals.storage.kind !== 'mock') error(404, 'Niet gevonden');
+	if (!locals.storage.proxied) error(404, 'Niet gevonden');
 	const key = url.searchParams.get('key') ?? '';
 	const exp = Number(url.searchParams.get('exp'));
 	const sig = url.searchParams.get('sig') ?? '';

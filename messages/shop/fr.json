@@ -49,5 +49,6 @@
 	"rail_view_all": "Tout voir",
 	"rail_previous": "Produits précédents",
 	"rail_next": "Produits suivants",
-	"categories_title": "Par catégorie"
+	"categories_title": "Par catégorie",
+	"staging_banner": "Environnement de test — les commandes et paiements sont simulés"
 }

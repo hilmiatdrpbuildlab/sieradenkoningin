@@ -17,6 +17,7 @@ describe('CSRF origin check', () => {
 	it('exempts provider webhooks (they verify themselves)', () => {
 		expect(isCsrfForbidden(req('POST', form), url('/api/webhooks/mollie'))).toBe(false);
 		expect(isCsrfForbidden(req('POST', form), url('/api/webhooks/sendcloud'))).toBe(false);
+		expect(isCsrfForbidden(req('POST', {}), url('/api/jobs'))).toBe(false); // bearer-token cron, no cookies
 	});
 
 	it('ignores JSON requests and safe methods (same as SvelteKit)', () => {

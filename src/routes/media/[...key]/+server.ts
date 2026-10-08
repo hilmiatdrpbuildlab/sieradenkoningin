@@ -1,8 +1,8 @@
 /**
- * Serves objects from the MOCK storage adapter (dev / previews without a media CDN).
+ * Serves objects when storage is `proxied` (mock adapter, or S3 without a media CDN — PUBLIC_MEDIA_URL empty).
  * - /media/<key>                          → public media (immutable cache)
  * - /media/private?key=…&exp=…&sig=…      → short-lived signed download (invoices, labels)
- * With real S3/R2 storage this route 404s: media is served from PUBLIC_MEDIA_URL instead.
+ * With a media CDN configured this route 404s: media is served from PUBLIC_MEDIA_URL instead.
  */
 import { error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
@@ -12,7 +12,7 @@ import { isSafeKey, verifyMockSignature } from '#lib/server/adapters/storage.ts'
 const PRIVATE_PREFIXES = ['invoices/', 'labels/', 'exports/'];
 
 export const GET: RequestHandler = async ({ params, locals, url }) => {
-	if (locals.storage.kind !== 'mock') error(404);
+	if (!locals.storage.proxied) error(404);
 	let key = params.key;
 	let cache = 'public, max-age=31536000, immutable';
 	if (key === 'private') {

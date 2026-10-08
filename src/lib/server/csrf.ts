@@ -9,7 +9,8 @@
  */
 const MUTATING = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
 const FORM_TYPES = ['application/x-www-form-urlencoded', 'multipart/form-data', 'text/plain'];
-export const CSRF_EXEMPT_PREFIXES = ['/api/webhooks/'];
+// Exempt: provider webhooks (verify themselves) and the cron endpoint (bearer token, no cookies).
+export const CSRF_EXEMPT_PREFIXES = ['/api/webhooks/', '/api/jobs'];
 
 export function isCsrfForbidden(request: Request, url: URL): boolean {
 	if (!MUTATING.has(request.method)) return false;
