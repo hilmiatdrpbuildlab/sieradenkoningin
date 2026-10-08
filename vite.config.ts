@@ -7,7 +7,11 @@ import { defineConfig } from 'vite';
 /** Third-party hosts allowed by the CSP (P0-10). Keep in sync with docs/RUNBOOK.md. */
 const MOLLIE = 'https://*.mollie.com' as const;
 const TURNSTILE = 'https://challenges.cloudflare.com' as const;
-const ANALYTICS = ['https://plausible.io', 'https://www.googletagmanager.com', 'https://*.google-analytics.com'] as const;
+const ANALYTICS = [
+	'https://plausible.io',
+	'https://www.googletagmanager.com',
+	'https://*.google-analytics.com'
+] as const;
 
 export default defineConfig({
 	plugins: [
