@@ -15,6 +15,9 @@ import { jobs } from '../db/schema.ts';
 import type { EmailAdapter } from '../adapters/email.ts';
 import type { PaymentsAdapter } from '../adapters/payments.ts';
 import { emailSendJob } from '../services/email.ts';
+import type { Storage } from '../adapters/storage.ts';
+import { invoiceGenerateJob } from '../services/invoices.ts';
+import { stockAlertJob } from '../services/stock-alerts.ts';
 
 export type JobRow = typeof jobs.$inferSelect;
 
@@ -24,13 +27,17 @@ export interface JobDeps {
 	email: EmailAdapter;
 	siteUrl: string;
 	payments?: PaymentsAdapter;
+	/** Object storage (invoice PDFs); jobs needing it fail + retry when a caller does not pass it. */
+	storage?: Storage;
 }
 
 export type JobHandler = (job: JobRow, deps: JobDeps) => Promise<void>;
 
 /** Handler registry — other modules add their job types here. */
 export const HANDLERS: Record<string, JobHandler> = {
-	'email.send': emailSendJob
+	'email.send': emailSendJob,
+	'invoice.generate': invoiceGenerateJob,
+	'stock.alert': stockAlertJob
 };
 
 export const MAX_ATTEMPTS = 5;

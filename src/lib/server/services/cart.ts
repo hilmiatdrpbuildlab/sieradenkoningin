@@ -59,7 +59,7 @@ export async function getOrCreateCart(db: Executor, cookies: Cookies, lang: Lang
 	if (existing) return existing;
 	const token = randomToken(24);
 	const [cart] = await db.insert(carts).values({ token, locale: lang, customerId: customerId ?? null }).returning();
-	cookies.set(CART_COOKIE, token, { path: '/', httpOnly: true, secure: true, sameSite: 'lax', maxAge: 60 * 86400 });
+	cookies.set(CART_COOKIE, token, { path: '/', httpOnly: true, sameSite: 'lax', maxAge: 60 * 86400 });
 	return cart;
 }
 

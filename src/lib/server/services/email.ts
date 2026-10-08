@@ -17,6 +17,11 @@ import type { Lang } from '../../i18n/paths.ts';
 import type { OrderEmailData } from '../../components/email/types.ts';
 import OrderConfirmation from '../../components/email/OrderConfirmation.svelte';
 import PaymentFailed from '../../components/email/PaymentFailed.svelte';
+import AccountEmail from '../../components/email/AccountEmail.svelte';
+import BackInStock from '../../components/email/BackInStock.svelte';
+import type { AccountEmailData, BackInStockEmailData } from '../../components/email/account-types.ts';
+import OrderShipped from '../../components/email/OrderShipped.svelte';
+import RefundIssued from '../../components/email/RefundIssued.svelte';
 import { m } from '../../paraglide/messages.js';
 
 export type { OrderEmailData };
@@ -39,6 +44,17 @@ const orderText = (d: OrderEmailData, locale: Lang, intro: string) =>
 		d.orderUrl
 	].join('\n');
 
+const accountText = (d: AccountEmailData, locale: Lang, text: string) =>
+	[
+		d.firstName ? m.email_acct_greeting_name({ name: d.firstName }, { locale }) : m.email_acct_greeting({}, { locale }),
+		'',
+		text,
+		'',
+		d.url,
+		'',
+		m.email_acct_ignore({}, { locale })
+	].join('\n');
+
 export const TEMPLATES = {
 	order_confirmation: {
 		component: OrderConfirmation,
@@ -49,16 +65,72 @@ export const TEMPLATES = {
 		component: PaymentFailed,
 		subject: (d, locale) => m.email_payment_failed_subject({ number: d.number }, { locale }),
 		text: (d, locale) => orderText(d, locale, m.email_payment_failed_intro({ name: d.firstName }, { locale }))
-	} satisfies TemplateDef<OrderEmailData>
+	} satisfies TemplateDef<OrderEmailData>,
+	order_shipped: {
+		component: OrderShipped,
+		subject: (d, locale) => m.email_shipped_subject({ number: d.number }, { locale }),
+		text: (d, locale) =>
+			[
+				m.email_shipped_intro({ name: d.firstName }, { locale }),
+				'',
+				`${m.email_order_number({}, { locale })}: ${d.number}`,
+				d.tracking?.number ? `${m.email_tracking_number({}, { locale })}: ${d.tracking.number}` : '',
+				d.tracking?.url ?? '',
+				'',
+				d.orderUrl
+			].join('\n')
+	} satisfies TemplateDef<OrderEmailData>,
+	refund_issued: {
+		component: RefundIssued,
+		subject: (d, locale) => m.email_refund_subject({ number: d.number }, { locale }),
+		text: (d, locale) =>
+			[
+				m.email_refund_intro({ name: d.firstName, amount: d.refund?.amountFormatted ?? '' }, { locale }),
+				'',
+				m.email_refund_timing({}, { locale }),
+				'',
+				d.orderUrl
+			].join('\n')
+	} satisfies TemplateDef<OrderEmailData>,
+	// Customer account (P3-01) — one component, four kinds (data.kind must match the template).
+	account_verify: {
+		component: AccountEmail,
+		subject: (_d, locale) => m.email_acct_verify_subject({}, { locale }),
+		text: (d, locale) => accountText(d, locale, m.email_acct_verify_text({}, { locale }))
+	} satisfies TemplateDef<AccountEmailData>,
+	account_login_link: {
+		component: AccountEmail,
+		subject: (_d, locale) => m.email_acct_login_subject({}, { locale }),
+		text: (d, locale) => accountText(d, locale, m.email_acct_login_text({}, { locale }))
+	} satisfies TemplateDef<AccountEmailData>,
+	account_reset: {
+		component: AccountEmail,
+		subject: (_d, locale) => m.email_acct_reset_subject({}, { locale }),
+		text: (d, locale) => accountText(d, locale, m.email_acct_reset_text({}, { locale }))
+	} satisfies TemplateDef<AccountEmailData>,
+	account_exists: {
+		component: AccountEmail,
+		subject: (_d, locale) => m.email_acct_exists_subject({}, { locale }),
+		text: (d, locale) => accountText(d, locale, m.email_acct_exists_text({}, { locale }))
+	} satisfies TemplateDef<AccountEmailData>,
+	// Back-in-stock alert (P3-09).
+	back_in_stock: {
+		component: BackInStock,
+		subject: (d, locale) => m.email_bis_subject({ name: d.productName }, { locale }),
+		text: (d, locale) =>
+			[m.email_bis_text({}, { locale }), '', `${d.productName}${d.variantLabel ? ` (${d.variantLabel})` : ''}`, '', d.productUrl].join('\n')
+	} satisfies TemplateDef<BackInStockEmailData>
 };
 export type TemplateName = keyof typeof TEMPLATES;
+/** Data shape expected by a template (inferred from its component). */
+export type TemplateData<T extends TemplateName> = T extends TemplateName ? ((typeof TEMPLATES)[T] extends TemplateDef<infer D> ? D : never) : never;
 
 /** Strips HTML comments — Svelte's hydration markers (`<!--[0-->`, `<!---->` …) are useless in an email. */
 const clean = (html: string) => html.replace(/<!--[\s\S]*?-->/g, '');
 
 /** Renders a template to a complete HTML document + plain-text alternative. */
-export function renderEmail<T extends TemplateName>(template: T, locale: Lang, data: OrderEmailData) {
-	const def = TEMPLATES[template] as TemplateDef<OrderEmailData>;
+export function renderEmail<T extends TemplateName>(template: T, locale: Lang, data: TemplateData<T>) {
+	const def = TEMPLATES[template] as unknown as TemplateDef<TemplateData<T>>;
 	const subject = def.subject(data, locale);
 	const { body } = render(def.component, { props: { locale, data } });
 	const html = `<!doctype html><html lang="${locale === 'fr' ? 'fr-BE' : 'nl-BE'}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><meta name="supported-color-schemes" content="light"><title>${escapeHtml(subject)}</title></head><body style="margin:0;padding:0;background:#ebe1d8;">${clean(body)}</body></html>`;
@@ -74,13 +146,13 @@ export interface SendEmailDeps {
 }
 
 /** Renders, sends and logs one email. Throws when sending fails (after logging) so jobs retry. */
-export async function sendEmail(
+export async function sendEmail<T extends TemplateName>(
 	deps: SendEmailDeps,
 	input: {
 		to: string;
-		template: TemplateName;
+		template: T;
 		locale: Lang;
-		data: OrderEmailData;
+		data: TemplateData<T>;
 		refId?: string | null;
 		replyTo?: string;
 	}
@@ -187,7 +259,7 @@ export async function orderEmailData(
 
 /** Job handler for `email.send` — payload `{ template, orderId, to?, locale?, refId? }`. */
 export async function emailSendJob(job: JobRow, deps: JobDeps) {
-	const p = job.payload as { template: TemplateName; orderId?: string; to?: string; locale?: Lang; refId?: string };
+	const p = job.payload as { template: TemplateName; orderId?: string; to?: string; locale?: Lang; refId?: string; data?: Partial<OrderEmailData> };
 	if (!(p.template in TEMPLATES)) throw new Error(`Unknown email template "${p.template}"`);
 	if (!p.orderId) throw new Error('email.send: orderId required for order templates');
 	const built = await orderEmailData(deps.db, p.orderId, deps.siteUrl);
@@ -197,7 +269,7 @@ export async function emailSendJob(job: JobRow, deps: JobDeps) {
 		to: p.to ?? built.to,
 		template: p.template,
 		locale: p.locale ?? built.locale,
-		data: built.data,
+		data: { ...built.data, ...p.data }, // payload `data`: extra fields (tracking, refund)
 		refId: p.refId ?? built.data.number,
 		replyTo: s.emails.replyTo
 	});

@@ -7,6 +7,7 @@
 	import Icon from '#lib/components/ui/Icon.svelte';
 	import QuantityStepper from '#lib/components/ui/QuantityStepper.svelte';
 	import VariantPicker from './VariantPicker.svelte';
+	import BackInStockForm from './BackInStockForm.svelte';
 	import { getCart } from '#lib/stores/cart.svelte.ts';
 	import { getWishlist } from '#lib/stores/wishlist.svelte.ts';
 	import { getToasts } from '#lib/stores/toast.svelte.ts';
@@ -101,7 +102,7 @@
 		</p>
 
 		{#if soldOut}
-			<!-- P3-09 slot: back-in-stock "Mail me" form for sold-out variants (stock_alerts). Not built in P1. -->
+			<!-- P3-09: the back-in-stock form is rendered after this <form> (forms can't nest). -->
 			<button type="button" class="cta" disabled>{m.badge_soldout()}</button>
 		{:else}
 			<div class="row">
@@ -119,6 +120,7 @@
 		{/if}
 		{#if error}<p class="err" role="alert">{error === 'unavailable' ? m.cart_unavailable() : m.cart_error()}</p>{/if}
 	</form>
+	{#if soldOut && v}<BackInStockForm variantId={v.id} {lang} />{/if}
 
 	<button
 		type="button"
