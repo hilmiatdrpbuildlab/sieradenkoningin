@@ -13,7 +13,6 @@
 <script lang="ts" generics="T extends { id: string }">
 	import type { Snippet } from 'svelte';
 	import { page } from '$app/state';
-	import { goto } from '$app/navigation';
 	import Icon from '#lib/components/ui/Icon.svelte';
 	import type { Column } from '#lib/types.ts';
 
@@ -46,15 +45,13 @@
 	const current = $derived(Number(page.url.searchParams.get('page') ?? 1));
 	const pages = $derived(Math.max(1, Math.ceil(total / pageSize)));
 
-	function setParams(p: Record<string, string | null>) {
+	/** Real links (work without JS, shareable); SvelteKit keeps scroll + focus via data attributes. */
+	function hrefWith(p: Record<string, string | null>) {
 		const url = new URL(page.url.href);
 		for (const [k, v] of Object.entries(p)) v === null ? url.searchParams.delete(k) : url.searchParams.set(k, v);
-		goto(url, { reset: false }); // keep scroll + focus while sorting/paging
+		return url.pathname + url.search;
 	}
-	function toggleSort(key: string) {
-		const nextDir = sort === key && dir === 'desc' ? 'asc' : 'desc';
-		setParams({ sort: key, dir: nextDir, page: null });
-	}
+	const sortHref = (key: string) => hrefWith({ sort: key, dir: sort === key && dir === 'desc' ? 'asc' : 'desc', page: null });
 	function toggleAll() {
 		selected = allChecked ? new Set() : new Set(rows.map((r) => r.id));
 	}
@@ -93,10 +90,10 @@
 							aria-sort={col.sortable ? ariaSort(col.key) : undefined}
 						>
 							{#if col.sortable}
-								<button class="sort" onclick={() => toggleSort(col.key)}>
+								<a class="sort" href={sortHref(col.key)} data-sveltekit-noscroll data-sveltekit-keepfocus>
 									{col.label}
 									<Icon name={sort === col.key ? (dir === 'asc' ? 'sort-asc' : 'sort-desc') : 'sort'} size={14} />
-								</button>
+								</a>
 							{:else}{col.label}{/if}
 						</th>
 					{/each}
@@ -128,9 +125,11 @@
 	<nav class="pager" aria-label="Paginering">
 		<span>{Math.min(total, (current - 1) * pageSize + 1)}–{Math.min(total, current * pageSize)} van {total}</span>
 		<div>
-			<button disabled={current <= 1} onclick={() => setParams({ page: String(current - 1) })} aria-label="Vorige pagina"><Icon name="chevron-left" size={16} /></button>
+			{#if current > 1}<a href={hrefWith({ page: String(current - 1) })} data-sveltekit-noscroll aria-label="Vorige pagina"><Icon name="chevron-left" size={16} /></a>
+			{:else}<span class="pg-disabled" aria-hidden="true"><Icon name="chevron-left" size={16} /></span>{/if}
 			<span aria-current="page">{current} / {pages}</span>
-			<button disabled={current >= pages} onclick={() => setParams({ page: String(current + 1) })} aria-label="Volgende pagina"><Icon name="chevron-right" size={16} /></button>
+			{#if current < pages}<a href={hrefWith({ page: String(current + 1) })} data-sveltekit-noscroll aria-label="Volgende pagina"><Icon name="chevron-right" size={16} /></a>
+			{:else}<span class="pg-disabled" aria-hidden="true"><Icon name="chevron-right" size={16} /></span>{/if}
 		</div>
 	</nav>
 </div>
@@ -140,7 +139,7 @@
 	.toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--ui-border); min-height: 3.5rem; }
 	.sel { font-size: var(--fs-sm); font-weight: var(--fw-medium); }
 
-	.scroller { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+	.scroller { position: relative; overflow-x: auto; -webkit-overflow-scrolling: touch; }
 	.scroller:focus-visible { outline: 2px solid var(--ui-border-focus); outline-offset: -2px; }
 	table { width: 100%; border-collapse: collapse; font-size: var(--fs-sm); font-variant-numeric: tabular-nums; }
 	th, td { padding: 0 var(--space-4); height: var(--row-h, 3rem); text-align: left; white-space: nowrap; border-bottom: 1px solid var(--ui-border); }
@@ -159,15 +158,15 @@
 	th:first-child, td:first-child { position: sticky; left: 0; background: inherit; z-index: 1; }
 	tbody tr { background: var(--ui-surface); transition: background-color var(--dur-fast); }
 	tbody tr:hover { background: var(--ui-surface-sunken); }
-	tr.is-selected { background: color-mix(in srgb, var(--sk-gold) 12%, var(--ui-surface)); }
+	tr.is-selected { background: color-mix(in srgb, var(--ui-ornament) 12%, var(--ui-surface)); }
 	.clickable { position: relative; }
 	.row-link { text-decoration: none; font-weight: var(--fw-medium); }
 	.row-link::after { content: ''; position: absolute; inset: 0; }
 	.check { width: 2.75rem; padding-right: 0; }
-	.check input { position: relative; z-index: 2; accent-color: var(--sk-burgundy); width: 1rem; height: 1rem; }
+	.check input { position: relative; z-index: 2; accent-color: var(--ui-action); width: 1rem; height: 1rem; }
 	.align-end { text-align: right; }
 	.align-center { text-align: center; }
-	.sort { all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; }
+	.sort { color: inherit; text-decoration: none; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; min-height: 2rem; }
 	.sort:focus-visible { outline: 2px solid var(--ui-border-focus); }
 	.empty { text-align: center; height: 8rem; color: var(--ui-text-muted); white-space: normal; }
 
@@ -176,6 +175,7 @@
 
 	.pager { display: flex; justify-content: space-between; align-items: center; padding: var(--space-3) var(--space-4); font-size: var(--fs-xs); color: var(--ui-text-muted); }
 	.pager div { display: flex; align-items: center; gap: var(--space-2); }
-	.pager button { width: 2rem; height: 2rem; display: grid; place-items: center; border: 1px solid var(--ui-border); background: var(--ui-surface); border-radius: var(--r-xs); cursor: pointer; color: var(--ui-text); }
-	.pager button:disabled { opacity: 0.4; cursor: not-allowed; }
+	.pager a, .pg-disabled { width: 2.25rem; height: 2.25rem; display: grid; place-items: center; border: 1px solid var(--ui-border); background: var(--ui-surface); border-radius: var(--r-xs); color: var(--ui-text); }
+	.pager a:focus-visible { outline: 2px solid var(--ui-border-focus); }
+	.pg-disabled { opacity: 0.4; }
 </style>
