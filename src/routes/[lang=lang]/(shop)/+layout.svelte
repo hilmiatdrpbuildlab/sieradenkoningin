@@ -7,6 +7,11 @@
 	import SiteFooter from '#lib/components/storefront/SiteFooter.svelte';
 	import CartDrawer from '#lib/components/storefront/CartDrawer.svelte';
 	import Toast from '#lib/components/ui/Toast.svelte';
+	import SearchOverlay from '#lib/components/storefront/SearchOverlay.svelte';
+	import CookieConsent from '#lib/components/storefront/CookieConsent.svelte';
+	import Analytics from '#lib/components/storefront/Analytics.svelte';
+	import { setConsentContext } from '#lib/stores/consent.svelte.ts';
+	import { createAnalytics, setAnalyticsContext } from '#lib/analytics.ts';
 	import { setCartContext } from '#lib/stores/cart.svelte.ts';
 	import { setWishlistContext } from '#lib/stores/wishlist.svelte.ts';
 	import { setToastContext } from '#lib/stores/toast.svelte.ts';
@@ -19,7 +24,16 @@
 	// svelte-ignore state_referenced_locally (the language is fixed per document: switching reloads)
 	const cart = setCartContext(data.emptyCart, data.lang);
 	const wishlist = setWishlistContext();
+	let searchOpen = $state(false);
 	setToastContext();
+	// Cookie consent + consent-aware analytics (P4-03 / P4-05): available to every storefront component.
+	const consent = setConsentContext();
+	setAnalyticsContext(
+		createAnalytics(
+			() => consent.analytics,
+			() => new URLSearchParams(location.search).has('analytics_debug')
+		)
+	);
 
 	onMount(() => {
 		// Visitor state is loaded client-side so storefront HTML stays cacheable (§4.6).
@@ -42,8 +56,16 @@
 		}
 	);
 	const megaTiles = $derived([
-		{ label: m.badge_new(), href: localizeHref('/collections/nieuw', data.lang), image: img('demo/editorial-split.svg') },
-		{ label: m.badge_bestseller(), href: localizeHref('/search?sort=bestsellers', data.lang), image: img('demo/editorial-hero.svg') }
+		{
+			label: m.badge_new(),
+			href: localizeHref('/collections/nieuw', data.lang),
+			image: img('demo/editorial-split.svg')
+		},
+		{
+			label: m.badge_bestseller(),
+			href: localizeHref('/search?sort=bestsellers', data.lang),
+			image: img('demo/editorial-hero.svg')
+		}
 	]);
 </script>
 
@@ -57,15 +79,32 @@
 
 <a class="skip" href="#content">{m.ui_skip_to_content()}</a>
 
-<SiteHeader lang={data.lang} overlay={isHome} announcement={data.announcement} categories={data.categories} menu={data.mainMenu} {megaTiles} />
+<SiteHeader
+	lang={data.lang}
+	overlay={isHome}
+	announcement={data.announcement}
+	categories={data.categories}
+	menu={data.mainMenu}
+	{megaTiles}
+	onsearch={() => (searchOpen = true)}
+/>
 
 <main id="content" tabindex="-1">
 	{@render children()}
 </main>
 
-<SiteFooter lang={data.lang} columns={data.footer} paymentMethods={data.paymentMethods} showNewsletter={!isHome} />
+<SiteFooter
+	lang={data.lang}
+	columns={data.footer}
+	paymentMethods={data.paymentMethods}
+	showNewsletter={!isHome}
+	oncookies={() => consent.openSettings()}
+/>
 <CartDrawer paymentMethods={data.paymentMethods} />
 <Toast />
+<SearchOverlay bind:open={searchOpen} lang={data.lang} />
+<CookieConsent lang={data.lang} />
+<Analytics settings={data.analytics} />
 
 <style>
 	.skip {

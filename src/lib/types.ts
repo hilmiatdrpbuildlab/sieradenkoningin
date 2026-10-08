@@ -99,3 +99,42 @@ export interface Alternates {
 	nl: string;
 	fr: string;
 }
+
+/** PDP variant view model (P1-08): effective price per variant, compare-at only when higher. */
+export interface PdpVariant {
+	id: string;
+	sku: string;
+	metal: Metal;
+	size: string | null;
+	price: number; // cents
+	compareAtPrice: number | null; // cents
+	stock: number;
+	lowStock: boolean;
+}
+
+/** Minimal schema.org shapes used by the PDP / listing JSON-LD (no runtime dependency). */
+export interface JsonLdOffer {
+	'@type': 'Offer';
+	sku: string;
+	url: string;
+	price: string;
+	priceCurrency: 'EUR';
+	availability: 'https://schema.org/InStock' | 'https://schema.org/OutOfStock';
+	itemCondition?: 'https://schema.org/NewCondition';
+}
+export interface JsonLdProduct {
+	'@context': 'https://schema.org';
+	'@type': 'Product';
+	name: string;
+	description?: string;
+	image: string[];
+	sku?: string;
+	brand: { '@type': 'Brand'; name: string };
+	category?: string;
+	offers: JsonLdOffer[];
+}
+export interface JsonLdBreadcrumbList {
+	'@context': 'https://schema.org';
+	'@type': 'BreadcrumbList';
+	itemListElement: { '@type': 'ListItem'; position: number; name: string; item?: string }[];
+}
