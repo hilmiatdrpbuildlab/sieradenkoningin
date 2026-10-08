@@ -6,6 +6,7 @@
 <script lang="ts">
 	import { markdownToHtml } from '#lib/utils/markdown.ts';
 	import Icon from '#lib/components/ui/Icon.svelte';
+	import WithdrawalForm from '#lib/components/storefront/WithdrawalForm.svelte';
 	import { m } from '#lib/paraglide/messages.js';
 
 	interface Store {
@@ -20,21 +21,37 @@
 		email: string;
 		phone: string;
 	}
-	let { slot, body, store, returnDays, lang }: { slot: string; body: string; store: Store; returnDays: number; lang: 'nl' | 'fr' } = $props();
+	let {
+		slot,
+		body,
+		store,
+		returnDays,
+		lang
+	}: { slot: string; body: string; store: Store; returnDays: number; lang: 'nl' | 'fr' } = $props();
 	const missing = m.legal_not_filled();
-	const address = $derived([store.street, [store.postalCode, store.city].filter(Boolean).join(' '), store.country].filter(Boolean).join(', '));
+	const address = $derived(
+		[store.street, [store.postalCode, store.city].filter(Boolean).join(' '), store.country].filter(Boolean).join(', ')
+	);
 </script>
 
 <div class="legal container-lux">
 	{#if slot === 'legal-notice'}
 		<h2>{m.legal_company()}</h2>
 		<dl>
-			<dt>{m.legal_company_name()}</dt><dd>{store.legalName || store.name || missing}</dd>
-			<dt>{m.legal_address()}</dt><dd>{address || missing}</dd>
-			<dt>{m.legal_kbo()}</dt><dd>{store.kbo || missing}</dd>
-			<dt>{m.legal_vat()}</dt><dd>{store.vat || missing}</dd>
-			<dt>{m.legal_email()}</dt><dd>{#if store.email}<a href="mailto:{store.email}">{store.email}</a>{:else}{missing}{/if}</dd>
-			<dt>{m.legal_phone()}</dt><dd>{store.phone || missing}</dd>
+			<dt>{m.legal_company_name()}</dt>
+			<dd>{store.legalName || store.name || missing}</dd>
+			<dt>{m.legal_address()}</dt>
+			<dd>{address || missing}</dd>
+			<dt>{m.legal_kbo()}</dt>
+			<dd>{store.kbo || missing}</dd>
+			<dt>{m.legal_vat()}</dt>
+			<dd>{store.vat || missing}</dd>
+			<dt>{m.legal_email()}</dt>
+			<dd>
+				{#if store.email}<a href="mailto:{store.email}">{store.email}</a>{:else}{missing}{/if}
+			</dd>
+			<dt>{m.legal_phone()}</dt>
+			<dd>{store.phone || missing}</dd>
 		</dl>
 	{/if}
 
@@ -52,7 +69,12 @@
 
 	{#if slot === 'withdrawal'}
 		<p>{m.legal_return_days({ days: returnDays })}</p>
-		<p><a href="/api/legal/withdrawal-form.pdf?lang={lang}" download>{m.legal_withdrawal_download()} — {m.legal_withdrawal_form()}</a></p>
+		<p>
+			<a href="/api/legal/withdrawal-form.pdf?lang={lang}" download
+				>{m.legal_withdrawal_download()} — {m.legal_withdrawal_form()}</a
+			>
+		</p>
+		<WithdrawalForm {store} {lang} />
 	{/if}
 </div>
 

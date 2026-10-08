@@ -5,7 +5,7 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import { m } from '#lib/paraglide/messages.js';
-	import type { Lang } from '#lib/i18n/paths.ts';
+	import { localizeHref, type Lang } from '#lib/i18n/paths.ts';
 
 	let { lang, source = 'footer' }: { lang: Lang; source?: string } = $props();
 	let status = $state<'idle' | 'sending' | 'ok' | 'invalid' | 'error'>('idle');
@@ -14,7 +14,7 @@
 
 <form
 	method="POST"
-	action="/{lang}/newsletter?/subscribe"
+	action="{localizeHref('/newsletter', lang)}?/subscribe"
 	class="nl"
 	use:enhance={() => {
 		status = 'sending';

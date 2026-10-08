@@ -45,6 +45,7 @@ export const SEGMENTS: ReadonlyArray<readonly [internal: string, nl: string, fr:
 	['account', 'account', 'compte'],
 	['newsletter/confirm', 'nieuwsbrief/bevestigen', 'newsletter/confirmer'],
 	['newsletter/unsubscribe', 'nieuwsbrief/uitschrijven', 'newsletter/desinscription'],
+	['newsletter', 'nieuwsbrief', 'newsletter'],
 	['faq', 'faq', 'faq'],
 	['contact', 'contact', 'contact']
 ];
