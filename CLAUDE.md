@@ -74,3 +74,7 @@ were established while building, which the plan does not spell out.
   worker and adds the Cron `scheduled()` handler (POST `/api/jobs` with `CRON_SECRET`). Never point the adapter
   at `cloudflare/worker.js`.
 - Verify a deployable bundle with `npx wrangler deploy --dry-run --outdir .data/wrangler-dry`.
+- Workers forbid runtime `WebAssembly.compile` — no libraries that embed and compile WASM at runtime
+  (that is why passwords use `@noble/hashes` argon2id, not hash-wasm). Test such code with `wrangler dev`.
+- Storage on Neon object storage (S3 API) with `PUBLIC_MEDIA_URL` empty → `storage.proxied`: uploads go to
+  `/admin/api/uploads/put`, media + signed downloads to `/media/*`; the bucket stays private.

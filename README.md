@@ -33,12 +33,21 @@ PostgreSQL ≥ 14 (`DATABASE_URL`); the seed creates 24 clearly marked **DEMO** 
 | `npm run admin:reset -- <email>`                 | Emergency admin password + 2FA reset                                   |
 | `npm run bench:search`                           | Search latency benchmark (1,000 products)                              |
 
-## Deploy (Cloudflare Workers)
+## Deploy (Cloudflare Workers + Neon)
 
-1. Secrets: `npx wrangler secret put DATABASE_URL` (and the others listed in `.env.example`).
-2. `npm run db:migrate` against the production database, `npm run db:seed -- --no-demo`.
+**Staging** (2026-10-08): https://sieradenkoningin.goosebumpsevents.workers.dev — `PUBLIC_STAGING=1` (noindex,
+staging notice), DEMO products, simulated payments/e-mails/labels. Neon project `sieradenkoningin`
+(`rapid-dawn-54238519`, aws-eu-central-1): Postgres + private object-storage bucket `sieradenkoningin-media`
+(S3 API; media and uploads are proxied through the Worker while `PUBLIC_MEDIA_URL` is empty).
+
+1. Secrets: `npx wrangler secret bulk <file.json>` or `wrangler secret put <NAME>` — DATABASE_URL (Neon _pooled_
+   URL, `sslmode=require`, no `channel_binding`), SESSION_SECRET, TOTP_ENC_KEY, CRON_SECRET, STORAGE_* (from
+   `neon env pull -s object-storage`: AWS_ENDPOINT_URL_S3 → STORAGE_ENDPOINT, AWS_* keys, bucket name) and the
+   provider keys from `.env.example`.
+2. `npm run db:migrate` against the Neon _direct_ URL, then `npm run db:seed` (`-- --no-demo` for production).
 3. `npm run build && npx wrangler deploy` — `wrangler.jsonc` deploys `cloudflare/worker.js`, which wraps the
-   SvelteKit worker and runs the Cron Triggers (`/api/jobs`).
+   SvelteKit worker and runs the Cron Trigger (`/api/jobs` every 5 min; the 05:00 UTC tick also runs the daily jobs).
+   Public vars (`PUBLIC_SITE_URL`, `PUBLIC_STAGING`) live in `wrangler.jsonc` → `vars`.
 
 See `docs/RUNBOOK.md` part 2 for rollbacks, secret rotation, backups and monitoring.
 

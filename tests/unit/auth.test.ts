@@ -24,6 +24,12 @@ describe('password hashing (argon2id)', () => {
 	it('salts every hash', async () => {
 		expect(await hashPassword('same')).not.toBe(await hashPassword('same'));
 	});
+
+	it('verifies hashes created by the previous hash-wasm implementation (PHC compatible)', async () => {
+		const legacy = '$argon2id$v=19$m=19456,t=2,p=1$AQIDBAUGBwgJCgsMDQ4PEA$qQMgn9BBXGm1FG5hbgVLTB/c49pso4YEKQMbq6g2F5M';
+		expect(await verifyPassword(legacy, 'correct horse battery')).toBe(true);
+		expect(await verifyPassword(legacy, 'correct horse batterY')).toBe(false);
+	});
 });
 
 describe('session expiry', () => {

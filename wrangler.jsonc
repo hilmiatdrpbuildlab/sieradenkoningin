@@ -12,10 +12,13 @@
 		"directory": ".svelte-kit/cloudflare"
 	},
 	"observability": { "enabled": true },
-	// Cron triggers: cloudflare/worker.js `scheduled()` POSTs /api/jobs with CRON_SECRET (P5-04):
-	// every 5 min → release expired stock reservations + process queued jobs; daily → report + cleanup.
-	"triggers": { "crons": ["*/5 * * * *", "0 5 * * *"] },
+	// Cron trigger: cloudflare/worker.js `scheduled()` POSTs /api/jobs with CRON_SECRET (P5-04): every 5 min →
+	// release expired reservations + queued jobs; the 05:00 UTC tick also runs the daily report + cleanup
+	// (one trigger: Workers Free allows 5 crons per account).
+	"triggers": { "crons": ["*/5 * * * *"] },
 	"vars": {
-		"PUBLIC_SITE_URL": "https://example.invalid"
+		"PUBLIC_SITE_URL": "https://sieradenkoningin.goosebumpsevents.workers.dev",
+		// Staging/demo deploy: noindex + staging notice. Remove (or set "") for the live launch.
+		"PUBLIC_STAGING": "1"
 	}
 }
