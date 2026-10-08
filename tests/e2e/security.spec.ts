@@ -50,3 +50,20 @@ test('maintenance mode returns 503 with Retry-After; admins bypass it', async ({
 		await db.end();
 	}
 });
+
+test('admin login is rate limited (5 attempts / 15 min per IP + e-mail)', async ({ request, baseURL }) => {
+	test.skip(test.info().project.name !== 'chromium-desktop', 'once is enough');
+	const email = `ratelimit-${Date.now()}@example.invalid`;
+	const statuses: number[] = [];
+	for (let i = 0; i < 6; i++) {
+		const res = await request.post('/admin/login', {
+			form: { email, password: 'wrong-password' },
+			headers: { origin: new URL(baseURL!).origin, accept: 'application/json' },
+			maxRedirects: 0
+		});
+		const body = (await res.json()) as { status?: number };
+		statuses.push(body.status ?? res.status());
+	}
+	expect(statuses.slice(0, 5).every((s) => s === 400)).toBe(true);
+	expect(statuses[5]).toBe(429);
+});
