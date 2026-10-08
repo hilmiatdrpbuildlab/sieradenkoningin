@@ -50,3 +50,30 @@ export async function dailyMaintenance(db: Executor, now = new Date()): Promise<
 		.returning({ id: jobs.id });
 	return { sessions: 'purged', carts: 'purged', rateLimits: rl.length, magicLinks: ml.length, jobs: jb.length };
 }
+
+/** Tables included in the nightly logical export (business data; sessions/rate limits/jobs excluded). */
+export const EXPORT_TABLES = [
+	'categories', 'products', 'variants', 'product_images', 'media', 'price_history', 'collections', 'collection_products', 'product_relations',
+	'customers', 'addresses', 'orders', 'order_lines', 'order_events', 'payments', 'refunds', 'shipments', 'discounts', 'discount_redemptions',
+	'stock_movements', 'pages', 'page_blocks', 'menus', 'faqs', 'redirects', 'newsletter_subscribers', 'settings', 'shipping_zones', 'shipping_rates',
+	'admin_users', 'audit_log'
+] as const;
+const SECRET_COLUMNS: Record<string, string[]> = { customers: ['password_hash'], admin_users: ['password_hash', 'totp_secret', 'recovery_codes', 'invite_token_hash'] };
+
+/**
+ * Nightly logical export (P5-04) → `exports/YYYY-MM-DD/<table>.json` in private storage. Complements
+ * Neon point-in-time recovery; secrets (password hashes, TOTP secrets) are never exported.
+ */
+export async function dailyExport(db: Executor, storage: Storage, now = new Date()) {
+	const day = now.toISOString().slice(0, 10);
+	const summary: Record<string, number> = {};
+	for (const table of EXPORT_TABLES) {
+		const { rows } = await db.execute<Record<string, unknown>>(sql.raw(`select * from "${table}"`));
+		const drop = SECRET_COLUMNS[table] ?? [];
+		const clean = drop.length ? rows.map((r) => Object.fromEntries(Object.entries(r).filter(([k]) => !drop.includes(k)))) : rows;
+		await storage.put(`exports/${day}/${table}.json`, JSON.stringify(clean), 'application/json');
+		summary[table] = rows.length;
+	}
+	await storage.put(`exports/${day}/_manifest.json`, JSON.stringify({ createdAt: now.toISOString(), tables: summary }), 'application/json');
+	return summary;
+}
