@@ -30,7 +30,17 @@
 	{@const v = b.view}
 	<div class="block block--{b.type}" data-block-id={b.id}>
 		{#if b.type === 'hero'}
-			<Hero variant={v.variant} overline={v.overline} title={v.title} script={v.script} lead={v.lead} image={v.image} cta={v.cta} secondaryCta={v.secondaryCta} headingLevel={i === 0 ? firstHeadingLevel : 2} />
+			<Hero
+				variant={v.variant}
+				overline={v.overline}
+				title={v.title}
+				script={v.script}
+				lead={v.lead}
+				image={v.image}
+				cta={v.cta}
+				secondaryCta={v.secondaryCta}
+				headingLevel={i === 0 ? firstHeadingLevel : 2}
+			/>
 		{:else if b.type === 'usp_bar'}
 			<UspBar items={v.items} />
 		{:else if b.type === 'category_strip'}
@@ -40,7 +50,15 @@
 		{:else if b.type === 'quote_band'}
 			<QuoteBand quote={v.quote} attribution={v.attribution} surface={v.surface} />
 		{:else if b.type === 'editorial_split'}
-			<EditorialSplit eyebrow={v.eyebrow} title={v.title} script={v.script} body={v.body} image={v.image} cta={v.cta} reverse={v.reverse} />
+			<EditorialSplit
+				eyebrow={v.eyebrow}
+				title={v.title}
+				script={v.script}
+				body={v.body}
+				image={v.image}
+				cta={v.cta}
+				reverse={v.reverse}
+			/>
 		{:else if b.type === 'banner'}
 			<Banner image={v.image} eyebrow={v.eyebrow} title={v.title} text={v.text} cta={v.cta} surface={v.surface} />
 		{:else if b.type === 'rich_text'}

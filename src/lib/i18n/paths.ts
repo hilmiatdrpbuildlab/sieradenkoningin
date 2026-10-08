@@ -118,4 +118,5 @@ export function negotiateLang(acceptLanguage: string | null | undefined): Lang {
 }
 
 /** Language of a request path (`/fr/...` → fr, anything else → nl). */
-export const langFromPath = (pathname: string): Lang => (pathname.startsWith('/fr/') || pathname === '/fr' ? 'fr' : 'nl');
+export const langFromPath = (pathname: string): Lang =>
+	pathname.startsWith('/fr/') || pathname === '/fr' ? 'fr' : 'nl';

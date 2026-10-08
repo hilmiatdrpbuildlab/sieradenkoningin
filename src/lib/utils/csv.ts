@@ -97,7 +97,10 @@ export function parseCsv(input: string, options: ParseOptions = {}): string[][] 
 }
 
 /** Rows → objects keyed by the (trimmed, lowercased) header row. */
-export function parseCsvRecords(input: string, options: ParseOptions = {}): { headers: string[]; records: Record<string, string>[] } {
+export function parseCsvRecords(
+	input: string,
+	options: ParseOptions = {}
+): { headers: string[]; records: Record<string, string>[] } {
 	const [head, ...rest] = parseCsv(input, options);
 	if (!head) return { headers: [], records: [] };
 	const headers = head.map((h) => h.trim().toLowerCase());
@@ -124,12 +127,20 @@ export interface SerializeOptions {
 }
 
 /** Serializes rows (CRLF line endings, per RFC 4180). */
-export function toCsv(rows: unknown[][], { delimiter = ',', bom = false, guardFormulas = false }: SerializeOptions = {}): string {
-	const body = rows.map((r) => r.map((v) => escapeField(v, delimiter, guardFormulas)).join(delimiter)).join('\r\n') + '\r\n';
+export function toCsv(
+	rows: unknown[][],
+	{ delimiter = ',', bom = false, guardFormulas = false }: SerializeOptions = {}
+): string {
+	const body =
+		rows.map((r) => r.map((v) => escapeField(v, delimiter, guardFormulas)).join(delimiter)).join('\r\n') + '\r\n';
 	return (bom ? '\ufeff' : '') + body;
 }
 
 /** Objects → CSV with the given column order as header. */
-export function recordsToCsv<K extends string>(columns: readonly K[], records: Partial<Record<K, unknown>>[], options?: SerializeOptions): string {
+export function recordsToCsv<K extends string>(
+	columns: readonly K[],
+	records: Partial<Record<K, unknown>>[],
+	options?: SerializeOptions
+): string {
 	return toCsv([[...columns], ...records.map((r) => columns.map((c) => r[c]))], options);
 }

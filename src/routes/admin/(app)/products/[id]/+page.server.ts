@@ -17,7 +17,13 @@ import {
 	type ExtraImage
 } from '#lib/server/services/products-admin.ts';
 import { storeFormFile } from '#lib/server/services/media.ts';
-import { emptyProductModel, formToObject, normalizeModel, prepareProductForm, productSchema } from '#lib/schemas/product.ts';
+import {
+	emptyProductModel,
+	formToObject,
+	normalizeModel,
+	prepareProductForm,
+	productSchema
+} from '#lib/schemas/product.ts';
 import { fieldErrors } from '#lib/schemas/common.ts';
 import { img } from '#lib/utils/media.ts';
 
@@ -35,7 +41,11 @@ export const load: PageServerLoad = async ({ locals, params, url }) => {
 	const admin = requirePermission(locals, 'catalog:read');
 	const id = productId(params.id);
 	const db = locals.db;
-	const [categories, products, stoneColors] = await Promise.all([categoryOptions(db), productOptions(db, small, id ?? undefined), stoneColorOptions(db)]);
+	const [categories, products, stoneColors] = await Promise.all([
+		categoryOptions(db),
+		productOptions(db, small, id ?? undefined),
+		stoneColorOptions(db)
+	]);
 
 	if (!id) {
 		requirePermission(locals, 'catalog:write');
@@ -61,7 +71,14 @@ export const load: PageServerLoad = async ({ locals, params, url }) => {
 	return {
 		crumbs: [{ label: 'Producten', href: '/admin/products' }, { label: p.name.nl }],
 		isNew: false as const,
-		product: { id: p.id, name: p.name.nl, slug: p.slug, status: p.status, updatedAt: p.updatedAt, createdAt: p.createdAt },
+		product: {
+			id: p.id,
+			name: p.name.nl,
+			slug: p.slug,
+			status: p.status,
+			updatedAt: p.updatedAt,
+			createdAt: p.createdAt
+		},
 		model: modelFromProduct(data, thumb),
 		version: p.updatedAt.toISOString(),
 		categories,
@@ -90,7 +107,16 @@ export const actions: Actions = {
 
 		const values = () => {
 			const model = withImageUrls(normalizeModel(raw as never), thumb);
-			model.images.push(...extra.map((x) => ({ key: x.key, url: thumb(x.key), width: String(x.width), height: String(x.height), bytes: String(x.bytes), alt: { nl: '', fr: '' } })));
+			model.images.push(
+				...extra.map((x) => ({
+					key: x.key,
+					url: thumb(x.key),
+					width: String(x.width),
+					height: String(x.height),
+					bytes: String(x.bytes),
+					alt: { nl: '', fr: '' }
+				}))
+			);
 			return model;
 		};
 
@@ -104,7 +130,11 @@ export const actions: Actions = {
 			// New photos need alt text before they can be saved: return them so the editor can fill it in.
 			const model = values();
 			return fail(400, {
-				errors: Object.fromEntries(model.images.map((im, i) => [im.alt.nl ? '' : `images.${i}.alt.nl`, ['Alt-tekst (NL) is verplicht']]).filter(([k]) => k)),
+				errors: Object.fromEntries(
+					model.images
+						.map((im, i) => [im.alt.nl ? '' : `images.${i}.alt.nl`, ['Alt-tekst (NL) is verplicht']])
+						.filter(([k]) => k)
+				),
 				values: model,
 				uploaded: extra.length
 			});

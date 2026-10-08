@@ -12,7 +12,11 @@
 		title: string;
 		open?: boolean;
 	}
-	let { items, exclusive = false, content }: { items: Item[]; exclusive?: boolean; content: Snippet<[string]> } = $props();
+	let {
+		items,
+		exclusive = false,
+		content
+	}: { items: Item[]; exclusive?: boolean; content: Snippet<[string]> } = $props();
 	const uid = $props.id();
 </script>
 

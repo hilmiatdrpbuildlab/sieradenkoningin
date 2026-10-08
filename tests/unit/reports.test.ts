@@ -17,9 +17,26 @@ const range = { from: new Date('2001-03-01T00:00:00Z'), to: new Date('2001-04-01
 const PREFIX = 'RPT-TEST-';
 
 const fixtures = [
-	{ day: '2001-03-02T10:00:00Z', lines: [[2500, 2], [1000, 1]], shipping: 495, discount: 0, refunded: 0, status: 'paid' },
+	{
+		day: '2001-03-02T10:00:00Z',
+		lines: [
+			[2500, 2],
+			[1000, 1]
+		],
+		shipping: 495,
+		discount: 0,
+		refunded: 0,
+		status: 'paid'
+	},
 	{ day: '2001-03-02T22:30:00Z', lines: [[4995, 1]], shipping: 0, discount: 500, refunded: 0, status: 'paid' }, // 23:30 Brussels → still 2 March
-	{ day: '2001-03-15T09:00:00Z', lines: [[7900, 1]], shipping: 0, discount: 0, refunded: 2000, status: 'partially_refunded' },
+	{
+		day: '2001-03-15T09:00:00Z',
+		lines: [[7900, 1]],
+		shipping: 0,
+		discount: 0,
+		refunded: 2000,
+		status: 'partially_refunded'
+	},
 	{ day: '2001-03-20T09:00:00Z', lines: [[3000, 1]], shipping: 495, discount: 0, refunded: 0, status: 'failed' } // not a sale
 ] as const;
 
@@ -29,9 +46,23 @@ let expectedRefund = 0;
 beforeAll(async () => {
 	await migrate(db, { migrationsFolder: './drizzle' });
 	await cleanup();
-	const [cat] = await db.insert(s.categories).values({ key: `${PREFIX}cat`, slugs: { nl: 'rpt-test-nl', fr: 'rpt-test-fr' }, name: { nl: 'RPT' }, icon: 'ring' }).onConflictDoNothing().returning();
-	const catId = cat?.id ?? (await db.select().from(s.categories).where(like(s.categories.key, `${PREFIX}%`)))[0].id;
-	const [product] = await db.insert(s.products).values({ slug: `${PREFIX.toLowerCase()}product`, name: { nl: 'RPT' }, categoryId: catId, price: 1000 }).returning();
+	const [cat] = await db
+		.insert(s.categories)
+		.values({ key: `${PREFIX}cat`, slugs: { nl: 'rpt-test-nl', fr: 'rpt-test-fr' }, name: { nl: 'RPT' }, icon: 'ring' })
+		.onConflictDoNothing()
+		.returning();
+	const catId =
+		cat?.id ??
+		(
+			await db
+				.select()
+				.from(s.categories)
+				.where(like(s.categories.key, `${PREFIX}%`))
+		)[0].id;
+	const [product] = await db
+		.insert(s.products)
+		.values({ slug: `${PREFIX.toLowerCase()}product`, name: { nl: 'RPT' }, categoryId: catId, price: 1000 })
+		.returning();
 	let n = 0;
 	for (const f of fixtures) {
 		const subtotal = f.lines.reduce((a, [p, q]) => a + p * q, 0);
@@ -62,14 +93,32 @@ beforeAll(async () => {
 			})
 			.returning();
 		await db.insert(s.orderLines).values(
-			f.lines.map(([price, qty]) => ({ orderId: o.id, productId: product.id, sku: 'RPT', name: { nl: 'RPT' }, unitPrice: price, qty, vatAmount: 0, lineTotal: price * qty }))
+			f.lines.map(([price, qty]) => ({
+				orderId: o.id,
+				productId: product.id,
+				sku: 'RPT',
+				name: { nl: 'RPT' },
+				unitPrice: price,
+				qty,
+				vatAmount: 0,
+				lineTotal: price * qty
+			}))
 		);
 	}
 });
 
 async function cleanup() {
-	const old = await db.select({ id: s.orders.id }).from(s.orders).where(like(s.orders.number, `${PREFIX}%`));
-	if (old.length) await db.delete(s.orders).where(inArray(s.orders.id, old.map((o) => o.id)));
+	const old = await db
+		.select({ id: s.orders.id })
+		.from(s.orders)
+		.where(like(s.orders.number, `${PREFIX}%`));
+	if (old.length)
+		await db.delete(s.orders).where(
+			inArray(
+				s.orders.id,
+				old.map((o) => o.id)
+			)
+		);
 	await db.delete(s.products).where(like(s.products.slug, `${PREFIX.toLowerCase()}%`));
 	await db.delete(s.categories).where(like(s.categories.key, `${PREFIX}%`));
 }
@@ -106,7 +155,9 @@ describe('reports reconcile with orders', () => {
 
 	it('category revenue equals merchandise line totals', async () => {
 		const cats = await byCategory(db, range);
-		const merch = fixtures.filter((f) => f.status !== 'failed').reduce((a, f) => a + f.lines.reduce((b, [p, q]) => b + p * q, 0), 0);
+		const merch = fixtures
+			.filter((f) => f.status !== 'failed')
+			.reduce((a, f) => a + f.lines.reduce((b, [p, q]) => b + p * q, 0), 0);
 		expect(cats.reduce((a, c) => a + c.revenue, 0)).toBe(merch);
 	});
 
@@ -119,7 +170,13 @@ describe('reports reconcile with orders', () => {
 	});
 
 	it('CSV export quotes separators and uses a BOM for Excel', () => {
-		const csv = toCsv([{ a: 'x;y', b: 'he said "hi"' }], [{ key: 'a', label: 'A' }, { key: 'b', label: 'B' }]);
+		const csv = toCsv(
+			[{ a: 'x;y', b: 'he said "hi"' }],
+			[
+				{ key: 'a', label: 'A' },
+				{ key: 'b', label: 'B' }
+			]
+		);
 		expect(csv.startsWith('﻿A;B\r\n')).toBe(true);
 		expect(csv).toContain('"x;y";"he said ""hi"""');
 	});

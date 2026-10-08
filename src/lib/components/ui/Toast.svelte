@@ -14,14 +14,23 @@
 <div class="region" role="region" aria-label={m.ui_notifications()}>
 	<div aria-live="polite" aria-atomic="false" class="stack">
 		{#each toasts.items as t (t.id)}
-			<div class="toast toast--{t.kind}" role={t.kind === 'error' ? 'alert' : 'status'} transition:fly={{ y: 16, duration: 300 }}>
-				{#if t.image}<img src={t.image} alt="" width="48" height="60" />{:else}<Icon name={t.kind === 'error' ? 'alert' : t.kind === 'info' ? 'info' : 'check'} size={18} />{/if}
+			<div
+				class="toast toast--{t.kind}"
+				role={t.kind === 'error' ? 'alert' : 'status'}
+				transition:fly={{ y: 16, duration: 300 }}
+			>
+				{#if t.image}<img src={t.image} alt="" width="48" height="60" />{:else}<Icon
+						name={t.kind === 'error' ? 'alert' : t.kind === 'info' ? 'info' : 'check'}
+						size={18}
+					/>{/if}
 				<p>{t.message}</p>
 				{#if t.action}
 					{#if t.action.href}<a class="action" href={t.action.href}>{t.action.label}</a>
 					{:else}<button class="action" onclick={t.action.onclick}>{t.action.label}</button>{/if}
 				{/if}
-				<button class="x" aria-label={m.ui_close()} onclick={() => toasts.dismiss(t.id)}><Icon name="close" size={14} /></button>
+				<button class="x" aria-label={m.ui_close()} onclick={() => toasts.dismiss(t.id)}
+					><Icon name="close" size={14} /></button
+				>
 			</div>
 		{/each}
 	</div>

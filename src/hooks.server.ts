@@ -65,7 +65,10 @@ const i18n: Handle = async ({ event, resolve }) => {
 	if (event.url.pathname === '/') {
 		const remembered = event.cookies.get(LANG_COOKIE);
 		const lang = isLang(remembered) ? remembered : negotiateLang(event.request.headers.get('accept-language'));
-		return new Response(null, { status: 302, headers: { location: `/${lang}${event.url.search}`, vary: 'Accept-Language, Cookie' } });
+		return new Response(null, {
+			status: 302,
+			headers: { location: `/${lang}${event.url.search}`, vary: 'Accept-Language, Cookie' }
+		});
 	}
 	const [, first] = event.url.pathname.split('/');
 	if (isLang(first) && event.cookies.get(LANG_COOKIE) !== first && event.request.method === 'GET') {
@@ -74,7 +77,8 @@ const i18n: Handle = async ({ event, resolve }) => {
 	return paraglideMiddleware(event.request, () =>
 		resolve(event, {
 			transformPageChunk: ({ html }) => html.replace('%lang%', htmlLang(event.locals.lang)),
-			preload: ({ type, path }) => type === 'js' || type === 'css' || (type === 'font' && /(playfair|montserrat).*latin-wght-normal/.test(path))
+			preload: ({ type, path }) =>
+				type === 'js' || type === 'css' || (type === 'font' && /(playfair|montserrat).*latin-wght-normal/.test(path))
 		})
 	);
 };
@@ -88,7 +92,13 @@ const auth: Handle = async ({ event, resolve }) => {
 		if (session) {
 			const [user] = await db.select().from(adminUsers).where(eq(adminUsers.id, session.userId));
 			if (user?.active && session.twoFactorVerified) {
-				event.locals.admin = { id: user.id, name: user.name, email: user.email, role: user.role as Role, sessionId: session.id };
+				event.locals.admin = {
+					id: user.id,
+					name: user.name,
+					email: user.email,
+					role: user.role as Role,
+					sessionId: session.id
+				};
 			}
 		}
 	}
@@ -97,7 +107,13 @@ const auth: Handle = async ({ event, resolve }) => {
 		if (session) {
 			const [c] = await db.select().from(customers).where(eq(customers.id, session.userId));
 			if (c && !c.deletedAt) {
-				event.locals.customer = { id: c.id, email: c.email, firstName: c.firstName, lastName: c.lastName, locale: c.locale };
+				event.locals.customer = {
+					id: c.id,
+					email: c.email,
+					firstName: c.firstName,
+					lastName: c.lastName,
+					locale: c.locale
+				};
 			}
 		}
 	}
@@ -117,7 +133,8 @@ const adminGuard: Handle = async ({ event, resolve }) => {
 /** 5. Maintenance mode (settings.maintenance) — admins and the invite-list cookie bypass it. */
 const maintenance: Handle = async ({ event, resolve }) => {
 	const path = event.url.pathname;
-	if (isAdminPath(path) || path.startsWith('/api/') || path.startsWith('/media/') || path.startsWith('/_app/')) return resolve(event);
+	if (isAdminPath(path) || path.startsWith('/api/') || path.startsWith('/media/') || path.startsWith('/_app/'))
+		return resolve(event);
 	const m = await getSetting(event.locals.db, 'maintenance');
 	if (!m.enabled || event.locals.admin) return resolve(event);
 	const bypass = event.url.searchParams.get('preview');
@@ -182,13 +199,28 @@ export const handleError: HandleServerError = ({ error: err, event, kind }) => {
 	console.error(`[${event.request.method} ${event.url.pathname}]`, err);
 	// Unexpected errors go to Sentry (P5-04) with PII scrubbed; never blocks the response.
 	const e = err instanceof Error ? err : new Error(String(err));
-	const task = reportError(env.SENTRY_DSN, { message: e.message, stack: e.stack, path: event.url.pathname, method: event.request.method, userAgent: event.request.headers.get('user-agent'), source: 'server', tags: { route: event.route.id ?? 'unknown' } }, version);
+	const task = reportError(
+		env.SENTRY_DSN,
+		{
+			message: e.message,
+			stack: e.stack,
+			path: event.url.pathname,
+			method: event.request.method,
+			userAgent: event.request.headers.get('user-agent'),
+			source: 'server',
+			tags: { route: event.route.id ?? 'unknown' }
+		},
+		version
+	);
 	if (event.platform?.ctx) event.platform.ctx.waitUntil(task);
 };
 
 function maintenanceHtml(lang: 'nl' | 'fr', message?: string) {
 	const title = lang === 'fr' ? 'Nous revenons bientôt' : 'We zijn zo terug';
 	const body =
-		message ?? (lang === 'fr' ? 'Notre boutique fait peau neuve. Revenez dans quelques instants.' : 'Onze winkel krijgt een nieuwe glans. Kom zo dadelijk terug.');
+		message ??
+		(lang === 'fr'
+			? 'Notre boutique fait peau neuve. Revenez dans quelques instants.'
+			: 'Onze winkel krijgt een nieuwe glans. Kom zo dadelijk terug.');
 	return `<!doctype html><html lang="${htmlLang(lang)}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>${title} — Sieradenkoningin</title><link rel="stylesheet" href="/maintenance.css"></head><body><main><p class="crown" aria-hidden="true">♛</p><h1>${title}</h1><p>${body}</p><p class="mark">Sieradenkoningin</p></main></body></html>`;
 }

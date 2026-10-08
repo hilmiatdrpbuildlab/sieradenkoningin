@@ -14,9 +14,15 @@ import { getSettings } from './settings.ts';
 import type { ProductCardData } from '../../types.ts';
 
 type Link = { label: string; href: string } | null;
-const link = (l: { label: { nl: string; fr?: string }; href: { nl: string; fr?: string } } | undefined, lang: Lang): Link =>
-	l && tr(l.label, lang) ? { label: tr(l.label, lang), href: tr(l.href, lang) } : null;
-const image = (i: { key: string; alt: { nl: string; fr?: string }; width?: number; height?: number }, lang: Lang, width = 1600) => ({
+const link = (
+	l: { label: { nl: string; fr?: string }; href: { nl: string; fr?: string } } | undefined,
+	lang: Lang
+): Link => (l && tr(l.label, lang) ? { label: tr(l.label, lang), href: tr(l.href, lang) } : null);
+const image = (
+	i: { key: string; alt: { nl: string; fr?: string }; width?: number; height?: number },
+	lang: Lang,
+	width = 1600
+) => ({
 	...picture(i.key, tr(i.alt, lang), width),
 	width: i.width,
 	height: i.height
@@ -25,7 +31,8 @@ const image = (i: { key: string; alt: { nl: string; fr?: string }; width?: numbe
 export type ResolvedBlock = { id: string; type: Block['type']; view: Record<string, unknown> };
 
 export async function resolveBlocks(db: Executor, blocks: Block[], lang: Lang): Promise<ResolvedBlock[]> {
-	const card = (rows: Parameters<typeof toCard>[0][]) => rows.map((r) => toCard(r, lang, (key, alt) => picture(key, alt, 800)));
+	const card = (rows: Parameters<typeof toCard>[0][]) =>
+		rows.map((r) => toCard(r, lang, (key, alt) => picture(key, alt, 800)));
 	const out: ResolvedBlock[] = [];
 	for (const b of blocks) {
 		let view: Record<string, unknown>;
@@ -48,7 +55,11 @@ export async function resolveBlocks(db: Executor, blocks: Block[], lang: Lang): 
 				view = { items: b.data.items.map((i) => ({ icon: i.icon, text: tr(i.text, lang) })) };
 				break;
 			case 'category_strip':
-				view = { title: tr(b.data.title, lang), eyebrow: tr(b.data.eyebrow, lang), categories: await categoryNav(db, lang) };
+				view = {
+					title: tr(b.data.title, lang),
+					eyebrow: tr(b.data.eyebrow, lang),
+					categories: await categoryNav(db, lang)
+				};
 				break;
 			case 'product_rail': {
 				const d = b.data;
@@ -57,13 +68,22 @@ export async function resolveBlocks(db: Executor, blocks: Block[], lang: Lang): 
 				if (d.source === 'new') products = card(await newArrivals(db, limit));
 				else if (d.source === 'bestsellers') products = card(await bestsellers(db, limit));
 				else if (d.source === 'featured') products = card(await featured(db, limit));
-				else if (d.source === 'collection' && d.collectionId) products = card(await collectionCards(db, d.collectionId, limit));
-				else if (d.source === 'manual' && d.productIds?.length) products = card(await cardsByIds(db, d.productIds.slice(0, limit)));
+				else if (d.source === 'collection' && d.collectionId)
+					products = card(await collectionCards(db, d.collectionId, limit));
+				else if (d.source === 'manual' && d.productIds?.length)
+					products = card(await cardsByIds(db, d.productIds.slice(0, limit)));
 				view = { eyebrow: tr(d.eyebrow, lang), title: tr(d.title, lang), products, cta: link(d.cta, lang) };
 				break;
 			}
 			case 'banner':
-				view = { image: image(b.data.image, lang), eyebrow: tr(b.data.eyebrow, lang), title: tr(b.data.title, lang), text: tr(b.data.text, lang), cta: link(b.data.cta, lang), surface: b.data.surface };
+				view = {
+					image: image(b.data.image, lang),
+					eyebrow: tr(b.data.eyebrow, lang),
+					title: tr(b.data.title, lang),
+					text: tr(b.data.text, lang),
+					cta: link(b.data.cta, lang),
+					surface: b.data.surface
+				};
 				break;
 			case 'quote_band':
 				view = { quote: tr(b.data.quote, lang), attribution: tr(b.data.attribution, lang), surface: b.data.surface };
@@ -84,7 +104,10 @@ export async function resolveBlocks(db: Executor, blocks: Block[], lang: Lang): 
 				break;
 			case 'faq_list': {
 				const faqs = await getFaqs(db, b.data.group);
-				view = { title: tr(b.data.title, lang), items: faqs.map((f) => ({ id: f.id, question: tr(f.question, lang), answer: tr(f.answer, lang) })) };
+				view = {
+					title: tr(b.data.title, lang),
+					items: faqs.map((f) => ({ id: f.id, question: tr(f.question, lang), answer: tr(f.answer, lang) }))
+				};
 				break;
 			}
 			case 'newsletter':
@@ -99,7 +122,13 @@ export async function resolveBlocks(db: Executor, blocks: Block[], lang: Lang): 
 			case 'legal_slot': {
 				const { legal, store, return_days } = await getSettings(db, ['legal', 'store', 'return_days']);
 				const entry = legal[b.data.slot];
-				view = { slot: b.data.slot, body: entry ? tr(entry.body, lang) : '', reviewed: entry?.reviewed ?? false, store, returnDays: return_days };
+				view = {
+					slot: b.data.slot,
+					body: entry ? tr(entry.body, lang) : '',
+					reviewed: entry?.reviewed ?? false,
+					store,
+					returnDays: return_days
+				};
 				break;
 			}
 			default:

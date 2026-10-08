@@ -39,7 +39,9 @@
 	<div class="panel">
 		<header>
 			<h2 id="drw{uid}">{title}</h2>
-			<button type="button" class="x" aria-label={m.ui_close()} onclick={() => (open = false)}><Icon name="close" /></button>
+			<button type="button" class="x" aria-label={m.ui_close()} onclick={() => (open = false)}
+				><Icon name="close" /></button
+			>
 		</header>
 		<div class="body">{@render children()}</div>
 		{#if footer}<footer>{@render footer()}</footer>{/if}

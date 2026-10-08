@@ -6,7 +6,10 @@ export function brusselsLocalToDate(value: string): Date | null {
 	if (!value) return null;
 	const [d, t = '00:00'] = value.split('T');
 	const guess = new Date(`${d}T${t}:00Z`);
-	const part = new Intl.DateTimeFormat('en-US', { timeZone: 'Europe/Brussels', timeZoneName: 'shortOffset' }).formatToParts(guess).find((p) => p.type === 'timeZoneName')?.value ?? 'GMT+1';
+	const part =
+		new Intl.DateTimeFormat('en-US', { timeZone: 'Europe/Brussels', timeZoneName: 'shortOffset' })
+			.formatToParts(guess)
+			.find((p) => p.type === 'timeZoneName')?.value ?? 'GMT+1';
 	const offset = Number(/GMT([+-]\d+)/.exec(part)?.[1] ?? 0);
 	return new Date(guess.getTime() - offset * 3600_000);
 }
@@ -15,7 +18,15 @@ export function brusselsLocalToDate(value: string): Date | null {
 export function dateToBrusselsLocal(d: Date | null | undefined): string {
 	if (!d) return '';
 	const p = Object.fromEntries(
-		new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Brussels', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false })
+		new Intl.DateTimeFormat('en-GB', {
+			timeZone: 'Europe/Brussels',
+			year: 'numeric',
+			month: '2-digit',
+			day: '2-digit',
+			hour: '2-digit',
+			minute: '2-digit',
+			hour12: false
+		})
 			.formatToParts(d)
 			.map((x) => [x.type, x.value])
 	);
@@ -56,14 +67,16 @@ export const discountSchema = z
 		let value = 0;
 		if (v.type === 'percent') {
 			value = Number(v.percent.replace(',', '.'));
-			if (!Number.isInteger(value) || value < 1 || value > 100) ctx.addIssue({ code: 'custom', path: ['percent'], message: 'Percentage tussen 1 en 100' });
+			if (!Number.isInteger(value) || value < 1 || value > 100)
+				ctx.addIssue({ code: 'custom', path: ['percent'], message: 'Percentage tussen 1 en 100' });
 		} else if (v.type === 'amount') {
 			value = v.amount ?? 0;
 			if (value <= 0) ctx.addIssue({ code: 'custom', path: ['amount'], message: 'Bedrag is verplicht' });
 		}
 		const startsAt = brusselsLocalToDate(v.startsAt);
 		const endsAt = brusselsLocalToDate(v.endsAt);
-		if (startsAt && endsAt && endsAt <= startsAt) ctx.addIssue({ code: 'custom', path: ['endsAt'], message: 'Einde moet na het begin liggen' });
+		if (startsAt && endsAt && endsAt <= startsAt)
+			ctx.addIssue({ code: 'custom', path: ['endsAt'], message: 'Einde moet na het begin liggen' });
 		return {
 			code: v.code,
 			type: v.type,

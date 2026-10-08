@@ -1,7 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import { hashPassword, verifyPassword } from '#lib/server/auth/password.ts';
 import { isSessionValid, SESSION_POLICY } from '#lib/server/auth/session.ts';
-import { base32Decode, base32Encode, generateTotpSecret, totpCode, verifyTotp, generateRecoveryCodes } from '#lib/server/auth/totp.ts';
+import {
+	base32Decode,
+	base32Encode,
+	generateTotpSecret,
+	totpCode,
+	verifyTotp,
+	generateRecoveryCodes
+} from '#lib/server/auth/totp.ts';
 import { decrypt, encrypt, randomToken, safeEqual } from '#lib/server/crypto.ts';
 
 describe('password hashing (argon2id)', () => {

@@ -8,11 +8,31 @@ import type { Block } from '../../schemas/page-block.ts';
 
 export const CATEGORY_SEED = [
 	{ key: 'rings', slugs: { nl: 'ringen', fr: 'bagues' }, name: { nl: 'Ringen', fr: 'Bagues' }, icon: 'ring' },
-	{ key: 'bracelets', slugs: { nl: 'armbanden', fr: 'bracelets' }, name: { nl: 'Armbanden', fr: 'Bracelets' }, icon: 'bracelet' },
-	{ key: 'necklaces', slugs: { nl: 'kettingen', fr: 'colliers' }, name: { nl: 'Kettingen', fr: 'Colliers' }, icon: 'necklace' },
-	{ key: 'earrings', slugs: { nl: 'oorbellen', fr: 'boucles-d-oreilles' }, name: { nl: 'Oorbellen', fr: "Boucles d'oreilles" }, icon: 'earrings' },
+	{
+		key: 'bracelets',
+		slugs: { nl: 'armbanden', fr: 'bracelets' },
+		name: { nl: 'Armbanden', fr: 'Bracelets' },
+		icon: 'bracelet'
+	},
+	{
+		key: 'necklaces',
+		slugs: { nl: 'kettingen', fr: 'colliers' },
+		name: { nl: 'Kettingen', fr: 'Colliers' },
+		icon: 'necklace'
+	},
+	{
+		key: 'earrings',
+		slugs: { nl: 'oorbellen', fr: 'boucles-d-oreilles' },
+		name: { nl: 'Oorbellen', fr: "Boucles d'oreilles" },
+		icon: 'earrings'
+	},
 	{ key: 'sets', slugs: { nl: 'sets', fr: 'parures' }, name: { nl: 'Sets', fr: 'Parures' }, icon: 'sets' },
-	{ key: 'accessories', slugs: { nl: 'accessoires', fr: 'accessoires' }, name: { nl: 'Accessoires', fr: 'Accessoires' }, icon: 'accessories' }
+	{
+		key: 'accessories',
+		slugs: { nl: 'accessoires', fr: 'accessoires' },
+		name: { nl: 'Accessoires', fr: 'Accessoires' },
+		icon: 'accessories'
+	}
 ] as const;
 
 export const RING_SIZES = ['50', '52', '54', '56', '58'];
@@ -124,25 +144,40 @@ export const MENUS: Record<string, MenuItem[]> = {
 		{ label: both('Veelgestelde vragen', 'Questions fréquentes'), href: both('/nl/faq', '/fr/faq') },
 		{ label: both('Verzending & levering', 'Livraison'), href: both('/nl/verzending', '/fr/livraison') },
 		{ label: both('Retourneren', 'Retours'), href: both('/nl/retourneren', '/fr/retours') },
-		{ label: both('Bestelling volgen', 'Suivre ma commande'), href: both('/nl/bestelling-volgen', '/fr/suivi-commande') },
+		{
+			label: both('Bestelling volgen', 'Suivre ma commande'),
+			href: both('/nl/bestelling-volgen', '/fr/suivi-commande')
+		},
 		{ label: both('Contact', 'Contact'), href: both('/nl/contact', '/fr/contact') }
 	],
 	footer_about: [
 		{ label: both('Ons verhaal', 'Notre histoire'), href: both('/nl/ons-verhaal', '/fr/notre-histoire') },
 		{ label: both('Maatgids', 'Guide des tailles'), href: both('/nl/maatgids', '/fr/guide-des-tailles') },
-		{ label: both('Materiaal & onderhoud', 'Matières & entretien'), href: both('/nl/materiaal-en-onderhoud', '/fr/matieres-et-entretien') }
+		{
+			label: both('Materiaal & onderhoud', 'Matières & entretien'),
+			href: both('/nl/materiaal-en-onderhoud', '/fr/matieres-et-entretien')
+		}
 	],
 	footer_legal: [
 		{ label: both('Algemene voorwaarden', 'Conditions générales'), href: both('/nl/voorwaarden', '/fr/conditions') },
 		{ label: both('Privacy', 'Confidentialité'), href: both('/nl/privacy', '/fr/confidentialite') },
 		{ label: both('Cookies', 'Cookies'), href: both('/nl/cookies', '/fr/cookies') },
 		{ label: both('Herroepingsrecht', 'Droit de rétractation'), href: both('/nl/herroeping', '/fr/retractation') },
-		{ label: both('Wettelijke vermeldingen', 'Mentions légales'), href: both('/nl/wettelijke-vermeldingen', '/fr/mentions-legales') },
+		{
+			label: both('Wettelijke vermeldingen', 'Mentions légales'),
+			href: both('/nl/wettelijke-vermeldingen', '/fr/mentions-legales')
+		},
 		{ label: both('Toegankelijkheid', 'Accessibilité'), href: both('/nl/toegankelijkheid', '/fr/accessibilite') }
 	]
 };
 
-type PageSeed = { key: string; type: 'home' | 'page' | 'legal'; slugs: { nl: string; fr: string }; title: I18n; blocks: Omit<Block, 'id'>[] };
+type PageSeed = {
+	key: string;
+	type: 'home' | 'page' | 'legal';
+	slugs: { nl: string; fr: string };
+	title: I18n;
+	blocks: Omit<Block, 'id'>[];
+};
 
 const placeholderBody = (what: string) =>
 	both(
@@ -166,10 +201,16 @@ export function pageSeeds(heroKey: string, editorialKey: string): PageSeed[] {
 						overline: both('More than jewelry', 'More than jewelry'),
 						title: both("It's a state of mind", "It's a state of mind"),
 						script: both('You', 'You'),
-						lead: both('DEMO — introductietekst voor de nieuwe collectie.', 'DEMO — texte d’introduction de la nouvelle collection.'),
+						lead: both(
+							'DEMO — introductietekst voor de nieuwe collectie.',
+							'DEMO — texte d’introduction de la nouvelle collection.'
+						),
 						image: { key: heroKey, alt: both('DEMO sfeerbeeld', 'DEMO image d’ambiance'), width: 2400, height: 1600 },
 						cta: { label: both('Ontdek de collectie', 'Découvrir la collection'), href: hrefNew },
-						secondaryCta: { label: both('Ons verhaal', 'Notre histoire'), href: both('/nl/ons-verhaal', '/fr/notre-histoire') }
+						secondaryCta: {
+							label: both('Ons verhaal', 'Notre histoire'),
+							href: both('/nl/ons-verhaal', '/fr/notre-histoire')
+						}
 					}
 				},
 				{
@@ -182,12 +223,30 @@ export function pageSeeds(heroKey: string, editorialKey: string): PageSeed[] {
 						]
 					}
 				},
-				{ type: 'category_strip', data: { eyebrow: both('Shop per categorie', 'Par catégorie'), title: both('Vind jouw stuk', 'Trouvez votre bijou') } },
+				{
+					type: 'category_strip',
+					data: {
+						eyebrow: both('Shop per categorie', 'Par catégorie'),
+						title: both('Vind jouw stuk', 'Trouvez votre bijou')
+					}
+				},
 				{
 					type: 'product_rail',
-					data: { eyebrow: both('Net binnen', 'Tout juste arrivés'), title: both('Nieuw', 'Nouveautés'), source: 'new', limit: 8, cta: { label: both('Alles nieuw', 'Toutes les nouveautés'), href: hrefNew } }
+					data: {
+						eyebrow: both('Net binnen', 'Tout juste arrivés'),
+						title: both('Nieuw', 'Nouveautés'),
+						source: 'new',
+						limit: 8,
+						cta: { label: both('Alles nieuw', 'Toutes les nouveautés'), href: hrefNew }
+					}
 				},
-				{ type: 'quote_band', data: { quote: both('A daily reminder that you are a queen', 'A daily reminder that you are a queen'), surface: 'espresso' } },
+				{
+					type: 'quote_band',
+					data: {
+						quote: both('A daily reminder that you are a queen', 'A daily reminder that you are a queen'),
+						surface: 'espresso'
+					}
+				},
 				{
 					type: 'editorial_split',
 					data: {
@@ -197,22 +256,47 @@ export function pageSeeds(heroKey: string, editorialKey: string): PageSeed[] {
 							'DEMO — plaatshouder voor het verhaal over de symboliek van de klaver en de kroon. Definitieve tekst volgt (P4-08).',
 							'DEMO — texte provisoire sur la symbolique du trèfle et de la couronne. Texte définitif à venir (P4-08).'
 						),
-						image: { key: editorialKey, alt: both('DEMO editoriaal beeld', 'DEMO image éditoriale'), width: 1600, height: 2000 },
-						cta: { label: both('Lees ons verhaal', 'Lire notre histoire'), href: both('/nl/ons-verhaal', '/fr/notre-histoire') },
+						image: {
+							key: editorialKey,
+							alt: both('DEMO editoriaal beeld', 'DEMO image éditoriale'),
+							width: 1600,
+							height: 2000
+						},
+						cta: {
+							label: both('Lees ons verhaal', 'Lire notre histoire'),
+							href: both('/nl/ons-verhaal', '/fr/notre-histoire')
+						},
 						reverse: false
 					}
 				},
-				{ type: 'product_rail', data: { eyebrow: both('Geliefd', 'Les préférés'), title: both('Bestsellers', 'Best-sellers'), source: 'bestsellers', limit: 8 } },
+				{
+					type: 'product_rail',
+					data: {
+						eyebrow: both('Geliefd', 'Les préférés'),
+						title: both('Bestsellers', 'Best-sellers'),
+						source: 'bestsellers',
+						limit: 8
+					}
+				},
 				{
 					type: 'newsletter',
 					data: {
 						title: both('Ontvang je dagelijkse reminder', 'Recevez votre rappel quotidien'),
-						text: both('Als eerste nieuwe collecties en exclusieve acties.', 'Soyez la première informée des nouvelles collections.')
+						text: both(
+							'Als eerste nieuwe collecties en exclusieve acties.',
+							'Soyez la première informée des nouvelles collections.'
+						)
 					}
 				}
 			]
 		},
-		{ key: 'story', type: 'page', slugs: { nl: 'ons-verhaal', fr: 'notre-histoire' }, title: both('Ons verhaal', 'Notre histoire'), blocks: [{ type: 'rich_text', data: { body: placeholderBody('Ons verhaal') } }] },
+		{
+			key: 'story',
+			type: 'page',
+			slugs: { nl: 'ons-verhaal', fr: 'notre-histoire' },
+			title: both('Ons verhaal', 'Notre histoire'),
+			blocks: [{ type: 'rich_text', data: { body: placeholderBody('Ons verhaal') } }]
+		},
 		{
 			key: 'size-guide',
 			type: 'page',
@@ -224,9 +308,27 @@ export function pageSeeds(heroKey: string, editorialKey: string): PageSeed[] {
 				{ type: 'rich_text', data: { body: placeholderBody('Maatgids') } }
 			]
 		},
-		{ key: 'care', type: 'page', slugs: { nl: 'materiaal-en-onderhoud', fr: 'matieres-et-entretien' }, title: both('Materiaal & onderhoud', 'Matières & entretien'), blocks: [{ type: 'rich_text', data: { body: placeholderBody('Materiaal & onderhoud') } }] },
-		{ key: 'shipping', type: 'page', slugs: { nl: 'verzending', fr: 'livraison' }, title: both('Verzending & levering', 'Livraison'), blocks: [{ type: 'rich_text', data: { body: placeholderBody('Verzending & levering') } }] },
-		{ key: 'returns', type: 'page', slugs: { nl: 'retourneren', fr: 'retours' }, title: both('Retourneren', 'Retours'), blocks: [{ type: 'rich_text', data: { body: placeholderBody('Retourneren') } }] },
+		{
+			key: 'care',
+			type: 'page',
+			slugs: { nl: 'materiaal-en-onderhoud', fr: 'matieres-et-entretien' },
+			title: both('Materiaal & onderhoud', 'Matières & entretien'),
+			blocks: [{ type: 'rich_text', data: { body: placeholderBody('Materiaal & onderhoud') } }]
+		},
+		{
+			key: 'shipping',
+			type: 'page',
+			slugs: { nl: 'verzending', fr: 'livraison' },
+			title: both('Verzending & levering', 'Livraison'),
+			blocks: [{ type: 'rich_text', data: { body: placeholderBody('Verzending & levering') } }]
+		},
+		{
+			key: 'returns',
+			type: 'page',
+			slugs: { nl: 'retourneren', fr: 'retours' },
+			title: both('Retourneren', 'Retours'),
+			blocks: [{ type: 'rich_text', data: { body: placeholderBody('Retourneren') } }]
+		},
 		...(
 			[
 				['terms', 'voorwaarden', 'conditions', 'Algemene voorwaarden', 'Conditions générales'],
@@ -234,7 +336,13 @@ export function pageSeeds(heroKey: string, editorialKey: string): PageSeed[] {
 				['cookies', 'cookies', 'cookies', 'Cookiebeleid', 'Politique en matière de cookies'],
 				['withdrawal', 'herroeping', 'retractation', 'Herroepingsrecht', 'Droit de rétractation'],
 				['legal-notice', 'wettelijke-vermeldingen', 'mentions-legales', 'Wettelijke vermeldingen', 'Mentions légales'],
-				['accessibility', 'toegankelijkheid', 'accessibilite', 'Toegankelijkheidsverklaring', "Déclaration d'accessibilité"]
+				[
+					'accessibility',
+					'toegankelijkheid',
+					'accessibilite',
+					'Toegankelijkheidsverklaring',
+					"Déclaration d'accessibilité"
+				]
 			] as const
 		).map(([key, nl, fr, tnl, tfr]) => ({
 			key,
@@ -247,7 +355,28 @@ export function pageSeeds(heroKey: string, editorialKey: string): PageSeed[] {
 }
 
 export const FAQ_SEED: { group: string; question: I18n; answer: I18n }[] = [
-	{ group: 'orders', question: both('DEMO — Hoe lang duurt de levering?', 'DEMO — Quel est le délai de livraison ?'), answer: both('Plaatshouder-antwoord. Definitieve tekst volgt (P4-08).', 'Réponse provisoire. Texte définitif à venir (P4-08).') },
-	{ group: 'orders', question: both('DEMO — Kan ik mijn bestelling retourneren?', 'DEMO — Puis-je retourner ma commande ?'), answer: both('Plaatshouder-antwoord. Definitieve tekst volgt (P4-08).', 'Réponse provisoire. Texte définitif à venir (P4-08).') },
-	{ group: 'products', question: both('DEMO — Hoe onderhoud ik mijn juwelen?', 'DEMO — Comment entretenir mes bijoux ?'), answer: both('Plaatshouder-antwoord. Definitieve tekst volgt (P4-08).', 'Réponse provisoire. Texte définitif à venir (P4-08).') }
+	{
+		group: 'orders',
+		question: both('DEMO — Hoe lang duurt de levering?', 'DEMO — Quel est le délai de livraison ?'),
+		answer: both(
+			'Plaatshouder-antwoord. Definitieve tekst volgt (P4-08).',
+			'Réponse provisoire. Texte définitif à venir (P4-08).'
+		)
+	},
+	{
+		group: 'orders',
+		question: both('DEMO — Kan ik mijn bestelling retourneren?', 'DEMO — Puis-je retourner ma commande ?'),
+		answer: both(
+			'Plaatshouder-antwoord. Definitieve tekst volgt (P4-08).',
+			'Réponse provisoire. Texte définitif à venir (P4-08).'
+		)
+	},
+	{
+		group: 'products',
+		question: both('DEMO — Hoe onderhoud ik mijn juwelen?', 'DEMO — Comment entretenir mes bijoux ?'),
+		answer: both(
+			'Plaatshouder-antwoord. Definitieve tekst volgt (P4-08).',
+			'Réponse provisoire. Texte définitif à venir (P4-08).'
+		)
+	}
 ];

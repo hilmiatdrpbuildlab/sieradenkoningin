@@ -7,18 +7,24 @@
 	import Icon from '#lib/components/ui/Icon.svelte';
 
 	let { mobileOpen = $bindable(false) }: { mobileOpen?: boolean } = $props();
-	const crumbs = $derived(((page.data as { crumbs?: { label: string; href?: string }[] }).crumbs ?? []).filter(Boolean));
+	const crumbs = $derived(
+		((page.data as { crumbs?: { label: string; href?: string }[] }).crumbs ?? []).filter(Boolean)
+	);
 </script>
 
 <header class="topbar">
-	<button class="menu" aria-label="Menu openen" aria-expanded={mobileOpen} onclick={() => (mobileOpen = true)}><Icon name="menu" size={20} /></button>
+	<button class="menu" aria-label="Menu openen" aria-expanded={mobileOpen} onclick={() => (mobileOpen = true)}
+		><Icon name="menu" size={20} /></button
+	>
 	<nav aria-label="Kruimelpad" class="crumbs">
 		<ol>
 			<li><a href="/admin">Beheer</a></li>
 			{#each crumbs as c, i (i)}
 				<li>
 					<Icon name="chevron-right" size={12} />
-					{#if c.href && i < crumbs.length - 1}<a href={c.href}>{c.label}</a>{:else}<span aria-current="page">{c.label}</span>{/if}
+					{#if c.href && i < crumbs.length - 1}<a href={c.href}>{c.label}</a>{:else}<span aria-current="page"
+							>{c.label}</span
+						>{/if}
 				</li>
 			{/each}
 		</ol>

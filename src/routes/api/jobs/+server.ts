@@ -31,7 +31,12 @@ export const POST: RequestHandler = async ({ request, locals, url }) => {
 		? {
 				cleanup: await dailyMaintenance(locals.db),
 				export: await dailyExport(locals.db, locals.storage).catch((e: Error) => ({ error: e.message })),
-				report: await sendDailyReport({ db: locals.db, email: locals.email, to: (await getSetting(locals.db, 'store')).email || env.SHOP_INBOX, siteUrl: PUBLIC_SITE_URL }).catch((e: Error) => ({ error: e.message }))
+				report: await sendDailyReport({
+					db: locals.db,
+					email: locals.email,
+					to: (await getSetting(locals.db, 'store')).email || env.SHOP_INBOX,
+					siteUrl: PUBLIC_SITE_URL
+				}).catch((e: Error) => ({ error: e.message }))
 			}
 		: null;
 	const jobs = await runJobs({

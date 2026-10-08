@@ -40,17 +40,15 @@ beforeAll(async () => {
 			paidAt: new Date('2026-10-01T10:05:00Z')
 		})
 		.returning();
-	await db
-		.insert(s.orderLines)
-		.values({
-			orderId: o.id,
-			sku: 'X',
-			name: { nl: 'DEMO Ring', fr: 'DEMO Bague' },
-			unitPrice: 4900,
-			qty: 1,
-			vatAmount: 850,
-			lineTotal: 4900
-		});
+	await db.insert(s.orderLines).values({
+		orderId: o.id,
+		sku: 'X',
+		name: { nl: 'DEMO Ring', fr: 'DEMO Bague' },
+		unitPrice: 4900,
+		qty: 1,
+		vatAmount: 850,
+		lineTotal: 4900
+	});
 	await db.insert(s.shipments).values({
 		orderId: o.id,
 		carrier: 'bpost',

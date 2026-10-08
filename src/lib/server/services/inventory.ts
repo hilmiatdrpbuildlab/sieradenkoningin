@@ -21,7 +21,14 @@ export class StockError extends Error {}
  */
 export async function applyStockDelta(
 	db: Executor,
-	m: { variantId: string; delta: number; reason: StockReason; note?: string | null; refId?: string | null; actor?: string | null }
+	m: {
+		variantId: string;
+		delta: number;
+		reason: StockReason;
+		note?: string | null;
+		refId?: string | null;
+		actor?: string | null;
+	}
 ): Promise<number> {
 	if (!Number.isInteger(m.delta)) throw new StockError('Ongeldig aantal');
 	const [row] = await db

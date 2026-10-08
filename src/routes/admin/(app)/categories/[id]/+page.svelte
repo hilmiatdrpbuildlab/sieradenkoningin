@@ -23,12 +23,16 @@
 
 <PageHeader title={data.model.name.nl} description="Sleutel: {data.category.key}">
 	{#snippet actions()}
-		<a class="icon" href="/nl/{data.model.slugs.nl}" target="_blank" rel="noopener"><Icon name={data.category.icon as IconName} size={32} stroke={1} /><span>Bekijk in winkel</span></a>
+		<a class="icon" href="/nl/{data.model.slugs.nl}" target="_blank" rel="noopener"
+			><Icon name={data.category.icon as IconName} size={32} stroke={1} /><span>Bekijk in winkel</span></a
+		>
 	{/snippet}
 </PageHeader>
 
 {#if saved}<p class="notice" role="status"><Icon name="check" size={16} />Wijzigingen opgeslagen.</p>{/if}
-{#if Object.keys(errors).length}<p class="alert" role="alert"><Icon name="alert" size={16} />Niet opgeslagen — controleer de gemarkeerde velden.</p>{/if}
+{#if Object.keys(errors).length}<p class="alert" role="alert">
+		<Icon name="alert" size={16} />Niet opgeslagen — controleer de gemarkeerde velden.
+	</p>{/if}
 
 <form
 	method="POST"
@@ -50,7 +54,11 @@
 				<EntityI18nFields bind:model {errors} prefix={{ nl: '/nl/', fr: '/fr/' }} />
 			</Card>
 			<Card title="Weergave">
-				<Field label="Positie in menu's" hint="Lager = eerder. Je kan ook de pijlen in het overzicht gebruiken." error={errors.position?.[0]}>
+				<Field
+					label="Positie in menu's"
+					hint="Lager = eerder. Je kan ook de pijlen in het overzicht gebruiken."
+					error={errors.position?.[0]}
+				>
 					<Input name="position" type="number" min="0" value={data.category.position} />
 				</Field>
 			</Card>

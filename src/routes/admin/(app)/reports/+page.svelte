@@ -21,7 +21,10 @@
 
 <svelte:head><title>Rapporten — Beheer</title></svelte:head>
 
-<PageHeader title="Rapporten" description="Bedragen incl. 21% btw, tenzij anders vermeld. Dagen volgens Belgische tijd.">
+<PageHeader
+	title="Rapporten"
+	description="Bedragen incl. 21% btw, tenzij anders vermeld. Dagen volgens Belgische tijd."
+>
 	{#snippet actions()}
 		<form method="GET" class="range">
 			<label>Van <input type="date" name="from" value={data.from} /></label>
@@ -46,26 +49,63 @@
 
 <div class="grid">
 	<Card title="Omzet per dag">
-		{#snippet actions()}<Button href={exportHref('days')} size="sm" variant="ghost" icon="download">CSV</Button>{/snippet}
-		<TrendChart hideTitle title="Netto-omzet per dag" points={data.days.map((d) => ({ label: formatDate(d.day + 'T12:00:00Z', 'nl', { day: 'numeric', month: 'short' }), value: d.net }))} format={eurShort} />
+		{#snippet actions()}<Button href={exportHref('days')} size="sm" variant="ghost" icon="download">CSV</Button
+			>{/snippet}
+		<TrendChart
+			hideTitle
+			title="Netto-omzet per dag"
+			points={data.days.map((d) => ({
+				label: formatDate(d.day + 'T12:00:00Z', 'nl', { day: 'numeric', month: 'short' }),
+				value: d.net
+			}))}
+			format={eurShort}
+		/>
 	</Card>
 	<Card title="Per categorie">
-		{#snippet actions()}<Button href={exportHref('categories')} size="sm" variant="ghost" icon="download">CSV</Button>{/snippet}
-		<BarList hideTitle title="Omzet per categorie" items={data.categories.map((c) => ({ label: c.label, value: c.revenue, meta: `${c.units} st.` }))} format={eur} />
+		{#snippet actions()}<Button href={exportHref('categories')} size="sm" variant="ghost" icon="download">CSV</Button
+			>{/snippet}
+		<BarList
+			hideTitle
+			title="Omzet per categorie"
+			items={data.categories.map((c) => ({ label: c.label, value: c.revenue, meta: `${c.units} st.` }))}
+			format={eur}
+		/>
 	</Card>
 	<Card title="Per product">
-		{#snippet actions()}<Button href={exportHref('products')} size="sm" variant="ghost" icon="download">CSV</Button>{/snippet}
-		<BarList hideTitle title="Top 15 producten (omzet)" items={data.top.map((t) => ({ label: t.label, value: t.revenue, meta: `${t.units} st.` }))} format={eur} />
+		{#snippet actions()}<Button href={exportHref('products')} size="sm" variant="ghost" icon="download">CSV</Button
+			>{/snippet}
+		<BarList
+			hideTitle
+			title="Top 15 producten (omzet)"
+			items={data.top.map((t) => ({ label: t.label, value: t.revenue, meta: `${t.units} st.` }))}
+			format={eur}
+		/>
 	</Card>
 	<Card title="Btw-overzicht per maand" padded={false}>
-		{#snippet actions()}<Button href={exportHref('vat')} size="sm" variant="ghost" icon="download">CSV</Button>{/snippet}
+		{#snippet actions()}<Button href={exportHref('vat')} size="sm" variant="ghost" icon="download">CSV</Button
+			>{/snippet}
 		<!-- svelte-ignore a11y_no_noninteractive_tabindex (scrollable region must be keyboard-focusable, WCAG 2.1.1) -->
 		<div class="scroller" tabindex="0" role="region" aria-label="Btw per maand">
 			<table>
-				<thead><tr><th scope="col">Maand</th><th scope="col" class="num">Bestellingen</th><th scope="col" class="num">Incl. btw</th><th scope="col" class="num">Btw 21%</th><th scope="col" class="num">Excl. btw</th><th scope="col" class="num">Terugbetaald</th></tr></thead>
+				<thead
+					><tr
+						><th scope="col">Maand</th><th scope="col" class="num">Bestellingen</th><th scope="col" class="num"
+							>Incl. btw</th
+						><th scope="col" class="num">Btw 21%</th><th scope="col" class="num">Excl. btw</th><th
+							scope="col"
+							class="num">Terugbetaald</th
+						></tr
+					></thead
+				>
 				<tbody>
 					{#each data.vat as v (v.month)}
-						<tr><th scope="row">{monthLabel(v.month)}</th><td class="num">{v.orders}</td><td class="num">{eur(v.gross)}</td><td class="num">{eur(v.vat)}</td><td class="num">{eur(v.netExVat)}</td><td class="num">{eur(v.refunded)}</td></tr>
+						<tr
+							><th scope="row">{monthLabel(v.month)}</th><td class="num">{v.orders}</td><td class="num"
+								>{eur(v.gross)}</td
+							><td class="num">{eur(v.vat)}</td><td class="num">{eur(v.netExVat)}</td><td class="num"
+								>{eur(v.refunded)}</td
+							></tr
+						>
 					{:else}
 						<tr><td colspan="6" class="empty">Geen verkopen in deze periode.</td></tr>
 					{/each}
@@ -74,14 +114,24 @@
 		</div>
 	</Card>
 	<Card title="Kortingscodes" padded={false}>
-		{#snippet actions()}<Button href={exportHref('discounts')} size="sm" variant="ghost" icon="download">CSV</Button>{/snippet}
+		{#snippet actions()}<Button href={exportHref('discounts')} size="sm" variant="ghost" icon="download">CSV</Button
+			>{/snippet}
 		<!-- svelte-ignore a11y_no_noninteractive_tabindex (scrollable region must be keyboard-focusable, WCAG 2.1.1) -->
 		<div class="scroller" tabindex="0" role="region" aria-label="Kortingscodes">
 			<table>
-				<thead><tr><th scope="col">Code</th><th scope="col" class="num">Gebruikt</th><th scope="col" class="num">Korting</th><th scope="col" class="num">Omzet</th></tr></thead>
+				<thead
+					><tr
+						><th scope="col">Code</th><th scope="col" class="num">Gebruikt</th><th scope="col" class="num">Korting</th
+						><th scope="col" class="num">Omzet</th></tr
+					></thead
+				>
 				<tbody>
 					{#each data.codes as c (c.code)}
-						<tr><th scope="row"><code>{c.code}</code></th><td class="num">{c.uses}</td><td class="num">{eur(c.discount)}</td><td class="num">{eur(c.revenue)}</td></tr>
+						<tr
+							><th scope="row"><code>{c.code}</code></th><td class="num">{c.uses}</td><td class="num"
+								>{eur(c.discount)}</td
+							><td class="num">{eur(c.revenue)}</td></tr
+						>
 					{:else}
 						<tr><td colspan="4" class="empty">Geen kortingscodes gebruikt.</td></tr>
 					{/each}

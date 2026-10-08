@@ -15,13 +15,22 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 
 	const where: SQL[] = [];
 	if (entity) where.push(eq(auditLog.entity, entity));
-	if (q) where.push(or(ilike(auditLog.actorName, `%${q}%`), ilike(auditLog.action, `%${q}%`), ilike(auditLog.entityId, `%${q}%`))!);
+	if (q)
+		where.push(
+			or(ilike(auditLog.actorName, `%${q}%`), ilike(auditLog.action, `%${q}%`), ilike(auditLog.entityId, `%${q}%`))!
+		);
 	if (from) where.push(gte(auditLog.createdAt, new Date(`${from}T00:00:00`)));
 	if (to) where.push(lte(auditLog.createdAt, new Date(`${to}T23:59:59`)));
 	const cond = where.length ? and(...where) : undefined;
 
 	const [rows, [{ total }], entities] = await Promise.all([
-		locals.db.select().from(auditLog).where(cond).orderBy(desc(auditLog.createdAt)).limit(PAGE_SIZE).offset((page - 1) * PAGE_SIZE),
+		locals.db
+			.select()
+			.from(auditLog)
+			.where(cond)
+			.orderBy(desc(auditLog.createdAt))
+			.limit(PAGE_SIZE)
+			.offset((page - 1) * PAGE_SIZE),
 		locals.db.select({ total: count() }).from(auditLog).where(cond),
 		locals.db.selectDistinct({ entity: auditLog.entity }).from(auditLog).orderBy(auditLog.entity)
 	]);

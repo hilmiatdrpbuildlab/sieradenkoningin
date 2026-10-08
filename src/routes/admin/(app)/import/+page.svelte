@@ -24,9 +24,14 @@
 
 <svelte:head><title>Import / export — Beheer</title></svelte:head>
 
-<PageHeader title="Import / export" description="Producten, varianten en voorraad in bulk via CSV (één rij per variant).">
+<PageHeader
+	title="Import / export"
+	description="Producten, varianten en voorraad in bulk via CSV (één rij per variant)."
+>
 	{#snippet actions()}
-		<Button href="/admin/import/export.csv" variant="outline" size="sm" icon="download" data-sveltekit-reload>Exporteer producten</Button>
+		<Button href="/admin/import/export.csv" variant="outline" size="sm" icon="download" data-sveltekit-reload
+			>Exporteer producten</Button
+		>
 	{/snippet}
 </PageHeader>
 
@@ -53,17 +58,25 @@
 					<span class="pill create"><strong>{summary.create}</strong> nieuw</span>
 					<span class="pill update"><strong>{summary.update}</strong> bijwerken</span>
 					<span class="pill error"><strong>{summary.errors}</strong> fout{summary.errors === 1 ? '' : 'en'}</span>
-					<span class="muted">{summary.rows} rijen · {summary.productsCreate} nieuwe en {summary.productsUpdate} bestaande producten</span>
+					<span class="muted"
+						>{summary.rows} rijen · {summary.productsCreate} nieuwe en {summary.productsUpdate} bestaande producten</span
+					>
 				</div>
 				{#if form?.step === 'done'}
-					<p class="ok"><Icon name="check" size={16} />Import uitgevoerd. {summary.errors ? 'Rijen met fouten zijn overgeslagen; corrigeer ze en importeer opnieuw.' : 'Alle rijen zijn verwerkt.'}</p>
+					<p class="ok">
+						<Icon name="check" size={16} />Import uitgevoerd. {summary.errors
+							? 'Rijen met fouten zijn overgeslagen; corrigeer ze en importeer opnieuw.'
+							: 'Alle rijen zijn verwerkt.'}
+					</p>
 				{:else if form && 'csv' in form}
 					<form method="POST" action="?/commit" class="commit" use:enhance={submit}>
 						<input type="hidden" name="csv" value={form.csv} />
 						<Button type="submit" size="sm" icon="check" loading={busy} disabled={summary.rows === summary.errors}>
 							Importeer {summary.rows - summary.errors} geldige rij{summary.rows - summary.errors === 1 ? '' : 'en'}
 						</Button>
-						{#if summary.errors}<span class="muted">{summary.errors} rij{summary.errors === 1 ? '' : 'en'} met fouten worden overgeslagen.</span>{/if}
+						{#if summary.errors}<span class="muted"
+								>{summary.errors} rij{summary.errors === 1 ? '' : 'en'} met fouten worden overgeslagen.</span
+							>{/if}
 					</form>
 				{/if}
 				{#if summary.errors}
@@ -72,13 +85,24 @@
 				<!-- svelte-ignore a11y_no_noninteractive_tabindex (scrollable region must be keyboard-focusable) -->
 				<div class="scroller" tabindex="0" role="region" aria-label="Rijen van de import">
 					<table>
-						<thead><tr><th>Regel</th><th>Actie</th><th>Product</th><th>SKU</th><th>Voorraad</th><th>Meldingen</th></tr></thead>
+						<thead
+							><tr><th>Regel</th><th>Actie</th><th>Product</th><th>SKU</th><th>Voorraad</th><th>Meldingen</th></tr
+							></thead
+						>
 						<tbody>
 							{#each shown as r (r.line)}
 								<tr class={r.action}>
 									<td>{r.line}</td>
-									<td><span class="tag {r.action}">{#if r.action === 'error'}<Icon name="alert" size={12} />{/if}{ACTION_LABEL[r.action]}</span></td>
-									<td><code>{r.slug || '—'}</code>{#if r.productAction !== 'none'}<small> ({r.productAction === 'create' ? 'nieuw product' : 'product bijwerken'})</small>{/if}</td>
+									<td
+										><span class="tag {r.action}"
+											>{#if r.action === 'error'}<Icon name="alert" size={12} />{/if}{ACTION_LABEL[r.action]}</span
+										></td
+									>
+									<td
+										><code>{r.slug || '—'}</code>{#if r.productAction !== 'none'}<small>
+												({r.productAction === 'create' ? 'nieuw product' : 'product bijwerken'})</small
+											>{/if}</td
+									>
 									<td><code>{r.sku ?? '—'}</code></td>
 									<td class="num">{r.stockDelta ? (r.stockDelta > 0 ? `+${r.stockDelta}` : r.stockDelta) : '—'}</td>
 									<td class="msgs">
@@ -97,7 +121,9 @@
 	<aside class="side">
 		<Card title="Sjabloon">
 			<p class="muted">Download het sjabloon, vul het in Excel of Numbers in en sla op als CSV (UTF-8).</p>
-			<Button href="/admin/import/template.csv" variant="outline" size="sm" icon="download" data-sveltekit-reload>Download sjabloon</Button>
+			<Button href="/admin/import/template.csv" variant="outline" size="sm" icon="download" data-sveltekit-reload
+				>Download sjabloon</Button
+			>
 		</Card>
 		<Card title="Kolommen">
 			<ul class="cols">
@@ -109,7 +135,10 @@
 				<li>Lege cel = ongewijzigd · <code>-</code> wist van-prijs of prijs-override</li>
 				<li>Nieuwe producten worden als concept aangemaakt (eerst foto’s toevoegen)</li>
 			</ul>
-			<details><summary>Alle kolommen</summary><p class="muted">{data.columns.join(' ; ')}</p></details>
+			<details>
+				<summary>Alle kolommen</summary>
+				<p class="muted">{data.columns.join(' ; ')}</p>
+			</details>
 		</Card>
 	</aside>
 </div>

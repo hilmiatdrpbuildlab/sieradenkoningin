@@ -18,7 +18,12 @@
 </script>
 
 <div class="shell" class:collapsed>
-	<AdminSidebar groups={data.nav} bind:collapsed bind:mobileOpen user={{ name: data.admin.name, role: data.admin.roleLabel }} />
+	<AdminSidebar
+		groups={data.nav}
+		bind:collapsed
+		bind:mobileOpen
+		user={{ name: data.admin.name, role: data.admin.roleLabel }}
+	/>
 	<div class="main">
 		<AdminTopbar bind:mobileOpen />
 		<main id="admin-content" class="content">

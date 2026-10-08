@@ -59,7 +59,9 @@ describe('matchesRule', () => {
 
 	it('describes rules in Dutch', () => {
 		expect(describeRule({ newWithinDays: 30 })).toBe('nieuw (≤ 30 dagen)');
-		expect(describeRule({ category: 'rings', priceLt: 5000, onSale: true }, () => 'Ringen')).toBe('categorie Ringen · in solden · prijs < € 50,00');
+		expect(describeRule({ category: 'rings', priceLt: 5000, onSale: true }, () => 'Ringen')).toBe(
+			'categorie Ringen · in solden · prijs < € 50,00'
+		);
 		expect(describeRule({})).toBe('alle producten');
 	});
 });
@@ -68,7 +70,10 @@ describe('collectionSchema', () => {
 	const base = { name: { nl: 'Nieuw', fr: 'Nouveautés' }, slugs: { nl: 'nieuw', fr: 'nouveautes' }, type: 'rule' };
 
 	it('parses a rule collection with euro price and day count', () => {
-		const r = collectionSchema.safeParse({ ...base, rule: { newWithinDays: '30', priceLt: '50', onSale: 'on', category: '', tag: ' Klaver ' } });
+		const r = collectionSchema.safeParse({
+			...base,
+			rule: { newWithinDays: '30', priceLt: '50', onSale: 'on', category: '', tag: ' Klaver ' }
+		});
 		expect(r.success).toBe(true);
 		expect(r.data!.rule).toEqual({ newWithinDays: 30, priceLt: 5000, onSale: true, tag: 'klaver' });
 	});

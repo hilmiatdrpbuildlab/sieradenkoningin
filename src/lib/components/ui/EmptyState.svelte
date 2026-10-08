@@ -3,7 +3,12 @@
 	import type { Snippet } from 'svelte';
 	import Icon from './Icon.svelte';
 	import type { IconName } from './icons.ts';
-	let { title, text, icon = 'crown', action }: { title: string; text?: string; icon?: IconName; action?: Snippet } = $props();
+	let {
+		title,
+		text,
+		icon = 'crown',
+		action
+	}: { title: string; text?: string; icon?: IconName; action?: Snippet } = $props();
 </script>
 
 <div class="empty">

@@ -41,7 +41,9 @@
 	<div class="panel">
 		<header>
 			<h2 id="dlg{uid}-t">{title}</h2>
-			<button type="button" class="x" aria-label={m.ui_close()} onclick={() => (open = false)}><Icon name="close" /></button>
+			<button type="button" class="x" aria-label={m.ui_close()} onclick={() => (open = false)}
+				><Icon name="close" /></button
+			>
 		</header>
 		{#if description}<p id="dlg{uid}-d" class="desc">{description}</p>{/if}
 		<div class="body">{@render children()}</div>

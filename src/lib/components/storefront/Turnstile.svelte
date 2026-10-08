@@ -24,5 +24,11 @@
 </script>
 
 {#if PUBLIC_TURNSTILE_SITE_KEY}
-	<div bind:this={el} class="cf-turnstile" data-sitekey={PUBLIC_TURNSTILE_SITE_KEY} data-theme="light" data-language="auto"></div>
+	<div
+		bind:this={el}
+		class="cf-turnstile"
+		data-sitekey={PUBLIC_TURNSTILE_SITE_KEY}
+		data-theme="light"
+		data-language="auto"
+	></div>
 {/if}

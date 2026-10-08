@@ -5,9 +5,36 @@ import { requirePermission } from '#lib/server/auth/guard.ts';
 /** EXECUTION_PLAN §7.4, written out explicitly so a change to the matrix must also change this test. */
 const EXPECTED: Record<Role, Permission[]> = {
 	owner: [...PERMISSIONS],
-	editor: ['catalog:read', 'catalog:write', 'content:read', 'content:write', 'inventory:read', 'inventory:write', 'orders:read', 'discounts:read', 'discounts:write'],
-	fulfilment: ['catalog:read', 'content:read', 'inventory:read', 'inventory:write', 'orders:read', 'orders:fulfil', 'customers:read'],
-	support: ['catalog:read', 'content:read', 'inventory:read', 'orders:read', 'orders:fulfil', 'orders:refund', 'customers:read', 'customers:write']
+	editor: [
+		'catalog:read',
+		'catalog:write',
+		'content:read',
+		'content:write',
+		'inventory:read',
+		'inventory:write',
+		'orders:read',
+		'discounts:read',
+		'discounts:write'
+	],
+	fulfilment: [
+		'catalog:read',
+		'content:read',
+		'inventory:read',
+		'inventory:write',
+		'orders:read',
+		'orders:fulfil',
+		'customers:read'
+	],
+	support: [
+		'catalog:read',
+		'content:read',
+		'inventory:read',
+		'orders:read',
+		'orders:fulfil',
+		'orders:refund',
+		'customers:read',
+		'customers:write'
+	]
 };
 
 describe('permission matrix', () => {
@@ -38,7 +65,8 @@ describe('permission matrix', () => {
 				return (e as { status: number }).status;
 			}
 		};
-		const admin = (role: Role) => ({ admin: { id: '1', name: 'x', email: 'x@y.z', role, sessionId: 's' } }) as App.Locals;
+		const admin = (role: Role) =>
+			({ admin: { id: '1', name: 'x', email: 'x@y.z', role, sessionId: 's' } }) as App.Locals;
 		expect(status(() => requirePermission({} as App.Locals, 'catalog:read'))).toBe(401);
 		expect(status(() => requirePermission(admin('editor'), 'orders:refund'))).toBe(403);
 		expect(status(() => requirePermission(admin('support'), 'orders:refund'))).toBe(200);

@@ -22,7 +22,9 @@ try {
 	const [user] = await db.select().from(schema.adminUsers).where(eq(schema.adminUsers.email, email.toLowerCase()));
 	if (!user) throw new Error(`No admin user ${email}`);
 	const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789';
-	const password = process.env.NEW_PASSWORD || [...crypto.getRandomValues(new Uint8Array(18))].map((b) => alphabet[b % alphabet.length]).join('');
+	const password =
+		process.env.NEW_PASSWORD ||
+		[...crypto.getRandomValues(new Uint8Array(18))].map((b) => alphabet[b % alphabet.length]).join('');
 	await db
 		.update(schema.adminUsers)
 		.set({
@@ -32,10 +34,16 @@ try {
 			updatedAt: new Date()
 		})
 		.where(eq(schema.adminUsers.id, user.id));
-	await db.delete(schema.sessions).where(and(eq(schema.sessions.userType, 'admin'), eq(schema.sessions.userId, user.id)));
+	await db
+		.delete(schema.sessions)
+		.where(and(eq(schema.sessions.userType, 'admin'), eq(schema.sessions.userId, user.id)));
 	await db.delete(schema.rateLimits);
-	await db.insert(schema.auditLog).values({ action: 'reset_credentials_cli', entity: 'admin_user', entityId: user.id, actorName: 'CLI' });
-	console.log(`✓ ${email}: new password (shown once): ${password}${flags.includes('--keep-2fa') ? '' : ' — 2FA will be re-enrolled at next login'}`);
+	await db
+		.insert(schema.auditLog)
+		.values({ action: 'reset_credentials_cli', entity: 'admin_user', entityId: user.id, actorName: 'CLI' });
+	console.log(
+		`✓ ${email}: new password (shown once): ${password}${flags.includes('--keep-2fa') ? '' : ' — 2FA will be re-enrolled at next login'}`
+	);
 } finally {
 	await pool.end();
 }

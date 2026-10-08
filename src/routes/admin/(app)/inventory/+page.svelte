@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { SvelteURLSearchParams } from 'svelte/reactivity';
 	import { enhance } from '$app/forms';
 	import { page } from '$app/state';
 	import PageHeader from '#lib/components/admin/PageHeader.svelte';
@@ -15,7 +16,7 @@
 	let { data, form } = $props();
 	/** Keeps the current filters in the action URL so a no-JS post returns to the same view. */
 	const act = (name: string) => {
-		const p = new URLSearchParams(page.url.search);
+		const p = new SvelteURLSearchParams(page.url.search);
 		p.set(`/${name}`, '');
 		return `?${p.toString().replace(/=(&|$)/, '$1')}`;
 	};
@@ -28,13 +29,18 @@
 		{ key: 'id', label: 'Aanpassen (reden verplicht)' }
 	];
 	const filtered = $derived(!!(data.filters.q || data.filters.low || data.filters.out || data.filters.category));
-	const errFor = (id: string, k: string) => (form && 'errors' in form && form.variantId === id ? (form.errors as Record<string, string[]>)[k]?.[0] : undefined);
-	const valFor = (id: string, k: string) => (form && 'values' in form && form.variantId === id ? ((form.values as Record<string, string>)[k] ?? '') : '');
+	const errFor = (id: string, k: string) =>
+		form && 'errors' in form && form.variantId === id ? (form.errors as Record<string, string[]>)[k]?.[0] : undefined;
+	const valFor = (id: string, k: string) =>
+		form && 'values' in form && form.variantId === id ? ((form.values as Record<string, string>)[k] ?? '') : '';
 </script>
 
 <svelte:head><title>Voorraad — Beheer</title></svelte:head>
 
-<PageHeader title="Voorraad" description="Elke wijziging wordt gelogd met een reden. Voorraad kan nooit negatief worden.">
+<PageHeader
+	title="Voorraad"
+	description="Elke wijziging wordt gelogd met een reden. Voorraad kan nooit negatief worden."
+>
 	{#snippet actions()}
 		<Button href="/admin/import" variant="outline" size="sm" icon="import">Import / export</Button>
 	{/snippet}
@@ -43,14 +49,27 @@
 {#if form && 'ok' in form && form.ok}
 	<p class="notice" role="status"><Icon name="check" size={16} />{form.message}</p>
 {:else if form && 'errors' in form}
-	<p class="notice alert" role="alert"><Icon name="alert" size={16} />Niet aangepast — {Object.values(form.errors as Record<string, string[]>)[0]?.[0]}</p>
+	<p class="notice alert" role="alert">
+		<Icon name="alert" size={16} />Niet aangepast — {Object.values(form.errors as Record<string, string[]>)[0]?.[0]}
+	</p>
 {/if}
 
 <DataTable rows={data.rows} {columns} total={data.total} pageSize={data.pageSize} density="compact">
 	{#snippet toolbar()}
 		<form method="GET" class="filters" role="search" data-sveltekit-keepfocus>
-			{#if data.sort.key}<input type="hidden" name="sort" value={data.sort.key} /><input type="hidden" name="dir" value={data.sort.dir} />{/if}
-			<label class="search"><span class="sr-only">Zoek op SKU of product</span><input type="search" name="q" value={data.filters.q} placeholder="Zoek op SKU of product" /></label>
+			{#if data.sort.key}<input type="hidden" name="sort" value={data.sort.key} /><input
+					type="hidden"
+					name="dir"
+					value={data.sort.dir}
+				/>{/if}
+			<label class="search"
+				><span class="sr-only">Zoek op SKU of product</span><input
+					type="search"
+					name="q"
+					value={data.filters.q}
+					placeholder="Zoek op SKU of product"
+				/></label
+			>
 			<label>
 				<span class="sr-only">Categorie</span>
 				<select name="category" value={data.filters.category}>
@@ -68,26 +87,52 @@
 		{#if col.key === 'sku'}
 			<span class="var">
 				{#if row.image}<img src={row.image} alt="" width="28" height="35" loading="lazy" />{/if}
-				<span><code>{row.sku}</code><small>{METAL_LABELS[row.metal as MetalValue]}{row.size ? ` · maat ${row.size}` : ''}</small></span>
+				<span
+					><code>{row.sku}</code><small
+						>{METAL_LABELS[row.metal as MetalValue]}{row.size ? ` · maat ${row.size}` : ''}</small
+					></span
+				>
 			</span>
 		{:else if col.key === 'product'}
 			<a href="/admin/products/{row.productId}">{row.product}</a>
 			{#if row.status !== 'active'}<StatusBadge status={row.status} />{/if}
 		{:else if col.key === 'stock'}
-			<span class="stock" class:out={row.stock === 0} class:low={row.stock > 0 && row.stock <= row.threshold}>{row.stock}</span>
-			{#if row.stock === 0}<span class="tag">Uitverkocht</span>{:else if row.stock <= row.threshold}<StatusBadge status="low_stock" />{/if}
+			<span class="stock" class:out={row.stock === 0} class:low={row.stock > 0 && row.stock <= row.threshold}
+				>{row.stock}</span
+			>
+			{#if row.stock === 0}<span class="tag">Uitverkocht</span>{:else if row.stock <= row.threshold}<StatusBadge
+					status="low_stock"
+				/>{/if}
 		{:else if col.key === 'threshold'}{row.threshold}
 		{:else if col.key === 'id'}
 			{#if data.canWrite}
-				<form method="POST" action={act('adjust')} class="adjust" use:enhance={() => async ({ update }) => update({ reset: true })}>
+				<form
+					method="POST"
+					action={act('adjust')}
+					class="adjust"
+					use:enhance={() =>
+						async ({ update }) =>
+							update({ reset: true })}
+				>
 					<input type="hidden" name="variantId" value={row.id} />
 					<label>
 						<span class="sr-only">Wijziging voor {row.sku} (bv. +5 of -2)</span>
-						<input name="delta" inputmode="numeric" placeholder="+/−" value={valFor(row.id, 'delta')} class="delta" aria-invalid={!!errFor(row.id, 'delta') || undefined} />
+						<input
+							name="delta"
+							inputmode="numeric"
+							placeholder="+/−"
+							value={valFor(row.id, 'delta')}
+							class="delta"
+							aria-invalid={!!errFor(row.id, 'delta') || undefined}
+						/>
 					</label>
 					<label>
 						<span class="sr-only">Reden voor {row.sku}</span>
-						<select name="reason" value={valFor(row.id, 'reason')} aria-invalid={!!errFor(row.id, 'reason') || undefined}>
+						<select
+							name="reason"
+							value={valFor(row.id, 'reason')}
+							aria-invalid={!!errFor(row.id, 'reason') || undefined}
+						>
 							<option value="">Reden…</option>
 							{#each MANUAL_STOCK_REASONS as r (r)}<option value={r}>{STOCK_REASON_LABELS[r]}</option>{/each}
 						</select>
@@ -98,7 +143,9 @@
 					</label>
 					<button type="submit" aria-label="Voorraad van {row.sku} aanpassen"><Icon name="check" size={14} /></button>
 					{#if errFor(row.id, 'delta') || errFor(row.id, 'reason')}
-						<p class="err" role="alert"><Icon name="alert" size={12} />{errFor(row.id, 'delta') ?? errFor(row.id, 'reason')}</p>
+						<p class="err" role="alert">
+							<Icon name="alert" size={12} />{errFor(row.id, 'delta') ?? errFor(row.id, 'reason')}
+						</p>
 					{/if}
 				</form>
 			{:else}<span class="muted">Alleen-lezen</span>{/if}

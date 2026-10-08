@@ -19,16 +19,21 @@
 
 {#if pages > 1}
 	<nav class="pager" aria-label={m.ui_pagination()}>
-		{#if page > 1}<a class="step" href={href(page - 1)} rel="prev" aria-label={m.ui_previous_page()}><Icon name="chevron-left" size={16} /></a>{/if}
+		{#if page > 1}<a class="step" href={href(page - 1)} rel="prev" aria-label={m.ui_previous_page()}
+				><Icon name="chevron-left" size={16} /></a
+			>{/if}
 		<ol>
 			{#each items as n, i (i)}
 				<li>
 					{#if n === '…'}<span class="gap" aria-hidden="true">…</span>
-					{:else}<a href={href(n)} aria-current={n === page ? 'page' : undefined} aria-label={m.ui_page_n({ n })}>{n}</a>{/if}
+					{:else}<a href={href(n)} aria-current={n === page ? 'page' : undefined} aria-label={m.ui_page_n({ n })}>{n}</a
+						>{/if}
 				</li>
 			{/each}
 		</ol>
-		{#if page < pages}<a class="step" href={href(page + 1)} rel="next" aria-label={m.ui_next_page()}><Icon name="chevron-right" size={16} /></a>{/if}
+		{#if page < pages}<a class="step" href={href(page + 1)} rel="next" aria-label={m.ui_next_page()}
+				><Icon name="chevron-right" size={16} /></a
+			>{/if}
 	</nav>
 {/if}
 

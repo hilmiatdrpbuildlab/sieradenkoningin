@@ -10,7 +10,10 @@
 
 <svelte:head><title>Collecties — Beheer</title></svelte:head>
 
-<PageHeader title="Collecties" description="Handmatige collecties (zelf gekozen volgorde) of regels die automatisch producten selecteren.">
+<PageHeader
+	title="Collecties"
+	description="Handmatige collecties (zelf gekozen volgorde) of regels die automatisch producten selecteren."
+>
 	{#snippet actions()}
 		{#if data.canWrite}<Button href="/admin/collections/nieuw" size="sm" icon="plus">Nieuwe collectie</Button>{/if}
 	{/snippet}
@@ -36,8 +39,13 @@
 		{/each}
 	</ul>
 {:else}
-	<EmptyState title="Nog geen collecties" text="Maak bijvoorbeeld een collectie “Nieuw” met de regel ‘toegevoegd in de laatste 30 dagen’.">
-		{#snippet action()}{#if data.canWrite}<Button href="/admin/collections/nieuw" size="sm" icon="plus">Nieuwe collectie</Button>{/if}{/snippet}
+	<EmptyState
+		title="Nog geen collecties"
+		text="Maak bijvoorbeeld een collectie “Nieuw” met de regel ‘toegevoegd in de laatste 30 dagen’."
+	>
+		{#snippet action()}{#if data.canWrite}<Button href="/admin/collections/nieuw" size="sm" icon="plus"
+					>Nieuwe collectie</Button
+				>{/if}{/snippet}
 	</EmptyState>
 {/if}
 

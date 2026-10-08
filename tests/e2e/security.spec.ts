@@ -27,11 +27,19 @@ test('admin is protected: pages redirect, API returns 401, responses are noindex
 });
 
 test('maintenance mode returns 503 with Retry-After; admins bypass it', async ({ browser, request }) => {
-	test.skip(!!process.env.E2E_BASE_URL && !process.env.E2E_BASE_URL.includes('localhost'), 'toggles settings directly in the local database');
-	const db = new pg.Client({ connectionString: process.env.DATABASE_URL || 'postgres://sk@localhost:54329/sieradenkoningin' });
+	test.skip(
+		!!process.env.E2E_BASE_URL && !process.env.E2E_BASE_URL.includes('localhost'),
+		'toggles settings directly in the local database'
+	);
+	const db = new pg.Client({
+		connectionString: process.env.DATABASE_URL || 'postgres://sk@localhost:54329/sieradenkoningin'
+	});
 	await db.connect();
 	const set = (enabled: boolean) =>
-		db.query(`insert into settings (key, value) values ('maintenance', $1) on conflict (key) do update set value = excluded.value`, [JSON.stringify({ enabled })]);
+		db.query(
+			`insert into settings (key, value) values ('maintenance', $1) on conflict (key) do update set value = excluded.value`,
+			[JSON.stringify({ enabled })]
+		);
 	try {
 		await set(true);
 		const res = await request.get('/nl');

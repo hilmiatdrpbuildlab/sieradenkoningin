@@ -12,10 +12,10 @@
 -->
 <script lang="ts" generics="T extends { id: string }">
 	import type { Snippet } from 'svelte';
+	import { SvelteSet } from 'svelte/reactivity';
 	import { page } from '$app/state';
 	import Icon from '#lib/components/ui/Icon.svelte';
 	import type { Column } from '#lib/types.ts';
-
 
 	interface Props {
 		rows: T[];
@@ -32,11 +32,20 @@
 	}
 
 	let {
-		rows, columns, total, pageSize = 25, selectable = false, density = 'comfortable',
-		rowHref, cell, bulk, toolbar, empty
+		rows,
+		columns,
+		total,
+		pageSize = 25,
+		selectable = false,
+		density = 'comfortable',
+		rowHref,
+		cell,
+		bulk,
+		toolbar,
+		empty
 	}: Props = $props();
 
-	let selected = $state<Set<string>>(new Set());
+	const selected = new SvelteSet<string>();
 	const allChecked = $derived(rows.length > 0 && rows.every((r) => selected.has(r.id)));
 	const someChecked = $derived(!allChecked && rows.some((r) => selected.has(r.id)));
 
@@ -48,17 +57,22 @@
 	/** Real links (work without JS, shareable); SvelteKit keeps scroll + focus via data attributes. */
 	function hrefWith(p: Record<string, string | null>) {
 		const url = new URL(page.url.href);
-		for (const [k, v] of Object.entries(p)) v === null ? url.searchParams.delete(k) : url.searchParams.set(k, v);
+		for (const [k, v] of Object.entries(p)) {
+			if (v === null) url.searchParams.delete(k);
+			else url.searchParams.set(k, v);
+		}
 		return url.pathname + url.search;
 	}
-	const sortHref = (key: string) => hrefWith({ sort: key, dir: sort === key && dir === 'desc' ? 'asc' : 'desc', page: null });
+	const sortHref = (key: string) =>
+		hrefWith({ sort: key, dir: sort === key && dir === 'desc' ? 'asc' : 'desc', page: null });
 	function toggleAll() {
-		selected = allChecked ? new Set() : new Set(rows.map((r) => r.id));
+		const select = !allChecked;
+		selected.clear();
+		if (select) for (const r of rows) selected.add(r.id);
 	}
 	function toggleRow(id: string) {
-		const next = new Set(selected);
-		next.has(id) ? next.delete(id) : next.add(id);
-		selected = next;
+		if (selected.has(id)) selected.delete(id);
+		else selected.add(id);
 	}
 	const ariaSort = (key: string) => (sort === key ? (dir === 'asc' ? 'ascending' : 'descending') : 'none');
 </script>
@@ -81,9 +95,17 @@
 			<thead>
 				<tr>
 					{#if selectable}
-						<th class="check"><input type="checkbox" checked={allChecked} indeterminate={someChecked} onchange={toggleAll} aria-label="Alles selecteren" /></th>
+						<th class="check"
+							><input
+								type="checkbox"
+								checked={allChecked}
+								indeterminate={someChecked}
+								onchange={toggleAll}
+								aria-label="Alles selecteren"
+							/></th
+						>
 					{/if}
-					{#each columns as col}
+					{#each columns as col (col.key)}
 						<th
 							style:width={col.width}
 							class="align-{col.align ?? 'start'} {col.hideBelow ? `hide-${col.hideBelow}` : ''}"
@@ -103,20 +125,31 @@
 				{#each rows as row (row.id)}
 					<tr class:is-selected={selected.has(row.id)} class:clickable={!!rowHref}>
 						{#if selectable}
-							<td class="check"><input type="checkbox" checked={selected.has(row.id)} onchange={() => toggleRow(row.id)} aria-label="Selecteer rij" /></td>
+							<td class="check"
+								><input
+									type="checkbox"
+									checked={selected.has(row.id)}
+									onchange={() => toggleRow(row.id)}
+									aria-label="Selecteer rij"
+								/></td
+							>
 						{/if}
-						{#each columns as col, i}
+						{#each columns as col, i (col.key)}
 							<td class="align-{col.align ?? 'start'} {col.hideBelow ? `hide-${col.hideBelow}` : ''}">
-								{#if i === 0 && rowHref}<a href={rowHref(row)} class="row-link">{#if cell}{@render cell(row, col)}{:else}{String(row[col.key] ?? '')}{/if}</a>
+								{#if i === 0 && rowHref}<a href={rowHref(row)} class="row-link"
+										>{#if cell}{@render cell(row, col)}{:else}{String(row[col.key] ?? '')}{/if}</a
+									>
 								{:else if cell}{@render cell(row, col)}
 								{:else}{String(row[col.key] ?? '')}{/if}
 							</td>
 						{/each}
 					</tr>
 				{:else}
-					<tr><td colspan={columns.length + (selectable ? 1 : 0)} class="empty">
-						{#if empty}{@render empty()}{:else}Geen resultaten gevonden.{/if}
-					</td></tr>
+					<tr
+						><td colspan={columns.length + (selectable ? 1 : 0)} class="empty">
+							{#if empty}{@render empty()}{:else}Geen resultaten gevonden.{/if}
+						</td></tr
+					>
 				{/each}
 			</tbody>
 		</table>
@@ -125,25 +158,70 @@
 	<nav class="pager" aria-label="Paginering">
 		<span>{Math.min(total, (current - 1) * pageSize + 1)}–{Math.min(total, current * pageSize)} van {total}</span>
 		<div>
-			{#if current > 1}<a href={hrefWith({ page: String(current - 1) })} data-sveltekit-noscroll aria-label="Vorige pagina"><Icon name="chevron-left" size={16} /></a>
+			{#if current > 1}<a
+					href={hrefWith({ page: String(current - 1) })}
+					data-sveltekit-noscroll
+					aria-label="Vorige pagina"><Icon name="chevron-left" size={16} /></a
+				>
 			{:else}<span class="pg-disabled" aria-hidden="true"><Icon name="chevron-left" size={16} /></span>{/if}
 			<span aria-current="page">{current} / {pages}</span>
-			{#if current < pages}<a href={hrefWith({ page: String(current + 1) })} data-sveltekit-noscroll aria-label="Volgende pagina"><Icon name="chevron-right" size={16} /></a>
+			{#if current < pages}<a
+					href={hrefWith({ page: String(current + 1) })}
+					data-sveltekit-noscroll
+					aria-label="Volgende pagina"><Icon name="chevron-right" size={16} /></a
+				>
 			{:else}<span class="pg-disabled" aria-hidden="true"><Icon name="chevron-right" size={16} /></span>{/if}
 		</div>
 	</nav>
 </div>
 
 <style>
-	.table-card { background: var(--ui-surface); border: 1px solid var(--ui-border); border-radius: var(--r-md); overflow: hidden; }
-	.toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--ui-border); min-height: 3.5rem; }
-	.sel { font-size: var(--fs-sm); font-weight: var(--fw-medium); }
+	.table-card {
+		background: var(--ui-surface);
+		border: 1px solid var(--ui-border);
+		border-radius: var(--r-md);
+		overflow: hidden;
+	}
+	.toolbar {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: var(--space-3);
+		padding: var(--space-3) var(--space-4);
+		border-bottom: 1px solid var(--ui-border);
+		min-height: 3.5rem;
+	}
+	.sel {
+		font-size: var(--fs-sm);
+		font-weight: var(--fw-medium);
+	}
 
-	.scroller { position: relative; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-	.scroller:focus-visible { outline: 2px solid var(--ui-border-focus); outline-offset: -2px; }
-	table { width: 100%; border-collapse: collapse; font-size: var(--fs-sm); font-variant-numeric: tabular-nums; }
-	th, td { padding: 0 var(--space-4); height: var(--row-h, 3rem); text-align: left; white-space: nowrap; border-bottom: 1px solid var(--ui-border); }
-	[data-density='compact'] :is(th, td) { height: var(--row-h-compact, 2.5rem); }
+	.scroller {
+		position: relative;
+		overflow-x: auto;
+		-webkit-overflow-scrolling: touch;
+	}
+	.scroller:focus-visible {
+		outline: 2px solid var(--ui-border-focus);
+		outline-offset: -2px;
+	}
+	table {
+		width: 100%;
+		border-collapse: collapse;
+		font-size: var(--fs-sm);
+		font-variant-numeric: tabular-nums;
+	}
+	th,
+	td {
+		padding: 0 var(--space-4);
+		height: var(--row-h, 3rem);
+		text-align: left;
+		white-space: nowrap;
+		border-bottom: 1px solid var(--ui-border);
+	}
+	[data-density='compact'] :is(th, td) {
+		height: var(--row-h-compact, 2.5rem);
+	}
 	th {
 		position: sticky;
 		top: 0;
@@ -155,27 +233,110 @@
 		color: var(--ui-text-muted);
 	}
 	/* Keep first data column visible while scrolling horizontally on phones */
-	th:first-child, td:first-child { position: sticky; left: 0; background: inherit; z-index: 1; }
-	tbody tr { background: var(--ui-surface); transition: background-color var(--dur-fast); }
-	tbody tr:hover { background: var(--ui-surface-sunken); }
-	tr.is-selected { background: color-mix(in srgb, var(--ui-ornament) 12%, var(--ui-surface)); }
-	.clickable { position: relative; }
-	.row-link { text-decoration: none; font-weight: var(--fw-medium); }
-	.row-link::after { content: ''; position: absolute; inset: 0; }
-	.check { width: 2.75rem; padding-right: 0; }
-	.check input { position: relative; z-index: 2; accent-color: var(--ui-action); width: 1rem; height: 1rem; }
-	.align-end { text-align: right; }
-	.align-center { text-align: center; }
-	.sort { color: inherit; text-decoration: none; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; min-height: 2rem; }
-	.sort:focus-visible { outline: 2px solid var(--ui-border-focus); }
-	.empty { text-align: center; height: 8rem; color: var(--ui-text-muted); white-space: normal; }
+	th:first-child,
+	td:first-child {
+		position: sticky;
+		left: 0;
+		background: inherit;
+		z-index: 1;
+	}
+	tbody tr {
+		background: var(--ui-surface);
+		transition: background-color var(--dur-fast);
+	}
+	tbody tr:hover {
+		background: var(--ui-surface-sunken);
+	}
+	tr.is-selected {
+		background: color-mix(in srgb, var(--ui-ornament) 12%, var(--ui-surface));
+	}
+	.clickable {
+		position: relative;
+	}
+	.row-link {
+		text-decoration: none;
+		font-weight: var(--fw-medium);
+	}
+	.row-link::after {
+		content: '';
+		position: absolute;
+		inset: 0;
+	}
+	.check {
+		width: 2.75rem;
+		padding-right: 0;
+	}
+	.check input {
+		position: relative;
+		z-index: 2;
+		accent-color: var(--ui-action);
+		width: 1rem;
+		height: 1rem;
+	}
+	.align-end {
+		text-align: right;
+	}
+	.align-center {
+		text-align: center;
+	}
+	.sort {
+		color: inherit;
+		text-decoration: none;
+		cursor: pointer;
+		display: inline-flex;
+		align-items: center;
+		gap: 4px;
+		min-height: 2rem;
+	}
+	.sort:focus-visible {
+		outline: 2px solid var(--ui-border-focus);
+	}
+	.empty {
+		text-align: center;
+		height: 8rem;
+		color: var(--ui-text-muted);
+		white-space: normal;
+	}
 
-	@media (max-width: 47.99rem) { .hide-md { display: none; } }
-	@media (max-width: 63.99rem) { .hide-lg { display: none; } }
+	@media (max-width: 47.99rem) {
+		.hide-md {
+			display: none;
+		}
+	}
+	@media (max-width: 63.99rem) {
+		.hide-lg {
+			display: none;
+		}
+	}
 
-	.pager { display: flex; justify-content: space-between; align-items: center; padding: var(--space-3) var(--space-4); font-size: var(--fs-xs); color: var(--ui-text-muted); }
-	.pager div { display: flex; align-items: center; gap: var(--space-2); }
-	.pager a, .pg-disabled { width: 2.25rem; height: 2.25rem; display: grid; place-items: center; border: 1px solid var(--ui-border); background: var(--ui-surface); border-radius: var(--r-xs); color: var(--ui-text); }
-	.pager a:focus-visible { outline: 2px solid var(--ui-border-focus); }
-	.pg-disabled { opacity: 0.4; }
+	.pager {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: var(--space-3) var(--space-4);
+		font-size: var(--fs-xs);
+		color: var(--ui-text-muted);
+	}
+	.pager div {
+		display: flex;
+		align-items: center;
+		gap: var(--space-2);
+	}
+	.pager a,
+	.pg-disabled {
+		width: 2.25rem;
+		height: 2.25rem;
+		display: grid;
+		place-items: center;
+		border: 1px solid var(--ui-border);
+		background: var(--ui-surface);
+		border-radius: var(--r-xs);
+		color: var(--ui-text);
+	}
+	.pager a:focus-visible {
+		outline: 2px solid var(--ui-border-focus);
+	}
+	.pg-disabled {
+		opacity: 0.4;
+	}
 </style>

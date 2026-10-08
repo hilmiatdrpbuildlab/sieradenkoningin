@@ -25,11 +25,16 @@ export function vatIncluded(grossCents: number, rate = BE_VAT_RATE): number {
 /** All timestamps are stored in UTC and rendered in Europe/Brussels (§2.4). */
 export const TIME_ZONE = 'Europe/Brussels';
 
-export function formatDate(d: Date | string, locale: Locale | 'nl' | 'fr' = 'nl-BE', opts?: Intl.DateTimeFormatOptions) {
+export function formatDate(
+	d: Date | string,
+	locale: Locale | 'nl' | 'fr' = 'nl-BE',
+	opts?: Intl.DateTimeFormatOptions
+) {
 	const loc = locale === 'nl' ? 'nl-BE' : locale === 'fr' ? 'fr-BE' : locale;
-	return new Intl.DateTimeFormat(loc, { timeZone: TIME_ZONE, ...(opts ?? { day: 'numeric', month: 'short', year: 'numeric' }) }).format(
-		typeof d === 'string' ? new Date(d) : d
-	);
+	return new Intl.DateTimeFormat(loc, {
+		timeZone: TIME_ZONE,
+		...(opts ?? { day: 'numeric', month: 'short', year: 'numeric' })
+	}).format(typeof d === 'string' ? new Date(d) : d);
 }
 
 export function formatDateTime(d: Date | string, locale: Locale | 'nl' | 'fr' = 'nl-BE') {

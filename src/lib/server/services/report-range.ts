@@ -7,7 +7,10 @@ const DAY = /^\d{4}-\d{2}-\d{2}$/;
 export function brusselsMidnight(date: string): Date {
 	const guess = new Date(`${date}T00:00:00Z`);
 	const offset = (d: Date) => {
-		const p = new Intl.DateTimeFormat('en-US', { timeZone: 'Europe/Brussels', timeZoneName: 'shortOffset' }).formatToParts(d).find((x) => x.type === 'timeZoneName')?.value ?? 'GMT+1';
+		const p =
+			new Intl.DateTimeFormat('en-US', { timeZone: 'Europe/Brussels', timeZoneName: 'shortOffset' })
+				.formatToParts(d)
+				.find((x) => x.type === 'timeZoneName')?.value ?? 'GMT+1';
 		const m = /GMT([+-]\d+)/.exec(p);
 		return (m ? Number(m[1]) : 0) * 3600_000;
 	};
@@ -19,7 +22,10 @@ export function parseRange(url: URL, defaultDays = 30): { range: Range; from: st
 	let to = url.searchParams.get('to') ?? '';
 	let from = url.searchParams.get('from') ?? '';
 	if (!DAY.test(to)) to = today;
-	if (!DAY.test(from)) from = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Brussels' }).format(new Date(brusselsMidnight(to).getTime() - (defaultDays - 1) * 86400_000));
+	if (!DAY.test(from))
+		from = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Brussels' }).format(
+			new Date(brusselsMidnight(to).getTime() - (defaultDays - 1) * 86400_000)
+		);
 	if (from > to) [from, to] = [to, from];
 	const end = new Date(brusselsMidnight(to).getTime() + 36 * 3600_000); // next day, then snap to its midnight
 	const endDay = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Brussels' }).format(end);

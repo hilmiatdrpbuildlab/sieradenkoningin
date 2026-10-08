@@ -8,7 +8,17 @@
 import { eq, sql } from 'drizzle-orm';
 import type { Executor } from './index.ts';
 import * as s from './schema.ts';
-import { CATEGORY_SEED, BRACELET_SIZES, FAQ_SEED, MENUS, RING_SIZES, demoProducts, editorialSvg, pageSeeds, placeholderSvg } from './seed-data.ts';
+import {
+	CATEGORY_SEED,
+	BRACELET_SIZES,
+	FAQ_SEED,
+	MENUS,
+	RING_SIZES,
+	demoProducts,
+	editorialSvg,
+	pageSeeds,
+	placeholderSvg
+} from './seed-data.ts';
 import { categoryIcons } from '../../components/ui/category-icons.ts';
 import { icons } from '../../components/ui/icons.ts';
 import type { Storage } from '../adapters/storage.ts';
@@ -41,20 +51,31 @@ export async function seed(db: Executor, storage: Storage, opts: SeedOptions = {
 	// Settings (D3, D4, D9 defaults) — only keys that do not exist yet
 	for (const [key, value] of Object.entries(DEFAULT_SETTINGS)) {
 		if (value === null) continue;
-		await db.insert(s.settings).values({ key, value: value as object }).onConflictDoNothing();
+		await db
+			.insert(s.settings)
+			.values({ key, value: value as object })
+			.onConflictDoNothing();
 	}
 	log('✓ settings defaults');
 
 	// Shipping zone BE (+ inactive NL/LU zone prepared for D3)
 	const [existingZone] = await db.select().from(s.shippingZones).where(eq(s.shippingZones.name, 'België'));
 	if (!existingZone) {
-		const [be] = await db.insert(s.shippingZones).values({ name: 'België', countries: ['BE'] }).returning();
+		const [be] = await db
+			.insert(s.shippingZones)
+			.values({ name: 'België', countries: ['BE'] })
+			.returning();
 		await db.insert(s.shippingRates).values([
 			{ zoneId: be.id, method: 'home', carrier: 'bpost', price: 495, freeFrom: 5000 },
 			{ zoneId: be.id, method: 'pickup', carrier: 'bpost', price: 395, freeFrom: 5000 }
 		]);
-		const [benelux] = await db.insert(s.shippingZones).values({ name: 'Nederland & Luxemburg', countries: ['NL', 'LU'], active: false }).returning();
-		await db.insert(s.shippingRates).values([{ zoneId: benelux.id, method: 'home', carrier: 'bpost', price: 995, freeFrom: 7500 }]);
+		const [benelux] = await db
+			.insert(s.shippingZones)
+			.values({ name: 'Nederland & Luxemburg', countries: ['NL', 'LU'], active: false })
+			.returning();
+		await db
+			.insert(s.shippingRates)
+			.values([{ zoneId: benelux.id, method: 'home', carrier: 'bpost', price: 995, freeFrom: 7500 }]);
 		log('✓ shipping zones (BE active; NL/LU prepared, inactive)');
 	}
 
@@ -64,7 +85,9 @@ export async function seed(db: Executor, storage: Storage, opts: SeedOptions = {
 	const [admin] = await db.select().from(s.adminUsers).where(eq(s.adminUsers.email, adminEmail));
 	if (!admin) {
 		adminPassword = opts.adminPassword ?? randomPassword();
-		await db.insert(s.adminUsers).values({ email: adminEmail, name: 'Eigenaar', role: 'owner', passwordHash: await hashPassword(adminPassword) });
+		await db
+			.insert(s.adminUsers)
+			.values({ email: adminEmail, name: 'Eigenaar', role: 'owner', passwordHash: await hashPassword(adminPassword) });
 		log(`✓ owner admin ${adminEmail}`);
 	}
 
@@ -77,17 +100,33 @@ export async function seed(db: Executor, storage: Storage, opts: SeedOptions = {
 	const crown = icons.crown;
 	const heroKey = 'demo/editorial-hero.svg';
 	const editorialKey = 'demo/editorial-split.svg';
-	await ensureMedia(db, storage, heroKey, editorialSvg(crown, true), 2400, 1600, { nl: 'DEMO sfeerbeeld', fr: 'DEMO image d’ambiance' });
-	await ensureMedia(db, storage, editorialKey, editorialSvg(crown, false), 1600, 2000, { nl: 'DEMO editoriaal beeld', fr: 'DEMO image éditoriale' });
+	await ensureMedia(db, storage, heroKey, editorialSvg(crown, true), 2400, 1600, {
+		nl: 'DEMO sfeerbeeld',
+		fr: 'DEMO image d’ambiance'
+	});
+	await ensureMedia(db, storage, editorialKey, editorialSvg(crown, false), 1600, 2000, {
+		nl: 'DEMO editoriaal beeld',
+		fr: 'DEMO image éditoriale'
+	});
 
 	// Pages + blocks
 	for (const p of pageSeeds(heroKey, editorialKey)) {
 		const [existing] = await db.select().from(s.pages).where(eq(s.pages.key, p.key));
 		if (existing) continue;
 		const slugs = p.key === 'home' ? { nl: '__home', fr: '__home_fr' } : p.slugs;
-		const [page] = await db.insert(s.pages).values({ key: p.key, type: p.type, slugs, title: p.title, status: 'published' }).returning();
+		const [page] = await db
+			.insert(s.pages)
+			.values({ key: p.key, type: p.type, slugs, title: p.title, status: 'published' })
+			.returning();
 		if (p.blocks.length) {
-			await db.insert(s.pageBlocks).values(p.blocks.map((b, position) => ({ pageId: page.id, type: b.type, data: b.data as Record<string, unknown>, position })));
+			await db.insert(s.pageBlocks).values(
+				p.blocks.map((b, position) => ({
+					pageId: page.id,
+					type: b.type,
+					data: b.data as Record<string, unknown>,
+					position
+				}))
+			);
 		}
 	}
 	log('✓ content pages');
@@ -100,7 +139,12 @@ export async function seed(db: Executor, storage: Storage, opts: SeedOptions = {
 	// "Nieuw" rule collection
 	await db
 		.insert(s.collections)
-		.values({ slugs: { nl: 'nieuw', fr: 'nouveautes' }, name: { nl: 'Nieuw', fr: 'Nouveautés' }, type: 'rule', rule: { newWithinDays: 30 } })
+		.values({
+			slugs: { nl: 'nieuw', fr: 'nouveautes' },
+			name: { nl: 'Nieuw', fr: 'Nouveautés' },
+			type: 'rule',
+			rule: { newWithinDays: 30 }
+		})
 		.onConflictDoNothing();
 
 	if (!demo) return { adminPassword };
@@ -136,8 +180,13 @@ export async function seed(db: Executor, storage: Storage, opts: SeedOptions = {
 				updatedAt: createdAt
 			})
 			.returning();
-		await db.insert(s.priceHistory).values({ productId: product.id, price: p.compareAtPrice ?? p.price, validFrom: createdAt });
-		if (p.compareAtPrice) await db.insert(s.priceHistory).values({ productId: product.id, price: p.price, validFrom: new Date(Date.now() - 2 * 86400_000) });
+		await db
+			.insert(s.priceHistory)
+			.values({ productId: product.id, price: p.compareAtPrice ?? p.price, validFrom: createdAt });
+		if (p.compareAtPrice)
+			await db
+				.insert(s.priceHistory)
+				.values({ productId: product.id, price: p.price, validFrom: new Date(Date.now() - 2 * 86400_000) });
 
 		const label = (p.name.nl.replace('DEMO ', '') || '').toUpperCase();
 		for (const variant of ['a', 'b'] as const) {
@@ -146,13 +195,18 @@ export async function seed(db: Executor, storage: Storage, opts: SeedOptions = {
 			await db.insert(s.productImages).values({
 				productId: product.id,
 				mediaId,
-				alt: { nl: `${p.name.nl} — ${variant === 'a' ? 'productfoto' : 'sfeerbeeld'}`, fr: `${p.name.fr} — ${variant === 'a' ? 'photo produit' : 'ambiance'}` },
+				alt: {
+					nl: `${p.name.nl} — ${variant === 'a' ? 'productfoto' : 'sfeerbeeld'}`,
+					fr: `${p.name.fr} — ${variant === 'a' ? 'photo produit' : 'ambiance'}`
+				},
 				position: variant === 'a' ? 0 : 1
 			});
 		}
 
 		const sizes = p.categoryKey === 'rings' ? RING_SIZES : p.categoryKey === 'bracelets' ? BRACELET_SIZES : [null];
-		const metals = (p.categoryKey === 'accessories' ? ['gold'] : ['gold', 'silver', ...(p.featured ? ['rosegold'] : [])]) as ('gold' | 'silver' | 'rosegold')[];
+		const metals = (
+			p.categoryKey === 'accessories' ? ['gold'] : ['gold', 'silver', ...(p.featured ? ['rosegold'] : [])]
+		) as ('gold' | 'silver' | 'rosegold')[];
 		let position = 0;
 		const rows = [];
 		for (const metal of metals) {
@@ -170,11 +224,22 @@ export async function seed(db: Executor, storage: Storage, opts: SeedOptions = {
 	return { adminPassword };
 }
 
-async function ensureMedia(db: Executor, storage: Storage, key: string, svg: string, width: number, height: number, alt: s.I18n) {
+async function ensureMedia(
+	db: Executor,
+	storage: Storage,
+	key: string,
+	svg: string,
+	width: number,
+	height: number,
+	alt: s.I18n
+) {
 	const [existing] = await db.select({ id: s.media.id }).from(s.media).where(eq(s.media.storageKey, key));
 	if (existing) return existing.id;
 	await storage.put(key, svg, 'image/svg+xml');
-	const [row] = await db.insert(s.media).values({ storageKey: key, mime: 'image/svg+xml', width, height, bytes: svg.length, alt }).returning();
+	const [row] = await db
+		.insert(s.media)
+		.values({ storageKey: key, mime: 'image/svg+xml', width, height, bytes: svg.length, alt })
+		.returning();
 	return row.id;
 }
 

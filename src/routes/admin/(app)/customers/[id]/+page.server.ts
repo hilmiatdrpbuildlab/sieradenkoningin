@@ -13,7 +13,16 @@ const Notes = z.object({
 	tags: z
 		.string()
 		.default('')
-		.transform((s) => [...new Set(s.split(',').map((t) => t.trim().toLowerCase()).filter(Boolean))].slice(0, 20))
+		.transform((s) =>
+			[
+				...new Set(
+					s
+						.split(',')
+						.map((t) => t.trim().toLowerCase())
+						.filter(Boolean)
+				)
+			].slice(0, 20)
+		)
 });
 
 export const load: PageServerLoad = async ({ locals, params }) => {
@@ -36,19 +45,33 @@ export const actions: Actions = {
 		requirePermission(locals, 'customers:write');
 		const parsed = Notes.safeParse(Object.fromEntries(await request.formData()));
 		if (!parsed.success) return fail(400, { errors: fieldErrors(parsed.error) });
-		const [before] = await locals.db.select({ notes: customers.notes, tags: customers.tags }).from(customers).where(eq(customers.id, params.id));
+		const [before] = await locals.db
+			.select({ notes: customers.notes, tags: customers.tags })
+			.from(customers)
+			.where(eq(customers.id, params.id));
 		if (!before) error(404);
-		await locals.db.update(customers).set({ notes: parsed.data.notes || null, tags: parsed.data.tags, updatedAt: new Date() }).where(eq(customers.id, params.id));
-		await audit(locals.db, locals, { action: 'update', entity: 'customer', entityId: params.id, diff: diffObjects(before, { notes: parsed.data.notes || null, tags: parsed.data.tags }) });
+		await locals.db
+			.update(customers)
+			.set({ notes: parsed.data.notes || null, tags: parsed.data.tags, updatedAt: new Date() })
+			.where(eq(customers.id, params.id));
+		await audit(locals.db, locals, {
+			action: 'update',
+			entity: 'customer',
+			entityId: params.id,
+			diff: diffObjects(before, { notes: parsed.data.notes || null, tags: parsed.data.tags })
+		});
 		return { saved: true };
 	},
 	delete: async ({ request, locals, params }) => {
 		const admin = requirePermission(locals, 'customers:write');
 		if (admin.role !== 'owner') error(403, 'Alleen de eigenaar kan klantgegevens verwijderen.');
-		const confirm = String((await request.formData()).get('confirm') ?? '').trim().toLowerCase();
+		const confirm = String((await request.formData()).get('confirm') ?? '')
+			.trim()
+			.toLowerCase();
 		const [c] = await locals.db.select({ email: customers.email }).from(customers).where(eq(customers.id, params.id));
 		if (!c) error(404);
-		if (confirm !== c.email.toLowerCase()) return fail(400, { deleteError: 'Typ het e-mailadres van de klant exact over om te bevestigen.' });
+		if (confirm !== c.email.toLowerCase())
+			return fail(400, { deleteError: 'Typ het e-mailadres van de klant exact over om te bevestigen.' });
 		await locals.db.transaction(async (tx) => {
 			await anonymizeCustomer(tx, params.id);
 			await audit(tx, locals, { action: 'gdpr_delete', entity: 'customer', entityId: params.id });

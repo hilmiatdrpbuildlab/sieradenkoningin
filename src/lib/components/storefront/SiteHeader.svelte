@@ -65,13 +65,20 @@
 	{/if}
 	<div class="bar container-lux">
 		<div class="zone zone--left">
-			<button class="icon-btn menu-btn" aria-label={m.ui_open_menu()} aria-expanded={menuOpen} onclick={() => (menuOpen = true)}>
+			<button
+				class="icon-btn menu-btn"
+				aria-label={m.ui_open_menu()}
+				aria-expanded={menuOpen}
+				onclick={() => (menuOpen = true)}
+			>
 				<Icon name="menu" size={22} />
 			</button>
 			<nav aria-label={m.nav_main()} class="desktop-nav">
 				<MegaMenu label={m.nav_collections()} {categories} tiles={megaTiles} />
 				{#each extraLinks as item (item.href)}
-					<a href={item.href} aria-current={page.url.pathname.startsWith(item.href) ? 'page' : undefined}>{item.label}</a>
+					<a href={item.href} aria-current={page.url.pathname.startsWith(item.href) ? 'page' : undefined}
+						>{item.label}</a
+					>
 				{/each}
 			</nav>
 		</div>

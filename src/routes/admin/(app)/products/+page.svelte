@@ -24,7 +24,12 @@
 
 <svelte:head><title>Producten — Beheer</title></svelte:head>
 
-<PageHeader title="Producten" description="{data.total} {data.total === 1 ? 'product' : 'producten'}{data.filters.status ? '' : ' (zonder gearchiveerde)'}">
+<PageHeader
+	title="Producten"
+	description="{data.total} {data.total === 1 ? 'product' : 'producten'}{data.filters.status
+		? ''
+		: ' (zonder gearchiveerde)'}"
+>
 	{#snippet actions()}
 		{#if data.canWrite}
 			<Button href="/admin/import" variant="outline" size="sm" icon="import">Import / export</Button>
@@ -33,10 +38,20 @@
 	{/snippet}
 </PageHeader>
 
-<DataTable rows={data.rows} {columns} total={data.total} pageSize={data.pageSize} rowHref={(r) => `/admin/products/${r.id}`}>
+<DataTable
+	rows={data.rows}
+	{columns}
+	total={data.total}
+	pageSize={data.pageSize}
+	rowHref={(r) => `/admin/products/${r.id}`}
+>
 	{#snippet toolbar()}
 		<form method="GET" class="filters" role="search" data-sveltekit-keepfocus>
-			{#if data.sort.key}<input type="hidden" name="sort" value={data.sort.key} /><input type="hidden" name="dir" value={data.sort.dir} />{/if}
+			{#if data.sort.key}<input type="hidden" name="sort" value={data.sort.key} /><input
+					type="hidden"
+					name="dir"
+					value={data.sort.dir}
+				/>{/if}
 			<label class="search">
 				<span class="sr-only">Zoek op naam, slug of SKU</span>
 				<input type="search" name="q" placeholder="Zoek op naam, slug of SKU" value={data.filters.q} />
@@ -62,20 +77,32 @@
 	{#snippet cell(row, col)}
 		{#if col.key === 'name'}
 			<span class="prod">
-				{#if row.image}<img src={row.image} alt="" width="36" height="45" loading="lazy" />{:else}<span class="ph" aria-hidden="true"></span>{/if}
-				<span class="txt"><span class="nm">{row.name}</span><small>{row.variants} variant{row.variants === 1 ? '' : 'en'} · {row.slug}</small></span>
+				{#if row.image}<img src={row.image} alt="" width="36" height="45" loading="lazy" />{:else}<span
+						class="ph"
+						aria-hidden="true"
+					></span>{/if}
+				<span class="txt"
+					><span class="nm">{row.name}</span><small
+						>{row.variants} variant{row.variants === 1 ? '' : 'en'} · {row.slug}</small
+					></span
+				>
 			</span>
 		{:else if col.key === 'status'}<StatusBadge status={row.status} />
 		{:else if col.key === 'price'}
 			{#if row.compareAtPrice}<s class="was">{formatPrice(row.compareAtPrice)}</s>{/if}
 			{formatPrice(row.price)}
 		{:else if col.key === 'stock'}
-			<span class:zero={row.stock === 0}>{row.stock}{#if row.stock === 0}<span class="sr-only"> (uitverkocht)</span>{/if}</span>
+			<span class:zero={row.stock === 0}
+				>{row.stock}{#if row.stock === 0}<span class="sr-only"> (uitverkocht)</span>{/if}</span
+			>
 		{:else if col.key === 'updated'}{formatDate(row.updated)}
 		{:else}{String(row[col.key] ?? '—')}{/if}
 	{/snippet}
 	{#snippet empty()}
-		<EmptyState title={filtered ? 'Geen producten gevonden' : 'Nog geen producten'} text={filtered ? 'Pas je zoekopdracht of filters aan.' : 'Voeg je eerste juweel toe.'}>
+		<EmptyState
+			title={filtered ? 'Geen producten gevonden' : 'Nog geen producten'}
+			text={filtered ? 'Pas je zoekopdracht of filters aan.' : 'Voeg je eerste juweel toe.'}
+		>
 			{#snippet action()}
 				{#if filtered}<Button href="/admin/products" variant="outline" size="sm">Wis filters</Button>
 				{:else if data.canWrite}<Button href="/admin/products/nieuw" size="sm" icon="plus">Nieuw product</Button>{/if}

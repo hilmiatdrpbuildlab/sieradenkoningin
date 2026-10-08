@@ -33,12 +33,12 @@
 <footer class="footer" data-surface="inverse">
 	<div class="container-lux">
 		{#if showNewsletter}
-		<section class="newsletter" aria-labelledby="nl-title">
-			<Icon name="crown" size={30} stroke={1} class="orn" />
-			<h2 id="nl-title" class="nl-title">{m.newsletter_title()}</h2>
-			<p class="nl-text">{m.newsletter_text()}</p>
-			<NewsletterForm {lang} source="footer" />
-		</section>
+			<section class="newsletter" aria-labelledby="nl-title">
+				<Icon name="crown" size={30} stroke={1} class="orn" />
+				<h2 id="nl-title" class="nl-title">{m.newsletter_title()}</h2>
+				<p class="nl-text">{m.newsletter_text()}</p>
+				<NewsletterForm {lang} source="footer" />
+			</section>
 		{/if}
 
 		<div class="cols cols--desktop">
@@ -77,7 +77,8 @@
 			<Icon name="crown" size={20} stroke={1} class="orn" />
 			<p>{m.footer_rights({ year })}</p>
 			<p>{m.footer_withdrawal()}</p>
-			{#if oncookies}<button type="button" class="linkish" onclick={oncookies}>{m.footer_cookie_settings()}</button>{/if}
+			{#if oncookies}<button type="button" class="linkish" onclick={oncookies}>{m.footer_cookie_settings()}</button
+				>{/if}
 		</div>
 	</div>
 </footer>

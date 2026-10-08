@@ -12,23 +12,38 @@ export function yesterdayRange(now = new Date()): Range {
 	const today = fmt.format(now);
 	const midnight = (d: string) => {
 		const guess = new Date(`${d}T00:00:00Z`);
-		const off = Number(/GMT([+-]\d+)/.exec(new Intl.DateTimeFormat('en-US', { timeZone: 'Europe/Brussels', timeZoneName: 'shortOffset' }).format(guess))?.[1] ?? 0);
+		const off = Number(
+			/GMT([+-]\d+)/.exec(
+				new Intl.DateTimeFormat('en-US', { timeZone: 'Europe/Brussels', timeZoneName: 'shortOffset' }).format(guess)
+			)?.[1] ?? 0
+		);
 		return new Date(guess.getTime() - off * 3600_000);
 	};
 	const to = midnight(today);
 	return { from: midnight(fmt.format(new Date(to.getTime() - 12 * 3600_000))), to };
 }
 
-export async function sendDailyReport(deps: { db: Executor; email: EmailAdapter; to: string; siteUrl: string }, now = new Date()) {
+export async function sendDailyReport(
+	deps: { db: Executor; email: EmailAdapter; to: string; siteUrl: string },
+	now = new Date()
+) {
 	const r = yesterdayRange(now);
 	const s = await summary(deps.db, r);
-	const [{ n: queue }] = await deps.db.select({ n: sql<number>`count(*)::int` }).from(orders).where(eq(orders.status, 'paid'));
+	const [{ n: queue }] = await deps.db
+		.select({ n: sql<number>`count(*)::int` })
+		.from(orders)
+		.where(eq(orders.status, 'paid'));
 	const [{ n: low }] = await deps.db
 		.select({ n: sql<number>`count(*)::int` })
 		.from(variants)
 		.innerJoin(products, eq(products.id, variants.productId))
 		.where(and(lte(variants.stock, variants.lowStockThreshold), eq(products.status, 'active')));
-	const day = new Intl.DateTimeFormat('nl-BE', { timeZone: 'Europe/Brussels', weekday: 'long', day: 'numeric', month: 'long' }).format(r.from);
+	const day = new Intl.DateTimeFormat('nl-BE', {
+		timeZone: 'Europe/Brussels',
+		weekday: 'long',
+		day: 'numeric',
+		month: 'long'
+	}).format(r.from);
 	const rows = [
 		['Bestellingen', String(s.orders)],
 		['Netto-omzet (incl. btw)', formatPrice(s.net)],
@@ -41,10 +56,14 @@ export async function sendDailyReport(deps: { db: Executor; email: EmailAdapter;
 	let status = 'sent';
 	let providerId: string | null = null;
 	try {
-		providerId = (await deps.email.send({ to: deps.to, subject: `Dagrapport ${day}`, html, text, template: 'daily-report' })).id;
+		providerId = (
+			await deps.email.send({ to: deps.to, subject: `Dagrapport ${day}`, html, text, template: 'daily-report' })
+		).id;
 	} catch {
 		status = 'failed';
 	}
-	await deps.db.insert(emailLog).values({ to: deps.to, template: 'daily-report', locale: 'nl', subject: `Dagrapport ${day}`, providerId, status });
+	await deps.db
+		.insert(emailLog)
+		.values({ to: deps.to, template: 'daily-report', locale: 'nl', subject: `Dagrapport ${day}`, providerId, status });
 	return { ...s, queue, low };
 }

@@ -18,7 +18,10 @@ const uuid = (id: string) => {
 
 export const load: PageServerLoad = async ({ locals, params }) => {
 	const admin = requirePermission(locals, 'catalog:read');
-	const [c] = await locals.db.select().from(categories).where(eq(categories.id, uuid(params.id)));
+	const [c] = await locals.db
+		.select()
+		.from(categories)
+		.where(eq(categories.id, uuid(params.id)));
 	if (!c) error(404, 'Categorie niet gevonden');
 	return {
 		crumbs: [{ label: 'Categorieën', href: '/admin/categories' }, { label: c.name.nl }],

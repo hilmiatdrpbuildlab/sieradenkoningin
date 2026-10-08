@@ -21,7 +21,10 @@ export const load: LayoutServerLoad = async ({ params, locals }) => {
 	const a = s.announcement;
 	return {
 		lang,
-		announcement: a && isWithinWindow(a.from, a.until) && tr(a.text, lang) ? { text: tr(a.text, lang), href: a.href || null } : null,
+		announcement:
+			a && isWithinWindow(a.from, a.until) && tr(a.text, lang)
+				? { text: tr(a.text, lang), href: a.href || null }
+				: null,
 		categories: nav.map(({ key, label, href, icon }) => ({ key, label, href, icon })),
 		mainMenu: menuLinks(menus.main, lang),
 		footer: {

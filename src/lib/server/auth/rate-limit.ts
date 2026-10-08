@@ -32,8 +32,6 @@ export async function resetRateLimit(db: Executor, key: string) {
 /** Best-effort client IP (Cloudflare header first). */
 export function clientIp(request: Request, fallback = 'unknown') {
 	return (
-		request.headers.get('cf-connecting-ip') ??
-		request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ??
-		fallback
+		request.headers.get('cf-connecting-ip') ?? request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? fallback
 	);
 }

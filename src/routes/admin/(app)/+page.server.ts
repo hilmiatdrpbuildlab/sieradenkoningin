@@ -4,7 +4,16 @@ import type { PageServerLoad } from './$types';
 import { can } from '#lib/permissions.ts';
 import { homeForRole } from '#lib/admin-nav.ts';
 import { products, variants } from '#lib/server/db/schema.ts';
-import { byCategory, byDay, lastDays, previousRange, summary, toProcess, topProducts, delta } from '#lib/server/services/reports.ts';
+import {
+	byCategory,
+	byDay,
+	lastDays,
+	previousRange,
+	summary,
+	toProcess,
+	topProducts,
+	delta
+} from '#lib/server/services/reports.ts';
 
 const PERIODS = { today: 1, '7d': 7, '30d': 30 } as const;
 type Period = keyof typeof PERIODS;
@@ -13,7 +22,8 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 	const admin = locals.admin!;
 	if (!can(admin.role, 'dashboard')) redirect(303, homeForRole(admin.role));
 	const db = locals.db;
-	const period: Period = (url.searchParams.get('period') as Period) in PERIODS ? (url.searchParams.get('period') as Period) : '30d';
+	const period: Period =
+		(url.searchParams.get('period') as Period) in PERIODS ? (url.searchParams.get('period') as Period) : '30d';
 	const range = lastDays(PERIODS[period]);
 	const prev = previousRange(range);
 	const trendRange = lastDays(Math.max(14, PERIODS[period]));
@@ -26,7 +36,14 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 		topProducts(db, range, 5),
 		toProcess(db, 8),
 		db
-			.select({ id: variants.id, sku: variants.sku, stock: variants.stock, threshold: variants.lowStockThreshold, name: products.name, productId: products.id })
+			.select({
+				id: variants.id,
+				sku: variants.sku,
+				stock: variants.stock,
+				threshold: variants.lowStockThreshold,
+				name: products.name,
+				productId: products.id
+			})
 			.from(variants)
 			.innerJoin(products, eq(products.id, variants.productId))
 			.where(and(lte(variants.stock, variants.lowStockThreshold), eq(products.status, 'active')))

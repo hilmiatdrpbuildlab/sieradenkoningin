@@ -118,12 +118,22 @@ export const TEMPLATES = {
 		component: BackInStock,
 		subject: (d, locale) => m.email_bis_subject({ name: d.productName }, { locale }),
 		text: (d, locale) =>
-			[m.email_bis_text({}, { locale }), '', `${d.productName}${d.variantLabel ? ` (${d.variantLabel})` : ''}`, '', d.productUrl].join('\n')
+			[
+				m.email_bis_text({}, { locale }),
+				'',
+				`${d.productName}${d.variantLabel ? ` (${d.variantLabel})` : ''}`,
+				'',
+				d.productUrl
+			].join('\n')
 	} satisfies TemplateDef<BackInStockEmailData>
 };
 export type TemplateName = keyof typeof TEMPLATES;
 /** Data shape expected by a template (inferred from its component). */
-export type TemplateData<T extends TemplateName> = T extends TemplateName ? ((typeof TEMPLATES)[T] extends TemplateDef<infer D> ? D : never) : never;
+export type TemplateData<T extends TemplateName> = T extends TemplateName
+	? (typeof TEMPLATES)[T] extends TemplateDef<infer D>
+		? D
+		: never
+	: never;
 
 /** Strips HTML comments — Svelte's hydration markers (`<!--[0-->`, `<!---->` …) are useless in an email. */
 const clean = (html: string) => html.replace(/<!--[\s\S]*?-->/g, '');
@@ -167,31 +177,27 @@ export async function sendEmail<T extends TemplateName>(
 			template: input.template,
 			replyTo: input.replyTo || undefined
 		});
-		await deps.db
-			.insert(emailLog)
-			.values({
-				to: input.to,
-				template: input.template,
-				locale: input.locale,
-				subject,
-				providerId: id,
-				status: 'sent',
-				refId: input.refId ?? null
-			});
+		await deps.db.insert(emailLog).values({
+			to: input.to,
+			template: input.template,
+			locale: input.locale,
+			subject,
+			providerId: id,
+			status: 'sent',
+			refId: input.refId ?? null
+		});
 		return { id };
 	} catch (err) {
 		const message = err instanceof Error ? err.message : String(err);
-		await deps.db
-			.insert(emailLog)
-			.values({
-				to: input.to,
-				template: input.template,
-				locale: input.locale,
-				subject,
-				status: 'failed',
-				error: message.slice(0, 2000),
-				refId: input.refId ?? null
-			});
+		await deps.db.insert(emailLog).values({
+			to: input.to,
+			template: input.template,
+			locale: input.locale,
+			subject,
+			status: 'failed',
+			error: message.slice(0, 2000),
+			refId: input.refId ?? null
+		});
 		throw err;
 	}
 }
@@ -259,7 +265,14 @@ export async function orderEmailData(
 
 /** Job handler for `email.send` — payload `{ template, orderId, to?, locale?, refId? }`. */
 export async function emailSendJob(job: JobRow, deps: JobDeps) {
-	const p = job.payload as { template: TemplateName; orderId?: string; to?: string; locale?: Lang; refId?: string; data?: Partial<OrderEmailData> };
+	const p = job.payload as {
+		template: TemplateName;
+		orderId?: string;
+		to?: string;
+		locale?: Lang;
+		refId?: string;
+		data?: Partial<OrderEmailData>;
+	};
 	if (!(p.template in TEMPLATES)) throw new Error(`Unknown email template "${p.template}"`);
 	if (!p.orderId) throw new Error('email.send: orderId required for order templates');
 	const built = await orderEmailData(deps.db, p.orderId, deps.siteUrl);

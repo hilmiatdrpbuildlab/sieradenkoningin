@@ -9,7 +9,13 @@
 
 	let { data } = $props();
 	type Row = (typeof data.rows)[number] & { name: string; created: string };
-	const rows = $derived(data.rows.map((r) => ({ ...r, name: [r.firstName, r.lastName].filter(Boolean).join(' ') || '—', created: '' })) as Row[]);
+	const rows = $derived(
+		data.rows.map((r) => ({
+			...r,
+			name: [r.firstName, r.lastName].filter(Boolean).join(' ') || '—',
+			created: ''
+		})) as Row[]
+	);
 	const columns: Column<Row>[] = [
 		{ key: 'name', label: 'Klant', sortable: true },
 		{ key: 'orders', label: 'Bestellingen', sortable: true, align: 'end' },
@@ -22,20 +28,34 @@
 
 <svelte:head><title>Klanten — Beheer</title></svelte:head>
 
-<PageHeader title="Klanten" description="{data.total} klantaccounts. Gastbestellingen verschijnen bij het account zodra de klant zich registreert met hetzelfde e-mailadres." />
+<PageHeader
+	title="Klanten"
+	description="{data.total} klantaccounts. Gastbestellingen verschijnen bij het account zodra de klant zich registreert met hetzelfde e-mailadres."
+/>
 
 <DataTable {rows} {columns} total={data.total} pageSize={data.pageSize} rowHref={(r) => `/admin/customers/${r.id}`}>
 	{#snippet toolbar()}
 		<form method="GET" class="filters">
-			<label class="search"><span class="sr-only">Zoeken</span><input name="q" type="search" placeholder="Zoek op naam, e-mail of telefoon" value={data.q} /></label>
-			<label class="check"><input type="checkbox" name="newsletter" value="1" checked={data.newsletter} /> Alleen nieuwsbrief</label>
+			<label class="search"
+				><span class="sr-only">Zoeken</span><input
+					name="q"
+					type="search"
+					placeholder="Zoek op naam, e-mail of telefoon"
+					value={data.q}
+				/></label
+			>
+			<label class="check"
+				><input type="checkbox" name="newsletter" value="1" checked={data.newsletter} /> Alleen nieuwsbrief</label
+			>
 			<Button type="submit" size="sm" variant="outline">Filteren</Button>
 		</form>
 	{/snippet}
 	{#snippet cell(row, col)}
 		{#if col.key === 'name'}<span class="who"><strong>{row.name}</strong><small>{row.email}</small></span>
 		{:else if col.key === 'spent'}{formatPrice(row.spent)}
-		{:else if col.key === 'marketingOptIn'}{#if row.marketingOptIn}<Badge tone="success">Ja</Badge>{:else}<Badge>Nee</Badge>{/if}
+		{:else if col.key === 'marketingOptIn'}{#if row.marketingOptIn}<Badge tone="success">Ja</Badge>{:else}<Badge
+					>Nee</Badge
+				>{/if}
 		{:else if col.key === 'locale'}{row.locale.toUpperCase()}
 		{:else if col.key === 'created'}{formatDate(row.createdAt)}
 		{:else}{String(row[col.key] ?? '')}{/if}

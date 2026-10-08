@@ -38,7 +38,12 @@ export async function readTotpSecret(encrypted: string | null, key: string) {
 }
 
 /** Verifies a 6-digit TOTP code or a single-use recovery code (which is then consumed). */
-export async function verifySecondFactor(db: Executor, user: typeof adminUsers.$inferSelect, code: string, key: string) {
+export async function verifySecondFactor(
+	db: Executor,
+	user: typeof adminUsers.$inferSelect,
+	code: string,
+	key: string
+) {
 	const clean = code.replace(/\s/g, '');
 	const secret = await readTotpSecret(user.totpSecret, key);
 	if (secret && (await verifyTotp(secret, clean))) return 'totp' as const;
@@ -62,5 +67,7 @@ export async function completeLogin(db: Executor, sessionId: string, userId: str
 
 /** Only allow same-site admin paths as post-login redirect targets. */
 export function safeNext(next: string | null) {
-	return next && next.startsWith('/admin') && !next.startsWith('//') && !next.startsWith('/admin/login') ? next : '/admin';
+	return next && next.startsWith('/admin') && !next.startsWith('//') && !next.startsWith('/admin/login')
+		? next
+		: '/admin';
 }

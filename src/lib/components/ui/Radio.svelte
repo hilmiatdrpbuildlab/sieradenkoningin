@@ -26,7 +26,18 @@
 		onchange?: (value: string) => void;
 		extra?: Snippet<[Option]>;
 	}
-	let { name, legend, hideLegend = false, options, value = $bindable(), required = false, error, variant = 'list', onchange, extra }: Props = $props();
+	let {
+		name,
+		legend,
+		hideLegend = false,
+		options,
+		value = $bindable(),
+		required = false,
+		error,
+		variant = 'list',
+		onchange,
+		extra
+	}: Props = $props();
 	const uid = $props.id();
 </script>
 

@@ -57,15 +57,25 @@ export const METAL_CODES: Record<MetalValue, string> = { gold: 'GO', rosegold: '
 
 export const PRODUCT_STATUSES = ['draft', 'active', 'archived'] as const;
 export type ProductStatus = (typeof PRODUCT_STATUSES)[number];
-export const STATUS_LABELS: Record<ProductStatus, string> = { draft: 'Concept', active: 'Actief', archived: 'Gearchiveerd' };
+export const STATUS_LABELS: Record<ProductStatus, string> = {
+	draft: 'Concept',
+	active: 'Actief',
+	archived: 'Gearchiveerd'
+};
 
 export const BADGES = ['limited', 'bestseller'] as const;
 export const BADGE_LABELS: Record<(typeof BADGES)[number], string> = { limited: 'Limited', bestseller: 'Bestseller' };
 
 /** SKU convention (matches the seed): `KLAVER-RING-GO-52`. */
 export function skuFor(slug: string, metal: MetalValue, size?: string | null): string {
-	const base = slug.toUpperCase().replace(/[^A-Z0-9]+/g, '-').replace(/^-|-$/g, '');
-	const sz = (size ?? '').trim().toUpperCase().replace(/[^A-Z0-9]+/g, '');
+	const base = slug
+		.toUpperCase()
+		.replace(/[^A-Z0-9]+/g, '-')
+		.replace(/^-|-$/g, '');
+	const sz = (size ?? '')
+		.trim()
+		.toUpperCase()
+		.replace(/[^A-Z0-9]+/g, '');
 	return [base, METAL_CODES[metal], sz].filter(Boolean).join('-');
 }
 
@@ -178,8 +188,12 @@ export function normalizeModel(raw: Tree): ProductFormModel {
 	const base = emptyProductModel();
 	const r = raw as unknown as Partial<ProductFormModel> & Record<string, unknown>;
 	const str = (v: unknown) => (typeof v === 'string' ? v : '');
-	const i18n = (v: unknown): I18nModel => ({ nl: str((v as I18nModel | undefined)?.nl), fr: str((v as I18nModel | undefined)?.fr) });
-	const list = (v: unknown) => (Array.isArray(v) ? v.filter((x) => typeof x === 'string') : typeof v === 'string' && v ? [v] : []) as string[];
+	const i18n = (v: unknown): I18nModel => ({
+		nl: str((v as I18nModel | undefined)?.nl),
+		fr: str((v as I18nModel | undefined)?.fr)
+	});
+	const list = (v: unknown) =>
+		(Array.isArray(v) ? v.filter((x) => typeof x === 'string') : typeof v === 'string' && v ? [v] : []) as string[];
 	const objs = <T>(v: unknown) => (Array.isArray(v) ? (v.filter((x) => x && typeof x === 'object') as T[]) : []);
 	return {
 		...base,
@@ -246,7 +260,10 @@ const i18nOptional = (max = 5000) =>
 		.optional()
 		.transform((v) => (v?.nl || v?.fr ? { nl: v.nl ?? '', ...(v.fr ? { fr: v.fr } : {}) } : null));
 
-const intField = (label: string, { min = 0, max = 1_000_000, fallback }: { min?: number; max?: number; fallback?: number } = {}) =>
+const intField = (
+	label: string,
+	{ min = 0, max = 1_000_000, fallback }: { min?: number; max?: number; fallback?: number } = {}
+) =>
 	z
 		.string()
 		.trim()
@@ -263,7 +280,10 @@ const intField = (label: string, { min = 0, max = 1_000_000, fallback }: { min?:
 				return z.NEVER;
 			}
 			if (n < min) {
-				ctx.addIssue({ code: 'custom', message: min === 0 ? `${label} kan niet negatief zijn` : `${label} moet minstens ${min} zijn` });
+				ctx.addIssue({
+					code: 'custom',
+					message: min === 0 ? `${label} kan niet negatief zijn` : `${label} moet minstens ${min} zijn`
+				});
 				return z.NEVER;
 			}
 			if (n > max) {
@@ -285,7 +305,10 @@ const idList = z
 
 export const imageSchema = z
 	.object({
-		mediaId: z.uuid().optional().or(z.literal('').transform(() => undefined)),
+		mediaId: z
+			.uuid()
+			.optional()
+			.or(z.literal('').transform(() => undefined)),
 		key: z
 			.string()
 			.optional()
@@ -313,28 +336,33 @@ export const imageSchema = z
 		position: i.position ? Number(i.position) : NaN
 	}));
 
-export const variantSchema = z.object({
-	id: z.uuid().optional().or(z.literal('').transform(() => undefined)),
-	sku: z
-		.string()
-		.trim()
-		.toUpperCase()
-		.max(64, 'Maximaal 64 tekens')
-		.regex(/^[A-Z0-9][A-Z0-9._-]*$|^$/, 'Alleen letters, cijfers, punt, - en _'),
-	metal: z.enum(METALS, { error: 'Kies een metaal' }),
-	size: z
-		.string()
-		.trim()
-		.max(16, 'Maximaal 16 tekens')
-		.optional()
-		.transform((v) => v || null),
-	stock: intField('Voorraad', { fallback: 0 }),
-	priceOverride: money,
-	lowStockThreshold: intField('Drempel', { fallback: 2, max: 10_000 }),
-	remove: flag
-}).superRefine((v, ctx) => {
-	if (!v.remove && !v.sku) ctx.addIssue({ code: 'custom', path: ['sku'], message: 'SKU is verplicht' });
-});
+export const variantSchema = z
+	.object({
+		id: z
+			.uuid()
+			.optional()
+			.or(z.literal('').transform(() => undefined)),
+		sku: z
+			.string()
+			.trim()
+			.toUpperCase()
+			.max(64, 'Maximaal 64 tekens')
+			.regex(/^[A-Z0-9][A-Z0-9._-]*$|^$/, 'Alleen letters, cijfers, punt, - en _'),
+		metal: z.enum(METALS, { error: 'Kies een metaal' }),
+		size: z
+			.string()
+			.trim()
+			.max(16, 'Maximaal 16 tekens')
+			.optional()
+			.transform((v) => v || null),
+		stock: intField('Voorraad', { fallback: 0 }),
+		priceOverride: money,
+		lowStockThreshold: intField('Drempel', { fallback: 2, max: 10_000 }),
+		remove: flag
+	})
+	.superRefine((v, ctx) => {
+		if (!v.remove && !v.sku) ctx.addIssue({ code: 'custom', path: ['sku'], message: 'SKU is verplicht' });
+	});
 
 export const productSchema = z
 	.object({
@@ -396,10 +424,16 @@ export const productSchema = z
 		p.variants.forEach((v, i) => {
 			if (v.remove) return;
 			if (!v.sku) return;
-			if (seen.has(v.sku)) ctx.addIssue({ code: 'custom', path: ['variants', i, 'sku'], message: 'SKU komt dubbel voor' });
+			if (seen.has(v.sku))
+				ctx.addIssue({ code: 'custom', path: ['variants', i, 'sku'], message: 'SKU komt dubbel voor' });
 			else seen.set(v.sku, i);
 			const combo = `${v.metal}|${v.size ?? ''}`;
-			if (combos.has(combo)) ctx.addIssue({ code: 'custom', path: ['variants', i, 'size'], message: 'Deze combinatie metaal × maat bestaat al' });
+			if (combos.has(combo))
+				ctx.addIssue({
+					code: 'custom',
+					path: ['variants', i, 'size'],
+					message: 'Deze combinatie metaal × maat bestaat al'
+				});
 			else combos.set(combo, i);
 		});
 	});
@@ -430,12 +464,14 @@ export function activationErrors(p: {
 	if (!images.some((i) => i.alt.nl?.trim()))
 		(errors.images ??= []).push('Een actief product heeft minstens één foto met Nederlandse alt-tekst nodig');
 	if (!variants.length) (errors.variants ??= []).push('Een actief product heeft minstens één variant nodig');
-	if (Object.keys(errors).length) errors.status = ['Kan niet activeren: voeg eerst een foto met alt-tekst en een variant toe'];
+	if (Object.keys(errors).length)
+		errors.status = ['Kan niet activeren: voeg eerst een foto met alt-tekst en een variant toe'];
 	return errors;
 }
 
 // ── No-JS form edits ─────────────────────────────────────────────────────────────
-const asList = (v: unknown): string[] => (Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string') : typeof v === 'string' && v ? [v] : []);
+const asList = (v: unknown): string[] =>
+	Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string') : typeof v === 'string' && v ? [v] : [];
 
 /** Applies `${name}Remove` / `${name}Add` (posted by RelationPicker without JS) to an ordered id list. */
 export function applyListEdits(raw: Record<string, unknown>, name: string): string[] {
@@ -462,7 +498,8 @@ export function prepareProductForm(raw: Record<string, unknown>): Record<string,
 		const slug = typeof raw.slug === 'string' && raw.slug ? raw.slug : 'product';
 		const existing = new Set(kept.map((v) => `${v.metal ?? 'gold'}|${(v.size ?? '').trim()}`));
 		for (const r of variantMatrix(slug, metals, parseSizes(typeof matrix?.sizes === 'string' ? matrix.sizes : '')))
-			if (!existing.has(`${r.metal}|${r.size}`)) kept.push({ sku: r.sku, metal: r.metal, size: r.size, stock: '0', priceOverride: '', lowStockThreshold: '2' });
+			if (!existing.has(`${r.metal}|${r.size}`))
+				kept.push({ sku: r.sku, metal: r.metal, size: r.size, stock: '0', priceOverride: '', lowStockThreshold: '2' });
 	}
 	delete raw.matrix;
 	raw.variants = kept;

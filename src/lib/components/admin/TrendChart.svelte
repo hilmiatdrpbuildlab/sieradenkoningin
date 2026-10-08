@@ -80,7 +80,12 @@
 			{/each}
 			{#each points as p, i (i)}
 				{#if (i % labelEvery === 0 && points.length - 1 - i >= labelEvery / 2) || i === points.length - 1}
-					<text class="axis" x={x(i)} y={height - 6} text-anchor={i === 0 ? 'start' : i === points.length - 1 ? 'end' : 'middle'}>{p.label}</text>
+					<text
+						class="axis"
+						x={x(i)}
+						y={height - 6}
+						text-anchor={i === 0 ? 'start' : i === points.length - 1 ? 'end' : 'middle'}>{p.label}</text
+					>
 				{/if}
 			{/each}
 			<path class="area" d={area} />
@@ -97,11 +102,15 @@
 			</div>
 		{/if}
 	</div>
-	<p id="tc{uid}-hint" class="sr-only">Gebruik de pijltjestoetsen om per dag de waarde te lezen. De volledige gegevens staan in de tabel hieronder.</p>
+	<p id="tc{uid}-hint" class="sr-only">
+		Gebruik de pijltjestoetsen om per dag de waarde te lezen. De volledige gegevens staan in de tabel hieronder.
+	</p>
 	<table class="sr-only">
 		<caption>{title}</caption>
 		<thead><tr><th scope="col">Datum</th><th scope="col">Waarde</th></tr></thead>
-		<tbody>{#each points as p, i (i)}<tr><td>{p.label}</td><td>{format(p.value)}</td></tr>{/each}</tbody>
+		<tbody
+			>{#each points as p, i (i)}<tr><td>{p.label}</td><td>{format(p.value)}</td></tr>{/each}</tbody
+		>
 	</table>
 </figure>
 

@@ -23,7 +23,10 @@ export const load: PageServerLoad = async ({ locals }) => {
 	]);
 	return {
 		shipping,
-		zones: zones.map((z) => ({ ...z, rates: rates.filter((r) => r.zoneId === z.id).sort((a, b) => a.method.localeCompare(b.method)) })),
+		zones: zones.map((z) => ({
+			...z,
+			rates: rates.filter((r) => r.zoneId === z.id).sort((a, b) => a.method.localeCompare(b.method))
+		})),
 		crumbs: [{ label: 'Instellingen', href: '/admin/settings' }, { label: 'Verzending' }]
 	};
 };
@@ -32,7 +35,10 @@ export const load: PageServerLoad = async ({ locals }) => {
 async function syncShipTo(db: App.Locals['db']) {
 	const zones = await db.select().from(shippingZones).where(eq(shippingZones.active, true));
 	const { shipping } = await getSettings(db, ['shipping']);
-	await setSetting(db, 'shipping', { ...shipping, shipToCountries: [...new Set(zones.flatMap((z) => z.countries))].sort() });
+	await setSetting(db, 'shipping', {
+		...shipping,
+		shipToCountries: [...new Set(zones.flatMap((z) => z.countries))].sort()
+	});
 }
 
 export const actions: Actions = {
@@ -44,7 +50,12 @@ export const actions: Actions = {
 		const { shipping } = await getSettings(locals.db, ['shipping']);
 		const next = { ...shipping, ...parsed.data };
 		await setSetting(locals.db, 'shipping', next);
-		await audit(locals.db, locals, { action: 'update', entity: 'settings', entityId: 'shipping', diff: { before: shipping, after: next } });
+		await audit(locals.db, locals, {
+			action: 'update',
+			entity: 'settings',
+			entityId: 'shipping',
+			diff: { before: shipping, after: next }
+		});
 		return { form: 'general', saved: true };
 	},
 	rate: async ({ request, locals }) => {
@@ -53,12 +64,23 @@ export const actions: Actions = {
 		const id = String(fd.get('id'));
 		const price = euroToCents.safeParse(String(fd.get('price') ?? ''));
 		const freeFrom = euroToCents.safeParse(String(fd.get('freeFrom') ?? ''));
-		if (!price.success || price.data === undefined || !freeFrom.success) return fail(400, { form: id, error: 'Ongeldig bedrag' });
-		const values = { price: price.data, freeFrom: freeFrom.data ?? null, active: fd.get('active') === 'on', carrier: String(fd.get('carrier') || 'bpost').slice(0, 40) };
+		if (!price.success || price.data === undefined || !freeFrom.success)
+			return fail(400, { form: id, error: 'Ongeldig bedrag' });
+		const values = {
+			price: price.data,
+			freeFrom: freeFrom.data ?? null,
+			active: fd.get('active') === 'on',
+			carrier: String(fd.get('carrier') || 'bpost').slice(0, 40)
+		};
 		const [before] = await locals.db.select().from(shippingRates).where(eq(shippingRates.id, id));
 		if (!before) return fail(404, { form: id, error: 'Tarief niet gevonden' });
 		await locals.db.update(shippingRates).set(values).where(eq(shippingRates.id, id));
-		await audit(locals.db, locals, { action: 'update', entity: 'shipping_rate', entityId: id, diff: { before: { price: before.price, freeFrom: before.freeFrom, active: before.active }, after: values } });
+		await audit(locals.db, locals, {
+			action: 'update',
+			entity: 'shipping_rate',
+			entityId: id,
+			diff: { before: { price: before.price, freeFrom: before.freeFrom, active: before.active }, after: values }
+		});
 		return { form: id, saved: true };
 	},
 	zone: async ({ request, locals }) => {
@@ -68,7 +90,12 @@ export const actions: Actions = {
 		if (!z) return fail(404, { form: id, error: 'Zone niet gevonden' });
 		await locals.db.update(shippingZones).set({ active: !z.active }).where(eq(shippingZones.id, id));
 		await syncShipTo(locals.db);
-		await audit(locals.db, locals, { action: z.active ? 'deactivate' : 'activate', entity: 'shipping_zone', entityId: id, diff: { countries: z.countries } });
+		await audit(locals.db, locals, {
+			action: z.active ? 'deactivate' : 'activate',
+			entity: 'shipping_zone',
+			entityId: id,
+			diff: { countries: z.countries }
+		});
 		return { form: id, saved: true };
 	}
 };

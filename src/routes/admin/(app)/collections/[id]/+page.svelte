@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import { enhance } from '$app/forms';
 	import { page } from '$app/state';
 	import PageHeader from '#lib/components/admin/PageHeader.svelte';
@@ -22,12 +23,16 @@
 	let saving = $state(false);
 	let confirmDelete = $state(false);
 	let mounted = $state(false);
-	$effect(() => {
-		mounted = true;
-	});
+	onMount(() => (mounted = true));
 	const errors = $derived((form && 'errors' in form ? form.errors : {}) as Record<string, string[]>);
 	const preview = $derived(form && 'preview' in form ? form.preview : data.preview);
-	const notice = $derived(form ? null : ({ '1': 'Wijzigingen opgeslagen.', new: 'Collectie aangemaakt.' } as Record<string, string>)[page.url.searchParams.get('saved') ?? '']);
+	const notice = $derived(
+		form
+			? null
+			: ({ '1': 'Wijzigingen opgeslagen.', new: 'Collectie aangemaakt.' } as Record<string, string>)[
+					page.url.searchParams.get('saved') ?? ''
+				]
+	);
 	const hero = $derived(data.media.find((m) => m.id === model.heroMediaId));
 	const e = (k: string) => errors[k]?.[0];
 </script>
@@ -37,7 +42,14 @@
 <PageHeader title={data.isNew ? 'Nieuwe collectie' : (data.collection?.name ?? '')}>
 	{#snippet actions()}
 		{#if data.collection}
-			<Button href="/nl/collectie/{data.collection.slug}" variant="ghost" size="sm" icon="external" target="_blank" rel="noopener">Bekijk in winkel</Button>
+			<Button
+				href="/nl/collectie/{data.collection.slug}"
+				variant="ghost"
+				size="sm"
+				icon="external"
+				target="_blank"
+				rel="noopener">Bekijk in winkel</Button
+			>
 			{#if data.canWrite}
 				<form method="POST" action="?/delete" id="delete-form">
 					<Button
@@ -59,7 +71,9 @@
 </PageHeader>
 
 {#if notice}<p class="notice" role="status"><Icon name="check" size={16} />{notice}</p>{/if}
-{#if Object.keys(errors).length}<p class="notice alert" role="alert"><Icon name="alert" size={16} />Niet opgeslagen — controleer de gemarkeerde velden.</p>{/if}
+{#if Object.keys(errors).length}<p class="notice alert" role="alert">
+		<Icon name="alert" size={16} />Niet opgeslagen — controleer de gemarkeerde velden.
+	</p>{/if}
 
 <form
 	method="POST"
@@ -81,20 +95,38 @@
 		<div class="layout">
 			<div class="main">
 				<Card title="Inhoud en SEO">
-					<EntityI18nFields bind:model {errors} prefix={{ nl: '/nl/collectie/', fr: '/fr/collection/' }} autoSlug={data.isNew} />
+					<EntityI18nFields
+						bind:model
+						{errors}
+						prefix={{ nl: '/nl/collectie/', fr: '/fr/collection/' }}
+						autoSlug={data.isNew}
+					/>
 				</Card>
 
 				<Card title="Producten">
 					<fieldset class="type">
 						<legend>Type</legend>
-						<label><input type="radio" name="type" value="manual" bind:group={model.type} /> <span><strong>Handmatig</strong><small>Je kiest zelf de producten en hun volgorde.</small></span></label>
-						<label><input type="radio" name="type" value="rule" bind:group={model.type} /> <span><strong>Regel</strong><small>Producten worden automatisch geselecteerd.</small></span></label>
+						<label
+							><input type="radio" name="type" value="manual" bind:group={model.type} />
+							<span><strong>Handmatig</strong><small>Je kiest zelf de producten en hun volgorde.</small></span></label
+						>
+						<label
+							><input type="radio" name="type" value="rule" bind:group={model.type} />
+							<span><strong>Regel</strong><small>Producten worden automatisch geselecteerd.</small></span></label
+						>
 					</fieldset>
 
 					{#if model.type === 'manual' || !mounted}
 						<div class="section" class:muted-nojs={!mounted}>
 							{#if !mounted}<p class="hint">Handmatig: producten en volgorde</p>{/if}
-							<RelationPicker name="products" label="Producten in deze collectie" bind:ids={model.products} options={data.products} max={200} onchange={() => (dirty = true)} />
+							<RelationPicker
+								name="products"
+								label="Producten in deze collectie"
+								bind:ids={model.products}
+								options={data.products}
+								max={200}
+								onchange={() => (dirty = true)}
+							/>
 						</div>
 					{/if}
 					{#if model.type === 'rule' || !mounted}
@@ -103,25 +135,48 @@
 							{#if e('rule')}<p class="err" role="alert"><Icon name="alert" size={14} />{e('rule')}</p>{/if}
 							<div class="grid2">
 								<Field label="Categorie" error={e('rule.category')} optional>
-									<Select name="rule.category" bind:value={model.rule.category} options={data.categories} placeholder="Alle categorieën" />
+									<Select
+										name="rule.category"
+										bind:value={model.rule.category}
+										options={data.categories}
+										placeholder="Alle categorieën"
+									/>
 								</Field>
 								<Field label="Tag" hint="bv. klaver" error={e('rule.tag')} optional>
 									<Input name="rule.tag" bind:value={model.rule.tag} maxlength={40} />
 								</Field>
 								<Field label="Nieuw: toegevoegd in de laatste … dagen" error={e('rule.newWithinDays')} optional>
-									<Input name="rule.newWithinDays" type="number" min="1" max="3650" bind:value={model.rule.newWithinDays} />
+									<Input
+										name="rule.newWithinDays"
+										type="number"
+										min="1"
+										max="3650"
+										bind:value={model.rule.newWithinDays}
+									/>
 								</Field>
 								<Field label="Prijs lager dan" error={e('rule.priceLt')} optional>
 									<Input name="rule.priceLt" prefix="€" inputmode="decimal" bind:value={model.rule.priceLt} />
 								</Field>
 							</div>
-							<Checkbox name="rule.onSale" checked={!!model.rule.onSale} onchange={(ev) => (model.rule.onSale = ev.currentTarget.checked ? 'on' : undefined)}>Alleen producten in solden</Checkbox>
+							<Checkbox
+								name="rule.onSale"
+								checked={!!model.rule.onSale}
+								onchange={(ev) => (model.rule.onSale = ev.currentTarget.checked ? 'on' : undefined)}
+								>Alleen producten in solden</Checkbox
+							>
 							<div>
-								<Button type="submit" formaction="?/preview" variant="outline" size="sm" icon="eye">Voorbeeld bijwerken</Button>
+								<Button type="submit" formaction="?/preview" variant="outline" size="sm" icon="eye"
+									>Voorbeeld bijwerken</Button
+								>
 							</div>
 							{#if preview}
 								<div class="preview" aria-live="polite">
-									<p><strong>{preview.total}</strong> actieve product{preview.total === 1 ? '' : 'en'} voldoen aan deze regel{preview.total > preview.rows.length ? ` (eerste ${preview.rows.length} getoond)` : ''}.</p>
+									<p>
+										<strong>{preview.total}</strong> actieve product{preview.total === 1 ? '' : 'en'} voldoen aan deze regel{preview.total >
+										preview.rows.length
+											? ` (eerste ${preview.rows.length} getoond)`
+											: ''}.
+									</p>
 									<ul>
 										{#each preview.rows as p (p.id)}
 											<li><a href="/admin/products/{p.id}">{p.name}</a> <small>{formatPrice(p.price)}</small></li>
@@ -136,17 +191,32 @@
 
 			<aside class="side">
 				<Card title="Zichtbaarheid">
-					<Checkbox name="active" checked={!!model.active} onchange={(ev) => (model.active = ev.currentTarget.checked ? 'on' : undefined)}>Zichtbaar in de winkel</Checkbox>
+					<Checkbox
+						name="active"
+						checked={!!model.active}
+						onchange={(ev) => (model.active = ev.currentTarget.checked ? 'on' : undefined)}
+						>Zichtbaar in de winkel</Checkbox
+					>
 				</Card>
 				<Card title="Sfeerbeeld" description="Uit de mediabibliotheek.">
 					<Field label="Afbeelding" optional>
-						<Select name="heroMediaId" bind:value={model.heroMediaId} options={data.media.map((m) => ({ value: m.id, label: m.label }))} placeholder="Geen" />
+						<Select
+							name="heroMediaId"
+							bind:value={model.heroMediaId}
+							options={data.media.map((m) => ({ value: m.id, label: m.label }))}
+							placeholder="Geen"
+						/>
 					</Field>
 					{#if hero}<img class="hero" src={hero.url} alt="" />{/if}
 				</Card>
 			</aside>
 		</div>
-		{#if data.canWrite}<SaveBar {dirty} {saving} label={data.isNew ? 'Collectie aanmaken' : 'Opslaan'} cancelHref="/admin/collections" />{/if}
+		{#if data.canWrite}<SaveBar
+				{dirty}
+				{saving}
+				label={data.isNew ? 'Collectie aanmaken' : 'Opslaan'}
+				cancelHref="/admin/collections"
+			/>{/if}
 	</fieldset>
 </form>
 

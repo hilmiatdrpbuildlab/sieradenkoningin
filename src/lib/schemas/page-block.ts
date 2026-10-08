@@ -6,7 +6,12 @@
 import { z } from 'zod';
 import { i18nSchema } from './common.ts';
 
-const imageRef = z.object({ key: z.string().min(1), alt: i18nSchema, width: z.number().optional(), height: z.number().optional() });
+const imageRef = z.object({
+	key: z.string().min(1),
+	alt: i18nSchema,
+	width: z.number().optional(),
+	height: z.number().optional()
+});
 const link = z.object({ label: i18nSchema, href: i18nSchema });
 
 export const blockSchemas = {
@@ -100,11 +105,16 @@ export const BLOCK_LABELS: Record<BlockType, string> = {
 export function parseBlock(type: string, data: unknown) {
 	if (!(type in blockSchemas)) return { success: false as const, error: `Onbekend bloktype: ${type}` };
 	const r = blockSchemas[type as BlockType].safeParse(data);
-	return r.success ? { success: true as const, data: r.data } : { success: false as const, error: r.error.issues[0]?.message ?? 'Ongeldig blok' };
+	return r.success
+		? { success: true as const, data: r.data }
+		: { success: false as const, error: r.error.issues[0]?.message ?? 'Ongeldig blok' };
 }
 
 /** Is the block visible at `now`? (hidden flag + schedule window; unit-tested with a fake clock) */
-export function isBlockVisible(b: { hidden?: boolean; visibleFrom?: string | Date | null; visibleUntil?: string | Date | null }, now = new Date()) {
+export function isBlockVisible(
+	b: { hidden?: boolean; visibleFrom?: string | Date | null; visibleUntil?: string | Date | null },
+	now = new Date()
+) {
 	if (b.hidden) return false;
 	if (b.visibleFrom && new Date(b.visibleFrom) > now) return false;
 	if (b.visibleUntil && new Date(b.visibleUntil) <= now) return false;

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import { enhance } from '$app/forms';
 	import { page } from '$app/state';
 	import PageHeader from '#lib/components/admin/PageHeader.svelte';
@@ -21,9 +22,7 @@
 	const notice = $derived(form ? null : NOTICES[page.url.searchParams.get('saved') ?? '']);
 	let confirmArchive = $state(false);
 	let mounted = $state(false);
-	$effect(() => {
-		mounted = true;
-	});
+	onMount(() => (mounted = true));
 	const values = $derived(form && 'values' in form ? form.values : null);
 	const errors = $derived(form && 'errors' in form ? (form.errors as Record<string, string[]>) : {});
 </script>
@@ -40,7 +39,14 @@
 	{#snippet actions()}
 		{#if data.product}
 			{#if data.product.status === 'active'}
-				<Button href="/nl/p/{data.product.slug}" variant="ghost" size="sm" icon="external" target="_blank" rel="noopener">Bekijk in winkel</Button>
+				<Button
+					href="/nl/p/{data.product.slug}"
+					variant="ghost"
+					size="sm"
+					icon="external"
+					target="_blank"
+					rel="noopener">Bekijk in winkel</Button
+				>
 			{/if}
 			{#if data.canWrite}
 				<form method="POST" action="?/duplicate" use:enhance>
@@ -75,7 +81,9 @@
 	<p class="notice" role="status"><Icon name="check" size={16} />{notice}</p>
 {/if}
 {#if form && 'uploaded' in form && form.uploaded}
-	<p class="notice info" role="status"><Icon name="info" size={16} />{form.uploaded} foto('s) geüpload. Vul de alt-tekst in en sla opnieuw op.</p>
+	<p class="notice info" role="status">
+		<Icon name="info" size={16} />{form.uploaded} foto('s) geüpload. Vul de alt-tekst in en sla opnieuw op.
+	</p>
 {/if}
 {#if !data.canWrite}
 	<p class="notice info" role="status"><Icon name="lock" size={16} />Je kan dit product bekijken maar niet wijzigen.</p>

@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { tick } from 'svelte';
+	import { SvelteURLSearchParams } from 'svelte/reactivity';
+	import { tick, onMount } from 'svelte';
 	import { enhance } from '$app/forms';
 	import { page } from '$app/state';
 	import PageHeader from '#lib/components/admin/PageHeader.svelte';
@@ -16,7 +17,7 @@
 	let { data, form } = $props();
 	/** Keeps the current filters in the action URL so a no-JS post returns to the same view. */
 	const act = (name: string) => {
-		const p = new URLSearchParams(page.url.search);
+		const p = new SvelteURLSearchParams(page.url.search);
 		p.set(`/${name}`, '');
 		return `?${p.toString().replace(/=(&|$)/, '$1')}`;
 	};
@@ -25,13 +26,12 @@
 	let uploadForm = $state<HTMLFormElement>();
 	let deleteId = $state<string | null>(null);
 	let mounted = $state(false);
-	$effect(() => {
-		mounted = true;
-	});
+	onMount(() => (mounted = true));
 
-	const kb = (b: number | null) => (b ? (b > 1024 * 1024 ? `${(b / 1024 / 1024).toFixed(1)} MB` : `${Math.round(b / 1024)} kB`) : '—');
+	const kb = (b: number | null) =>
+		b ? (b > 1024 * 1024 ? `${(b / 1024 / 1024).toFixed(1)} MB` : `${Math.round(b / 1024)} kB`) : '—';
 	const pageHref = (n: number) => {
-		const p = new URLSearchParams();
+		const p = new SvelteURLSearchParams();
 		if (data.filters.q) p.set('q', data.filters.q);
 		if (data.filters.unused) p.set('unused', '1');
 		if (data.filters.sort !== 'new') p.set('sort', data.filters.sort);
@@ -45,7 +45,12 @@
 
 <svelte:head><title>Media — Beheer</title></svelte:head>
 
-<PageHeader title="Mediabibliotheek" description="{data.total} afbeelding{data.total === 1 ? '' : 'en'}. Afbeeldingen die nog gebruikt worden kunnen niet verwijderd worden." />
+<PageHeader
+	title="Mediabibliotheek"
+	description="{data.total} afbeelding{data.total === 1
+		? ''
+		: 'en'}. Afbeeldingen die nog gebruikt worden kunnen niet verwijderd worden."
+/>
 
 {#if form?.message}
 	<p class="notice" class:alert={failed} role={failed ? 'alert' : 'status'}>
@@ -66,18 +71,33 @@
 					await update();
 				}}
 		>
-			<ImageUploader bind:value={uploads} withAlt={false} folder="media" max={24} onchange={async () => {
+			<ImageUploader
+				bind:value={uploads}
+				withAlt={false}
+				folder="media"
+				max={24}
+				onchange={async () => {
 					await tick();
 					if (uploads.length) uploadForm?.requestSubmit();
-				}} />
+				}}
+			/>
 			{#if !mounted}<div class="up"><Button type="submit" size="sm">Uploaden</Button></div>{/if}
 		</form>
 	</Card>
 {/if}
 
 <form method="GET" class="filters" role="search">
-	<label class="search"><span class="sr-only">Zoek op bestandsnaam of alt-tekst</span><input type="search" name="q" value={data.filters.q} placeholder="Zoek op bestandsnaam of alt-tekst" /></label>
-	<label class="chk"><input type="checkbox" name="unused" value="1" checked={data.filters.unused} /> Alleen ongebruikt</label>
+	<label class="search"
+		><span class="sr-only">Zoek op bestandsnaam of alt-tekst</span><input
+			type="search"
+			name="q"
+			value={data.filters.q}
+			placeholder="Zoek op bestandsnaam of alt-tekst"
+		/></label
+	>
+	<label class="chk"
+		><input type="checkbox" name="unused" value="1" checked={data.filters.unused} /> Alleen ongebruikt</label
+	>
 	<label>
 		<span class="sr-only">Sorteren</span>
 		<select name="sort" value={data.filters.sort}>
@@ -96,14 +116,25 @@
 				<div class="thumb"><img src={m.url} alt={m.alt.nl} loading="lazy" /></div>
 				<div class="info">
 					<p class="name" title={m.key}>{m.name}</p>
-					<p class="meta">{m.width && m.height ? `${m.width}×${m.height}` : '—'} · {kb(m.bytes)} · {formatDate(m.createdAt)}</p>
+					<p class="meta">
+						{m.width && m.height ? `${m.width}×${m.height}` : '—'} · {kb(m.bytes)} · {formatDate(m.createdAt)}
+					</p>
 					<p class="usage" class:unused={m.usage === 0}>
-						{#if m.usage}<Icon name="link" size={12} />{m.usage}× gebruikt{:else}<Icon name="info" size={12} />Ongebruikt{/if}
+						{#if m.usage}<Icon name="link" size={12} />{m.usage}× gebruikt{:else}<Icon
+								name="info"
+								size={12}
+							/>Ongebruikt{/if}
 					</p>
 					{#if data.canWrite}
 						<details open={!m.alt.nl || (form?.action === 'alt' && form?.id === m.id)}>
 							<summary>{m.alt.nl ? 'Alt-tekst bewerken' : 'Alt-tekst ontbreekt'}</summary>
-							<form method="POST" action={act('alt')} use:enhance={() => async ({ update }) => update({ reset: false })}>
+							<form
+								method="POST"
+								action={act('alt')}
+								use:enhance={() =>
+									async ({ update }) =>
+										update({ reset: false })}
+							>
 								<input type="hidden" name="id" value={m.id} />
 								<label><span>NL *</span><input name="nl" value={m.alt.nl} maxlength="250" required /></label>
 								<label><span>FR</span><input name="fr" value={m.alt.fr ?? ''} maxlength="250" /></label>
@@ -137,7 +168,11 @@
 	</ul>
 	{#if data.pages > 1}<div class="pager"><Pagination page={data.page} pages={data.pages} href={pageHref} /></div>{/if}
 {:else}
-	<EmptyState icon="image" title="Geen afbeeldingen gevonden" text={data.filters.q || data.filters.unused ? 'Pas je zoekopdracht aan.' : 'Upload je eerste foto.'} />
+	<EmptyState
+		icon="image"
+		title="Geen afbeeldingen gevonden"
+		text={data.filters.q || data.filters.unused ? 'Pas je zoekopdracht aan.' : 'Upload je eerste foto.'}
+	/>
 {/if}
 
 <ConfirmDialog

@@ -3,7 +3,15 @@ import { z } from 'zod';
 import type { Actions, PageServerLoad } from './$types';
 import { requirePermission } from '#lib/server/auth/guard.ts';
 import { can } from '#lib/permissions.ts';
-import { deleteMedia, listMedia, MediaError, registerUploads, storeFormFile, updateMediaAlt, type NewMedia } from '#lib/server/services/media.ts';
+import {
+	deleteMedia,
+	listMedia,
+	MediaError,
+	registerUploads,
+	storeFormFile,
+	updateMediaAlt,
+	type NewMedia
+} from '#lib/server/services/media.ts';
 import { formToObject } from '#lib/schemas/product.ts';
 import { img } from '#lib/utils/media.ts';
 
@@ -53,14 +61,20 @@ export const actions: Actions = {
 	delete: async ({ locals, request }) => {
 		requirePermission(locals, 'catalog:write');
 		const id = String((await request.formData()).get('id') ?? '');
-		if (!z.uuid().safeParse(id).success) return fail(400, { action: 'delete', id: null, message: 'Onbekende afbeelding' });
+		if (!z.uuid().safeParse(id).success)
+			return fail(400, { action: 'delete', id: null, message: 'Onbekende afbeelding' });
 		try {
 			await locals.db.transaction((tx) => deleteMedia(tx, locals, id));
 		} catch (e) {
 			if (e instanceof MediaError) return fail(400, { action: 'delete', id, message: e.message });
 			throw e;
 		}
-		return { ok: true, action: 'delete', id, message: 'Afbeelding verwijderd. Het bestand wordt op de achtergrond opgeruimd.' };
+		return {
+			ok: true,
+			action: 'delete',
+			id,
+			message: 'Afbeelding verwijderd. Het bestand wordt op de achtergrond opgeruimd.'
+		};
 	},
 
 	upload: async ({ locals, request }) => {
@@ -69,7 +83,12 @@ export const actions: Actions = {
 		const raw = formToObject(fd) as { images?: { key?: string; width?: string; height?: string; bytes?: string }[] };
 		const items: NewMedia[] = (raw.images ?? [])
 			.filter((i) => i.key)
-			.map((i) => ({ key: i.key!, width: Number(i.width) || null, height: Number(i.height) || null, bytes: Number(i.bytes) || null }));
+			.map((i) => ({
+				key: i.key!,
+				width: Number(i.width) || null,
+				height: Number(i.height) || null,
+				bytes: Number(i.bytes) || null
+			}));
 		const errors: string[] = [];
 		for (const file of fd.getAll('newImages')) {
 			if (!(file instanceof File) || file.size === 0) continue;
@@ -77,7 +96,8 @@ export const actions: Actions = {
 			if ('error' in stored) errors.push(stored.error!);
 			else items.push({ key: stored.key, width: stored.width, height: stored.height, bytes: stored.bytes });
 		}
-		if (!items.length && !errors.length) return fail(400, { action: 'upload', id: null, message: 'Kies eerst een of meer foto’s' });
+		if (!items.length && !errors.length)
+			return fail(400, { action: 'upload', id: null, message: 'Kies eerst een of meer foto’s' });
 		try {
 			if (items.length) await locals.db.transaction((tx) => registerUploads(tx, locals, items));
 		} catch (e) {
@@ -85,6 +105,11 @@ export const actions: Actions = {
 			throw e;
 		}
 		if (errors.length) return fail(400, { action: 'upload', id: null, message: errors.join(' · ') });
-		return { ok: true, action: 'upload', id: null, message: `${items.length} foto${items.length === 1 ? '' : '’s'} toegevoegd. Vul de alt-tekst in.` };
+		return {
+			ok: true,
+			action: 'upload',
+			id: null,
+			message: `${items.length} foto${items.length === 1 ? '' : '’s'} toegevoegd. Vul de alt-tekst in.`
+		};
 	}
 };

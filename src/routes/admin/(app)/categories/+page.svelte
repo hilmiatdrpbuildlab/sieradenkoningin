@@ -9,7 +9,10 @@
 
 <svelte:head><title>Categorieën — Beheer</title></svelte:head>
 
-<PageHeader title="Categorieën" description="De zes vaste categorieën. Pas namen, slugs, teksten, SEO en volgorde aan." />
+<PageHeader
+	title="Categorieën"
+	description="De zes vaste categorieën. Pas namen, slugs, teksten, SEO en volgorde aan."
+/>
 
 <div class="card">
 	<!-- svelte-ignore a11y_no_noninteractive_tabindex (scrollable region must be keyboard-focusable) -->
@@ -30,10 +33,23 @@
 					<tr>
 						<td class="order">
 							{#if data.canWrite}
-								<form method="POST" action="?/move" use:enhance={() => async ({ update }) => update({ reset: false })}>
+								<form
+									method="POST"
+									action="?/move"
+									use:enhance={() =>
+										async ({ update }) =>
+											update({ reset: false })}
+								>
 									<input type="hidden" name="id" value={c.id} />
-									<button name="dir" value="up" disabled={i === 0} aria-label="{c.name.nl} omhoog"><Icon name="arrow-up" size={14} /></button>
-									<button name="dir" value="down" disabled={i === data.categories.length - 1} aria-label="{c.name.nl} omlaag"><Icon name="arrow-down" size={14} /></button>
+									<button name="dir" value="up" disabled={i === 0} aria-label="{c.name.nl} omhoog"
+										><Icon name="arrow-up" size={14} /></button
+									>
+									<button
+										name="dir"
+										value="down"
+										disabled={i === data.categories.length - 1}
+										aria-label="{c.name.nl} omlaag"><Icon name="arrow-down" size={14} /></button
+									>
 								</form>
 							{:else}{i + 1}{/if}
 						</td>
@@ -46,7 +62,11 @@
 						<td class="hide-md"><code>{c.slugs.nl}</code></td>
 						<td class="hide-md"><code>{c.slugs.fr}</code></td>
 						<td class="num"><a href="/admin/products?category={c.id}">{c.products}</a></td>
-						<td class="num"><a class="edit" href="/admin/categories/{c.id}" aria-label="{c.name.nl} bewerken"><Icon name="edit" size={16} /></a></td>
+						<td class="num"
+							><a class="edit" href="/admin/categories/{c.id}" aria-label="{c.name.nl} bewerken"
+								><Icon name="edit" size={16} /></a
+							></td
+						>
 					</tr>
 				{/each}
 			</tbody>

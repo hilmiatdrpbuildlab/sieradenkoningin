@@ -3,7 +3,8 @@
  * this whitelist is produced: ## / ### headings, paragraphs, - lists, 1. lists, **bold**, *italic*,
  * [text](url) links (http(s), mailto, tel, or site-relative only) and line breaks.
  */
-const escape = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+const escape = (s: string) =>
+	s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 
 function safeHref(url: string): string | null {
 	const u = url.trim();
@@ -26,14 +27,19 @@ function inline(text: string): string {
 
 export function markdownToHtml(md: string | null | undefined): string {
 	if (!md) return '';
-	const blocks = md.replace(/\r\n/g, '\n').trim().split(/\n{2,}/);
+	const blocks = md
+		.replace(/\r\n/g, '\n')
+		.trim()
+		.split(/\n{2,}/);
 	return blocks
 		.map((block) => {
 			const lines = block.split('\n');
 			if (/^###\s/.test(block)) return `<h3>${inline(block.replace(/^###\s+/, ''))}</h3>`;
 			if (/^##\s/.test(block)) return `<h2>${inline(block.replace(/^##\s+/, ''))}</h2>`;
-			if (lines.every((l) => /^\s*[-*]\s+/.test(l))) return `<ul>${lines.map((l) => `<li>${inline(l.replace(/^\s*[-*]\s+/, ''))}</li>`).join('')}</ul>`;
-			if (lines.every((l) => /^\s*\d+[.)]\s+/.test(l))) return `<ol>${lines.map((l) => `<li>${inline(l.replace(/^\s*\d+[.)]\s+/, ''))}</li>`).join('')}</ol>`;
+			if (lines.every((l) => /^\s*[-*]\s+/.test(l)))
+				return `<ul>${lines.map((l) => `<li>${inline(l.replace(/^\s*[-*]\s+/, ''))}</li>`).join('')}</ul>`;
+			if (lines.every((l) => /^\s*\d+[.)]\s+/.test(l)))
+				return `<ol>${lines.map((l) => `<li>${inline(l.replace(/^\s*\d+[.)]\s+/, ''))}</li>`).join('')}</ol>`;
 			return `<p>${lines.map(inline).join('<br>')}</p>`;
 		})
 		.join('\n');

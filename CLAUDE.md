@@ -4,6 +4,7 @@ Read `EXECUTION_PLAN.md` §0–4 and `docs/DESIGN_SYSTEM.md` first. This file re
 were established while building, which the plan does not spell out.
 
 ## Running locally
+
 - Local Postgres cluster lives in `.data/pg` (port **54329**, user `sk`, trust auth):
   `"C:/Program Files/PostgreSQL/14/bin/pg_ctl" -D .data/pg -o "-p 54329" -l .data/pg.log start`
 - `npm run db:migrate && npm run db:seed` (idempotent). `npm run admin:reset -- <email>` resets an
@@ -13,6 +14,7 @@ were established while building, which the plan does not spell out.
 - After `npm install`, run `npx svelte-kit sync` (npm deletes the generated `node_modules/$app/tsconfig.json`).
 
 ## Stack facts (verified against installed versions)
+
 - SvelteKit 3.0.1: config in `vite.config.ts`; `#lib/...` imports with explicit `.ts`; env via
   `src/env.ts` + `$app/env/private|public`; param matchers via `defineParams` in `src/params.ts`.
 - DB driver is **node-postgres** (`drizzle-orm/node-postgres`) everywhere — real transactions available
@@ -22,6 +24,7 @@ were established while building, which the plan does not spell out.
 - **pg gotcha:** enum arrays come back as strings — cast `array_agg(x::text)`.
 
 ## i18n
+
 - Paraglide messages are split per area: `messages/<area>/{nl,fr}.json` (areas: core, shop, catalog, cart,
   checkout, account, content, email). Both locales must have identical keys (unit-tested).
 - Locale = first path segment; language switch = full page load (`data-sveltekit-reload`).
@@ -32,6 +35,7 @@ were established while building, which the plan does not spell out.
   Storefront components must use `m.*()` only.
 
 ## Storefront rules
+
 - Shop layout server load returns PUBLIC data only (edge-cacheable HTML). Cart/wishlist are loaded
   client-side (`/api/cart`, `/api/wishlist`) into context stores (`getCart()`, `getWishlist()`, `getToasts()`).
 - Cacheable pages set `cache-control: public, max-age=60, s-maxage=600, stale-while-revalidate=86400`;
@@ -42,6 +46,7 @@ were established while building, which the plan does not spell out.
 - Images: `picture(key, alt, width)` / `img(key, w)` from `#lib/utils/media.ts`.
 
 ## Admin rules
+
 - Routes live in `src/routes/admin/(app)/**`; auth screens in `(auth)`. Every `load` and every action calls
   `requirePermission(locals, '<perm>')` (§7.4 matrix in `#lib/permissions.ts`), and every mutation calls
   `audit(db, locals, {action, entity, entityId, diff})`.
@@ -51,10 +56,12 @@ were established while building, which the plan does not spell out.
 - Pages set `crumbs: [{label, href?}]` in load data for the topbar breadcrumbs.
 
 ## Styling
+
 - Components use semantic tokens only (`--ui-*`, `--fs-*`, `--space-*` …), never hex. Status colours:
   `--ui-danger|success|warning|info` (+ `-bg`). Serif that survives the admin theme: `--ff-serif`.
 - Tailwind only for route-level layout; component visibility/responsiveness in scoped `<style>`.
 
 ## Money & tax
+
 - Integer cents everywhere. Totals via `computeTotals()` in `services/pricing.ts` (per-line VAT, discount
   allocated with `allocate()`, reconciles to the cent). Discounts: `services/discounts.ts`.

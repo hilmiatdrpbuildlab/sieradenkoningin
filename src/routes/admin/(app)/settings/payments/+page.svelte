@@ -19,7 +19,10 @@
 
 <svelte:head><title>Betalingen — Beheer</title></svelte:head>
 
-<PageHeader title="Betalingen" description="Mollie verwerkt alle betalingen. Bancontact staat altijd eerst in de kassa.">
+<PageHeader
+	title="Betalingen"
+	description="Mollie verwerkt alle betalingen. Bancontact staat altijd eerst in de kassa."
+>
 	{#snippet meta()}
 		{#if data.mode === 'live'}<Badge tone="success">Mollie live</Badge>
 		{:else if data.mode === 'test'}<Badge tone="warning">Mollie testmodus</Badge>
@@ -28,7 +31,12 @@
 </PageHeader>
 
 <Card title="Betaalmethoden in de kassa" description="Activeer dezelfde methoden ook in je Mollie-dashboard.">
-	<form method="POST" use:enhance={() => async ({ update }) => update({ reset: false })}>
+	<form
+		method="POST"
+		use:enhance={() =>
+			async ({ update }) =>
+				update({ reset: false })}
+	>
 		{#if form?.saved}<p class="ok" role="status">Opgeslagen.</p>{/if}
 		{#each data.all as m (m)}
 			<Checkbox name="methods" value={m} checked={data.methods.includes(m)}>{labels[m] ?? m}</Checkbox>

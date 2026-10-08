@@ -40,7 +40,17 @@ describe('parseEuro', () => {
 describe('parseImportRecord', () => {
 	it('maps aliases (NL category name, metal, status, booleans)', () => {
 		const r = parseImportRecord(
-			{ product_slug: 'Demo-A', name_nl: 'A', category: 'Ringen', status: 'Actief', price: '10', featured: 'ja', sku: 'demo-a-go', metal: 'Goud', stock: '3' },
+			{
+				product_slug: 'Demo-A',
+				name_nl: 'A',
+				category: 'Ringen',
+				status: 'Actief',
+				price: '10',
+				featured: 'ja',
+				sku: 'demo-a-go',
+				metal: 'Goud',
+				stock: '3'
+			},
 			2,
 			CATS
 		);
@@ -51,9 +61,15 @@ describe('parseImportRecord', () => {
 	});
 
 	it('collects every problem of a row in Dutch', () => {
-		const r = parseImportRecord({ product_slug: 'x y', category: 'hoeden', price: 'gratis', sku: 'A', metal: 'brons', stock: '-1' }, 7, CATS);
+		const r = parseImportRecord(
+			{ product_slug: 'x y', category: 'hoeden', price: 'gratis', sku: 'A', metal: 'brons', stock: '-1' },
+			7,
+			CATS
+		);
 		expect(r.errors).toHaveLength(5);
-		expect(r.errors.join(' ')).toMatch(/Ongeldige product_slug.*Onbekende categorie.*Ongeldige prijs.*Ongeldig metaal.*negatief/);
+		expect(r.errors.join(' ')).toMatch(
+			/Ongeldige product_slug.*Onbekende categorie.*Ongeldige prijs.*Ongeldig metaal.*negatief/
+		);
 	});
 });
 
@@ -63,7 +79,15 @@ describe('planImport', () => {
 		lookup.products.set('bestaand', { id: 'p1', status: 'draft', hasImage: false, variantCount: 1 });
 		lookup.variants.set('BESTAAND-GO', { id: 'v1', productSlug: 'bestaand', stock: 4 });
 		const parsed = [
-			{ product_slug: 'nieuw', name_nl: 'Nieuw', category: 'rings', price: '20', status: 'active', sku: 'N-1', stock: '2' },
+			{
+				product_slug: 'nieuw',
+				name_nl: 'Nieuw',
+				category: 'rings',
+				price: '20',
+				status: 'active',
+				sku: 'N-1',
+				stock: '2'
+			},
 			{ product_slug: 'nieuw', sku: 'N-2', metal: 'silver' },
 			{ product_slug: 'nieuw', sku: 'N-1' },
 			{ product_slug: 'nieuw', sku: 'BESTAAND-GO' },
@@ -118,7 +142,13 @@ describe('CSV files', () => {
 const DB_URL = process.env.DATABASE_URL || 'postgres://sk@localhost:54329/sieradenkoningin';
 const RUN = `test-imp-${Date.now().toString(36)}`;
 const actor = {
-	admin: { id: crypto.randomUUID(), name: 'Unit test', email: 'unit@example.invalid', role: 'owner' as const, sessionId: 'unit' },
+	admin: {
+		id: crypto.randomUUID(),
+		name: 'Unit test',
+		email: 'unit@example.invalid',
+		role: 'owner' as const,
+		sessionId: 'unit'
+	},
 	ip: '127.0.0.1'
 };
 
@@ -144,7 +174,15 @@ describe('import 50 rows (database)', () => {
 			for (const [i, metal] of (['gold', 'silver', 'rosegold'] as const).entries()) {
 				rows.push({
 					product_slug: `${RUN}-p${p}`,
-					...(i === 0 ? { name_nl: `DEMO Import ${p}`, name_fr: `DEMO Import ${p} FR`, category: p % 2 ? 'bracelets' : 'rings', price: '39,95', tags: 'import' } : {}),
+					...(i === 0
+						? {
+								name_nl: `DEMO Import ${p}`,
+								name_fr: `DEMO Import ${p} FR`,
+								category: p % 2 ? 'bracelets' : 'rings',
+								price: '39,95',
+								tags: 'import'
+							}
+						: {}),
 					sku: `${RUN}-P${p}-${metal}`.toUpperCase(),
 					metal,
 					size: '52',
@@ -170,30 +208,57 @@ describe('import 50 rows (database)', () => {
 		expect(plan.summary.productsCreate).toBe(15);
 		const errorLines = plan.rows.filter((r) => r.action === 'error').map((r) => r.line);
 		expect(errorLines).toEqual([47, 48, 49, 50, 51]);
-		expect((await db.select().from(products).where(like(products.slug, `${RUN}%`))).length).toBe(0);
+		expect(
+			(
+				await db
+					.select()
+					.from(products)
+					.where(like(products.slug, `${RUN}%`))
+			).length
+		).toBe(0);
 
 		const result = await commitImport(db, actor, csv);
 		expect(result.summary.errors).toBe(5);
 		expect(result.summary.create).toBe(45);
-		const created = await db.select({ id: products.id, status: products.status }).from(products).where(like(products.slug, `${RUN}%`));
+		const created = await db
+			.select({ id: products.id, status: products.status })
+			.from(products)
+			.where(like(products.slug, `${RUN}%`));
 		expect(created).toHaveLength(15);
 		expect(created.every((p) => p.status === 'draft')).toBe(true);
 		const vars = await db
 			.select({ id: variants.id, stock: variants.stock })
 			.from(variants)
-			.where(inArray(variants.productId, created.map((c) => c.id)));
+			.where(
+				inArray(
+					variants.productId,
+					created.map((c) => c.id)
+				)
+			);
 		expect(vars).toHaveLength(45);
 		const movements = await db
 			.select()
 			.from(stockMovements)
-			.where(inArray(stockMovements.variantId, vars.map((v) => v.id)));
+			.where(
+				inArray(
+					stockMovements.variantId,
+					vars.map((v) => v.id)
+				)
+			);
 		expect(movements.every((m) => m.reason === 'import')).toBe(true);
 		expect(movements.reduce((s, m) => s + m.delta, 0)).toBe(vars.reduce((s, v) => s + v.stock, 0));
 
 		// Re-import updates: stock change is a delta, and the export round-trips
-		const again = await commitImport(db, actor, csv.replace(`${RUN}-P0-GOLD`.toUpperCase() + ';gold;52;0', `${RUN}-P0-GOLD`.toUpperCase() + ';gold;52;7'));
+		const again = await commitImport(
+			db,
+			actor,
+			csv.replace(`${RUN}-P0-GOLD`.toUpperCase() + ';gold;52;0', `${RUN}-P0-GOLD`.toUpperCase() + ';gold;52;7')
+		);
 		expect(again.summary.update).toBe(45);
-		const [v0] = await db.select({ stock: variants.stock }).from(variants).where(eq(variants.sku, `${RUN}-P0-GOLD`.toUpperCase()));
+		const [v0] = await db
+			.select({ stock: variants.stock })
+			.from(variants)
+			.where(eq(variants.sku, `${RUN}-P0-GOLD`.toUpperCase()));
 		expect(v0.stock).toBe(7);
 		const exported = await exportCsv(db);
 		expect(exported).toContain(`${RUN}-P0-GOLD`.toUpperCase());

@@ -17,7 +17,12 @@ export const load: PageServerLoad = async ({ locals }) => {
 	requirePermission(locals, 'settings');
 	const { emails } = await getSettings(locals.db, ['emails']);
 	const log = await locals.db.select().from(emailLog).orderBy(desc(emailLog.createdAt)).limit(50);
-	return { emails, log, provider: locals.email.provider, crumbs: [{ label: 'Instellingen', href: '/admin/settings' }, { label: 'E-mails' }] };
+	return {
+		emails,
+		log,
+		provider: locals.email.provider,
+		crumbs: [{ label: 'Instellingen', href: '/admin/settings' }, { label: 'E-mails' }]
+	};
 };
 
 export const actions: Actions = {

@@ -14,7 +14,11 @@ test('root redirects by Accept-Language and the home page renders', async ({ pag
 
 test('language switch keeps the current page', async ({ page }) => {
 	await page.goto('/nl/winkelmand');
-	const fr = page.locator('nav').filter({ hasText: 'FR' }).first().getByRole('link', { name: /Français|FR/ });
+	const fr = page
+		.locator('nav')
+		.filter({ hasText: 'FR' })
+		.first()
+		.getByRole('link', { name: /Français|FR/ });
 	if (await fr.count()) {
 		await fr.first().click();
 		await expect(page).toHaveURL(/\/fr\/panier/);

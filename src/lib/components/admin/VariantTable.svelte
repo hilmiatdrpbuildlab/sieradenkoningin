@@ -4,9 +4,18 @@
   The matrix generator works with JS (instant rows) and without (fields `matrix.*` are expanded on save).
 -->
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import Icon from '#lib/components/ui/Icon.svelte';
 	import Button from '#lib/components/ui/Button.svelte';
-	import { METALS, METAL_LABELS, parseSizes, skuFor, variantMatrix, type MetalValue, type VariantModel } from '#lib/schemas/product.ts';
+	import {
+		METALS,
+		METAL_LABELS,
+		parseSizes,
+		skuFor,
+		variantMatrix,
+		type MetalValue,
+		type VariantModel
+	} from '#lib/schemas/product.ts';
 
 	interface Props {
 		variants: VariantModel[];
@@ -17,9 +26,7 @@
 	let { variants = $bindable(), slug, errors = {}, onchange }: Props = $props();
 
 	let mounted = $state(false);
-	$effect(() => {
-		mounted = true;
-	});
+	onMount(() => (mounted = true));
 	let matrixMetals = $state<MetalValue[]>([]);
 	let matrixSizes = $state('');
 	let status = $state('');
@@ -29,8 +36,20 @@
 
 	function generate() {
 		const existing = new Set(variants.map((v) => `${v.metal}|${v.size.trim()}`));
-		const add = variantMatrix(slug || 'product', matrixMetals, parseSizes(matrixSizes)).filter((r) => !existing.has(`${r.metal}|${r.size}`));
-		variants = [...variants, ...add.map((r) => ({ sku: r.sku, metal: r.metal, size: r.size, stock: '0', priceOverride: '', lowStockThreshold: '2' }))];
+		const add = variantMatrix(slug || 'product', matrixMetals, parseSizes(matrixSizes)).filter(
+			(r) => !existing.has(`${r.metal}|${r.size}`)
+		);
+		variants = [
+			...variants,
+			...add.map((r) => ({
+				sku: r.sku,
+				metal: r.metal,
+				size: r.size,
+				stock: '0',
+				priceOverride: '',
+				lowStockThreshold: '2'
+			}))
+		];
 		status = add.length ? `${add.length} varianten toegevoegd` : 'Geen nieuwe combinaties';
 		matrixMetals = [];
 		matrixSizes = '';
@@ -38,7 +57,10 @@
 	}
 	function addRow() {
 		const metal = (variants.at(-1)?.metal as MetalValue) ?? 'gold';
-		variants = [...variants, { sku: skuFor(slug || 'product', metal), metal, size: '', stock: '0', priceOverride: '', lowStockThreshold: '2' }];
+		variants = [
+			...variants,
+			{ sku: skuFor(slug || 'product', metal), metal, size: '', stock: '0', priceOverride: '', lowStockThreshold: '2' }
+		];
 		onchange?.();
 	}
 	function toggleRemove(i: number) {
@@ -87,43 +109,114 @@
 							{#if v.id}<input type="hidden" name="variants.{i}.id" value={v.id} />{/if}
 							{#if mounted && v.remove}<input type="hidden" name="variants.{i}.remove" value="on" />{/if}
 							<label class="sr-only" for="v{i}-metal">Metaal variant {i + 1}</label>
-							<select id="v{i}-metal" name="variants.{i}.metal" bind:value={v.metal} onchange={() => (suggestSku(i), onchange?.())} disabled={!!v.remove}>
+							<select
+								id="v{i}-metal"
+								name="variants.{i}.metal"
+								bind:value={v.metal}
+								onchange={() => (suggestSku(i), onchange?.())}
+								disabled={!!v.remove}
+							>
 								{#each METALS as m (m)}<option value={m}>{METAL_LABELS[m]}</option>{/each}
 							</select>
 						</td>
 						<td>
 							<label class="sr-only" for="v{i}-size">Maat variant {i + 1}</label>
-							<input id="v{i}-size" class="sm" name="variants.{i}.size" bind:value={v.size} oninput={() => (suggestSku(i), onchange?.())} placeholder="—" readonly={!!v.remove} aria-invalid={!!e(i, 'size') || undefined} />
+							<input
+								id="v{i}-size"
+								class="sm"
+								name="variants.{i}.size"
+								bind:value={v.size}
+								oninput={() => (suggestSku(i), onchange?.())}
+								placeholder="—"
+								readonly={!!v.remove}
+								aria-invalid={!!e(i, 'size') || undefined}
+							/>
 							{#if e(i, 'size')}<p class="error"><Icon name="alert" size={12} />{e(i, 'size')}</p>{/if}
 						</td>
 						<td>
 							<label class="sr-only" for="v{i}-sku">SKU variant {i + 1}</label>
-							<input id="v{i}-sku" class="sku" name="variants.{i}.sku" bind:value={v.sku} oninput={onchange} readonly={!!v.remove} aria-invalid={!!e(i, 'sku') || undefined} />
+							<input
+								id="v{i}-sku"
+								class="sku"
+								name="variants.{i}.sku"
+								bind:value={v.sku}
+								oninput={onchange}
+								readonly={!!v.remove}
+								aria-invalid={!!e(i, 'sku') || undefined}
+							/>
 							{#if e(i, 'sku')}<p class="error"><Icon name="alert" size={12} />{e(i, 'sku')}</p>{/if}
 						</td>
 						<td class="num">
 							<label class="sr-only" for="v{i}-stock">Voorraad variant {i + 1}</label>
-							<input id="v{i}-stock" class="xs" type="number" min="0" step="1" name="variants.{i}.stock" bind:value={v.stock} oninput={onchange} readonly={!!v.remove} aria-invalid={!!e(i, 'stock') || undefined} />
+							<input
+								id="v{i}-stock"
+								class="xs"
+								type="number"
+								min="0"
+								step="1"
+								name="variants.{i}.stock"
+								bind:value={v.stock}
+								oninput={onchange}
+								readonly={!!v.remove}
+								aria-invalid={!!e(i, 'stock') || undefined}
+							/>
 							{#if e(i, 'stock')}<p class="error"><Icon name="alert" size={12} />{e(i, 'stock')}</p>{/if}
 						</td>
 						<td class="num">
 							<label class="sr-only" for="v{i}-price">Afwijkende prijs variant {i + 1}</label>
-							<input id="v{i}-price" class="xs" inputmode="decimal" name="variants.{i}.priceOverride" bind:value={v.priceOverride} oninput={onchange} placeholder="—" readonly={!!v.remove} aria-invalid={!!e(i, 'priceOverride') || undefined} />
-							{#if e(i, 'priceOverride')}<p class="error"><Icon name="alert" size={12} />{e(i, 'priceOverride')}</p>{/if}
+							<input
+								id="v{i}-price"
+								class="xs"
+								inputmode="decimal"
+								name="variants.{i}.priceOverride"
+								bind:value={v.priceOverride}
+								oninput={onchange}
+								placeholder="—"
+								readonly={!!v.remove}
+								aria-invalid={!!e(i, 'priceOverride') || undefined}
+							/>
+							{#if e(i, 'priceOverride')}<p class="error">
+									<Icon name="alert" size={12} />{e(i, 'priceOverride')}
+								</p>{/if}
 						</td>
 						<td class="num">
 							<label class="sr-only" for="v{i}-low">Lage-voorraaddrempel variant {i + 1}</label>
-							<input id="v{i}-low" class="xs" type="number" min="0" step="1" name="variants.{i}.lowStockThreshold" bind:value={v.lowStockThreshold} oninput={onchange} readonly={!!v.remove} />
+							<input
+								id="v{i}-low"
+								class="xs"
+								type="number"
+								min="0"
+								step="1"
+								name="variants.{i}.lowStockThreshold"
+								bind:value={v.lowStockThreshold}
+								oninput={onchange}
+								readonly={!!v.remove}
+							/>
 						</td>
 						<td class="act">
 							{#if mounted}
-								<button type="button" aria-label="Variant {i + 1} omhoog" disabled={i === 0} onclick={() => move(i, -1)}><Icon name="arrow-up" size={14} /></button>
-								<button type="button" aria-label="Variant {i + 1} omlaag" disabled={i === variants.length - 1} onclick={() => move(i, 1)}><Icon name="arrow-down" size={14} /></button>
-								<button type="button" aria-label={v.remove ? `Verwijderen van ${v.sku} ongedaan maken` : `Variant ${v.sku || i + 1} verwijderen`} onclick={() => toggleRemove(i)}>
+								<button type="button" aria-label="Variant {i + 1} omhoog" disabled={i === 0} onclick={() => move(i, -1)}
+									><Icon name="arrow-up" size={14} /></button
+								>
+								<button
+									type="button"
+									aria-label="Variant {i + 1} omlaag"
+									disabled={i === variants.length - 1}
+									onclick={() => move(i, 1)}><Icon name="arrow-down" size={14} /></button
+								>
+								<button
+									type="button"
+									aria-label={v.remove
+										? `Verwijderen van ${v.sku} ongedaan maken`
+										: `Variant ${v.sku || i + 1} verwijderen`}
+									onclick={() => toggleRemove(i)}
+								>
 									<Icon name={v.remove ? 'refresh' : 'trash'} size={14} />
 								</button>
 							{:else}
-								<label class="rm"><input type="checkbox" name="variants.{i}.remove" checked={!!v.remove} /> Verwijderen</label>
+								<label class="rm"
+									><input type="checkbox" name="variants.{i}.remove" checked={!!v.remove} /> Verwijderen</label
+								>
 							{/if}
 						</td>
 					</tr>
@@ -139,7 +232,9 @@
 		<legend>Varianten genereren (metaal × maat)</legend>
 		<div class="metals">
 			{#each METALS as m (m)}
-				<label><input type="checkbox" name="matrix.metals" value={m} bind:group={matrixMetals} /> {METAL_LABELS[m]}</label>
+				<label
+					><input type="checkbox" name="matrix.metals" value={m} bind:group={matrixMetals} /> {METAL_LABELS[m]}</label
+				>
 			{/each}
 		</div>
 		<label class="sizes">
@@ -148,7 +243,9 @@
 		</label>
 		{#if mounted}
 			<div class="gen">
-				<Button size="sm" variant="outline" icon="layers" onclick={generate} disabled={!matrixMetals.length}>Genereer</Button>
+				<Button size="sm" variant="outline" icon="layers" onclick={generate} disabled={!matrixMetals.length}
+					>Genereer</Button
+				>
 				<Button size="sm" variant="ghost" icon="plus" onclick={addRow}>Losse variant</Button>
 			</div>
 		{:else}

@@ -1,7 +1,10 @@
 <!-- @component Badge — small label pill. Tone is never the only signal: always pass meaningful text. -->
 <script lang="ts">
 	import type { Snippet } from 'svelte';
-	let { tone = 'neutral', children }: { tone?: 'neutral' | 'success' | 'warning' | 'danger' | 'info' | 'gold' | 'sale'; children: Snippet } = $props();
+	let {
+		tone = 'neutral',
+		children
+	}: { tone?: 'neutral' | 'success' | 'warning' | 'danger' | 'info' | 'gold' | 'sale'; children: Snippet } = $props();
 </script>
 
 <span class="badge badge--{tone}">{@render children()}</span>

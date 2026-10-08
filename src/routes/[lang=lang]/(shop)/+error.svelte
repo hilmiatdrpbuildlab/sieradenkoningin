@@ -22,7 +22,8 @@
 	<p class="text">{notFound ? m.error_404_text() : m.error_500_text()}</p>
 	<div class="ctas">
 		<Button href="/{lang}">{m.error_back_home()}</Button>
-		{#if notFound}<Button href={localizeHref('/search', lang)} variant="outline" icon="search">{m.nav_search()}</Button>{/if}
+		{#if notFound}<Button href={localizeHref('/search', lang)} variant="outline" icon="search">{m.nav_search()}</Button
+			>{/if}
 	</div>
 </section>
 

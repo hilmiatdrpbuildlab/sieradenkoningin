@@ -19,7 +19,13 @@ import {
 import { audit, diffObjects } from './audit.ts';
 import { ensureMedia, MediaError } from './media.ts';
 import { applyStockDelta, StockError } from './inventory.ts';
-import { activationErrors, emptyI18n, type I18nModel, type ProductFormModel, type ProductInput } from '#lib/schemas/product.ts';
+import {
+	activationErrors,
+	emptyI18n,
+	type I18nModel,
+	type ProductFormModel,
+	type ProductInput
+} from '#lib/schemas/product.ts';
 import { centsToInput } from '#lib/utils/format.ts';
 import { uniqueSlug } from '#lib/utils/slug.ts';
 
@@ -48,7 +54,9 @@ export interface ProductListParams {
 
 const stockSql = sql<number>`coalesce((select sum(v.stock) from variants v where v.product_id = "products"."id"), 0)::int`;
 const variantCountSql = sql<number>`(select count(*) from variants v where v.product_id = "products"."id")::int`;
-const primaryImageSql = sql<string | null>`(select m.storage_key from product_images pi join media m on m.id = pi.media_id
+const primaryImageSql = sql<
+	string | null
+>`(select m.storage_key from product_images pi join media m on m.id = pi.media_id
 	where pi.product_id = "products"."id" order by pi.position limit 1)`;
 
 export async function listProducts(db: Executor, p: ProductListParams = {}) {
@@ -101,7 +109,10 @@ export async function listProducts(db: Executor, p: ProductListParams = {}) {
 			.orderBy(dirFn(sortCol), desc(products.id))
 			.limit(pageSize)
 			.offset((page - 1) * pageSize),
-		db.select({ n: sql<number>`count(*)::int` }).from(products).where(where)
+		db
+			.select({ n: sql<number>`count(*)::int` })
+			.from(products)
+			.where(where)
 	]);
 	return { rows, total: n, page, pageSize };
 }
@@ -117,9 +128,17 @@ export async function categoryOptions(db: Executor) {
 /** Lightweight list for relation pickers / manual collections. */
 export async function productOptions(db: Executor, urlFor: (key: string) => string, excludeId?: string) {
 	const rows = await db
-		.select({ id: products.id, name: sql<string>`${products.name}->>'nl'`, slug: products.slug, status: products.status, image: primaryImageSql })
+		.select({
+			id: products.id,
+			name: sql<string>`${products.name}->>'nl'`,
+			slug: products.slug,
+			status: products.status,
+			image: primaryImageSql
+		})
 		.from(products)
-		.where(excludeId ? and(ne(products.id, excludeId), ne(products.status, 'archived')) : ne(products.status, 'archived'))
+		.where(
+			excludeId ? and(ne(products.id, excludeId), ne(products.status, 'archived')) : ne(products.status, 'archived')
+		)
 		.orderBy(sql`${products.name}->>'nl'`);
 	return rows.map((r) => ({ ...r, image: r.image ? urlFor(r.image) : null }));
 }
@@ -141,7 +160,15 @@ export async function loadProduct(db: Executor, id: string) {
 	if (!product) return null;
 	const [images, vars, rels] = await Promise.all([
 		db
-			.select({ id: productImages.id, mediaId: productImages.mediaId, alt: productImages.alt, key: media.storageKey, width: media.width, height: media.height, bytes: media.bytes })
+			.select({
+				id: productImages.id,
+				mediaId: productImages.mediaId,
+				alt: productImages.alt,
+				key: media.storageKey,
+				width: media.width,
+				height: media.height,
+				bytes: media.bytes
+			})
 			.from(productImages)
 			.innerJoin(media, eq(media.id, productImages.mediaId))
 			.where(eq(productImages.productId, id))
@@ -156,7 +183,10 @@ export async function loadProduct(db: Executor, id: string) {
 	return { product, images, variants: vars, relations: rels };
 }
 
-export function modelFromProduct(data: NonNullable<Awaited<ReturnType<typeof loadProduct>>>, urlFor: (key: string) => string): ProductFormModel {
+export function modelFromProduct(
+	data: NonNullable<Awaited<ReturnType<typeof loadProduct>>>,
+	urlFor: (key: string) => string
+): ProductFormModel {
 	const p = data.product;
 	return {
 		slug: p.slug,
@@ -180,7 +210,10 @@ export function modelFromProduct(data: NonNullable<Awaited<ReturnType<typeof loa
 			contact: p.gpsr?.contact ?? '',
 			safetyInfo: toModel(p.gpsr?.safetyInfo)
 		},
-		seo: { title: p.seo?.title ? toModel(p.seo.title) : emptyI18n(), description: p.seo?.description ? toModel(p.seo.description) : emptyI18n() },
+		seo: {
+			title: p.seo?.title ? toModel(p.seo.title) : emptyI18n(),
+			description: p.seo?.description ? toModel(p.seo.description) : emptyI18n()
+		},
 		images: data.images.map((i) => ({
 			mediaId: i.mediaId,
 			key: i.key,
@@ -221,7 +254,13 @@ export interface ExtraImage {
  * Creates (id = null) or updates a product inside the given transaction. Throws ValidationError with
  * field errors for business-rule violations (unique slug/SKU, activation rule, negative stock).
  */
-export async function saveProduct(tx: Executor, actor: Actor, id: string | null, input: ProductInput, extraImages: ExtraImage[] = []) {
+export async function saveProduct(
+	tx: Executor,
+	actor: Actor,
+	id: string | null,
+	input: ProductInput,
+	extraImages: ExtraImage[] = []
+) {
 	const errors: Record<string, string[]> = {};
 	const add = (k: string, msg: string) => (errors[k] ??= []).push(msg);
 
@@ -253,23 +292,35 @@ export async function saveProduct(tx: Executor, actor: Actor, id: string | null,
 			.from(variants)
 			.where(id ? and(inArray(variants.sku, skus), ne(variants.productId, id)) : inArray(variants.sku, skus));
 		const taken = new Set(clashes.map((c) => c.sku));
-		for (const v of keptVariants) if (taken.has(v.sku)) add(`variants.${v.index}.sku`, 'Deze SKU bestaat al bij een ander product');
+		for (const v of keptVariants)
+			if (taken.has(v.sku)) add(`variants.${v.index}.sku`, 'Deze SKU bestaat al bij een ander product');
 	}
 
 	// Images: resolve media ids; keep the posted order (or explicit positions without JS)
 	const keptImages = input.images
 		.map((im, i) => ({ ...im, index: i }))
 		.filter((im) => !im.remove)
-		.sort((a, b) => (Number.isFinite(a.position) && Number.isFinite(b.position) ? a.position - b.position : a.index - b.index));
+		.sort((a, b) =>
+			Number.isFinite(a.position) && Number.isFinite(b.position) ? a.position - b.position : a.index - b.index
+		);
 	const resolved: { mediaId: string; alt: I18n; index: number }[] = [];
 	for (const im of keptImages) {
 		try {
 			let mediaId = im.mediaId;
 			if (mediaId) {
-				const [m] = await tx.select({ id: media.id, deletedAt: media.deletedAt }).from(media).where(eq(media.id, mediaId));
+				const [m] = await tx
+					.select({ id: media.id, deletedAt: media.deletedAt })
+					.from(media)
+					.where(eq(media.id, mediaId));
 				if (!m || m.deletedAt) throw new MediaError('Afbeelding bestaat niet meer');
 			} else {
-				mediaId = await ensureMedia(tx, { key: im.key!, width: im.width, height: im.height, bytes: im.bytes, alt: im.alt });
+				mediaId = await ensureMedia(tx, {
+					key: im.key!,
+					width: im.width,
+					height: im.height,
+					bytes: im.bytes,
+					alt: im.alt
+				});
 			}
 			resolved.push({ mediaId, alt: im.alt, index: im.index });
 		} catch (e) {
@@ -278,7 +329,11 @@ export async function saveProduct(tx: Executor, actor: Actor, id: string | null,
 		}
 	}
 	for (const x of extraImages) {
-		resolved.push({ mediaId: await ensureMedia(tx, { key: x.key, width: x.width, height: x.height, bytes: x.bytes }), alt: { nl: '' }, index: -1 });
+		resolved.push({
+			mediaId: await ensureMedia(tx, { key: x.key, width: x.width, height: x.height, bytes: x.bytes }),
+			alt: { nl: '' },
+			index: -1
+		});
 	}
 
 	Object.assign(
@@ -328,7 +383,9 @@ export async function saveProduct(tx: Executor, actor: Actor, id: string | null,
 	// Images (replace the ordered list; media rows themselves are kept for the library)
 	await tx.delete(productImages).where(eq(productImages.productId, productId));
 	if (resolved.length) {
-		await tx.insert(productImages).values(resolved.map((r, position) => ({ productId, mediaId: r.mediaId, alt: r.alt, position })));
+		await tx
+			.insert(productImages)
+			.values(resolved.map((r, position) => ({ productId, mediaId: r.mediaId, alt: r.alt, position })));
 		// Seed the library alt text from the first usage when the media item has none yet.
 		for (const r of resolved)
 			if (r.alt.nl)
@@ -341,24 +398,45 @@ export async function saveProduct(tx: Executor, actor: Actor, id: string | null,
 	// Variants
 	const actorName = actor.admin?.name ?? null;
 	const removedIds = input.variants.filter((v) => v.remove && v.id).map((v) => v.id!);
-	if (removedIds.length) await tx.delete(variants).where(and(eq(variants.productId, productId), inArray(variants.id, removedIds)));
+	if (removedIds.length)
+		await tx.delete(variants).where(and(eq(variants.productId, productId), inArray(variants.id, removedIds)));
 	const byId = new Map(existingVariants.map((v) => [v.id, v]));
 	// Free SKUs that change hands within this product (A↔B swap) before rewriting them.
 	const renamed = keptVariants.filter((v) => v.id && byId.get(v.id)!.sku !== v.sku);
-	for (const v of renamed) await tx.update(variants).set({ sku: `__tmp_${v.id}` }).where(eq(variants.id, v.id!));
+	for (const v of renamed)
+		await tx
+			.update(variants)
+			.set({ sku: `__tmp_${v.id}` })
+			.where(eq(variants.id, v.id!));
 	let position = 0;
 	for (const v of keptVariants) {
-		const common = { sku: v.sku, metal: v.metal, size: v.size, priceOverride: v.priceOverride, lowStockThreshold: v.lowStockThreshold, position: position++ };
+		const common = {
+			sku: v.sku,
+			metal: v.metal,
+			size: v.size,
+			priceOverride: v.priceOverride,
+			lowStockThreshold: v.lowStockThreshold,
+			position: position++
+		};
 		if (v.id) {
-
 			await tx
 				.update(variants)
 				.set({ ...common, updatedAt: new Date() })
 				.where(eq(variants.id, v.id));
-			const [{ stock: current }] = await tx.select({ stock: variants.stock }).from(variants).where(eq(variants.id, v.id)).for('update');
+			const [{ stock: current }] = await tx
+				.select({ stock: variants.stock })
+				.from(variants)
+				.where(eq(variants.id, v.id))
+				.for('update');
 			if (v.stock !== current) {
 				try {
-					await applyStockDelta(tx, { variantId: v.id, delta: v.stock - current, reason: 'adjust', note: 'Productformulier', actor: actorName });
+					await applyStockDelta(tx, {
+						variantId: v.id,
+						delta: v.stock - current,
+						reason: 'adjust',
+						note: 'Productformulier',
+						actor: actorName
+					});
 				} catch (e) {
 					if (e instanceof StockError) throw new ValidationError({ [`variants.${v.index}.stock`]: [e.message] });
 					throw e;
@@ -369,15 +447,26 @@ export async function saveProduct(tx: Executor, actor: Actor, id: string | null,
 				.insert(variants)
 				.values({ ...common, productId, stock: 0 })
 				.returning({ id: variants.id });
-			if (v.stock > 0) await applyStockDelta(tx, { variantId: row.id, delta: v.stock, reason: 'adjust', note: 'Nieuwe variant', actor: actorName });
+			if (v.stock > 0)
+				await applyStockDelta(tx, {
+					variantId: row.id,
+					delta: v.stock,
+					reason: 'adjust',
+					note: 'Nieuwe variant',
+					actor: actorName
+				});
 		}
 	}
 
 	// Relations
 	await tx.delete(productRelations).where(eq(productRelations.productId, productId));
 	const rel = [
-		...input.related.filter((r) => r !== productId).map((relatedId, position) => ({ productId, relatedId, kind: 'related' as const, position })),
-		...input.completeSet.filter((r) => r !== productId).map((relatedId, position) => ({ productId, relatedId, kind: 'complete_set' as const, position }))
+		...input.related
+			.filter((r) => r !== productId)
+			.map((relatedId, position) => ({ productId, relatedId, kind: 'related' as const, position })),
+		...input.completeSet
+			.filter((r) => r !== productId)
+			.map((relatedId, position) => ({ productId, relatedId, kind: 'complete_set' as const, position }))
 	];
 	if (rel.length) {
 		const existing = await tx
@@ -389,12 +478,24 @@ export async function saveProduct(tx: Executor, actor: Actor, id: string | null,
 		if (valid.length) await tx.insert(productRelations).values(valid);
 	}
 
-	const after = { ...values, images: resolved.length, variants: keptVariants.length, related: input.related.length, completeSet: input.completeSet.length };
+	const after = {
+		...values,
+		images: resolved.length,
+		variants: keptVariants.length,
+		related: input.related.length,
+		completeSet: input.completeSet.length
+	};
 	await audit(tx, actor, {
 		action: before ? 'update' : 'create',
 		entity: 'product',
 		entityId: productId,
-		diff: before ? { ...diffObjects(before as unknown as Record<string, unknown>, values), images: resolved.length, variants: keptVariants.length } : after
+		diff: before
+			? {
+					...diffObjects(before as unknown as Record<string, unknown>, values),
+					images: resolved.length,
+					variants: keptVariants.length
+				}
+			: after
 	});
 	return productId;
 }
@@ -422,7 +523,11 @@ export async function duplicateProduct(tx: Executor, actor: Actor, id: string): 
 	const data = await loadProduct(tx, id);
 	if (!data) throw new ValidationError({ _: ['Product niet gevonden'] });
 	const p = data.product;
-	const slug = await uniqueSlug(p.slug, async (s) => (await tx.select({ id: products.id }).from(products).where(eq(products.slug, s))).length > 0, 'kopie');
+	const slug = await uniqueSlug(
+		p.slug,
+		async (s) => (await tx.select({ id: products.id }).from(products).where(eq(products.slug, s))).length > 0,
+		'kopie'
+	);
 	const [row] = await tx
 		.insert(products)
 		.values({
@@ -448,13 +553,28 @@ export async function duplicateProduct(tx: Executor, actor: Actor, id: string): 
 	const newId = row.id;
 	await tx.insert(priceHistory).values({ productId: newId, price: p.price });
 	if (data.images.length)
-		await tx.insert(productImages).values(data.images.map((im, position) => ({ productId: newId, mediaId: im.mediaId, alt: im.alt, position })));
+		await tx
+			.insert(productImages)
+			.values(data.images.map((im, position) => ({ productId: newId, mediaId: im.mediaId, alt: im.alt, position })));
 	for (const v of data.variants) {
 		const sku = await uniqueSku(tx, `${v.sku}-K`);
-		await tx.insert(variants).values({ productId: newId, sku, metal: v.metal, size: v.size, priceOverride: v.priceOverride, stock: 0, lowStockThreshold: v.lowStockThreshold, position: v.position });
+		await tx.insert(variants).values({
+			productId: newId,
+			sku,
+			metal: v.metal,
+			size: v.size,
+			priceOverride: v.priceOverride,
+			stock: 0,
+			lowStockThreshold: v.lowStockThreshold,
+			position: v.position
+		});
 	}
 	if (data.relations.length)
-		await tx.insert(productRelations).values(data.relations.map((r, position) => ({ productId: newId, relatedId: r.relatedId, kind: r.kind, position })));
+		await tx
+			.insert(productRelations)
+			.values(
+				data.relations.map((r, position) => ({ productId: newId, relatedId: r.relatedId, kind: r.kind, position }))
+			);
 	await audit(tx, actor, { action: 'duplicate', entity: 'product', entityId: newId, diff: { from: id, slug } });
 	return newId;
 }
@@ -471,6 +591,14 @@ async function uniqueSku(tx: Executor, base: string) {
 export async function setProductStatus(tx: Executor, actor: Actor, id: string, status: 'archived' | 'draft') {
 	const [before] = await tx.select({ status: products.status }).from(products).where(eq(products.id, id));
 	if (!before) throw new ValidationError({ _: ['Product niet gevonden'] });
-	await tx.update(products).set({ status, featured: status === 'archived' ? false : undefined, updatedAt: new Date() }).where(eq(products.id, id));
-	await audit(tx, actor, { action: status === 'archived' ? 'archive' : 'restore', entity: 'product', entityId: id, diff: { status: [before.status, status] } });
+	await tx
+		.update(products)
+		.set({ status, featured: status === 'archived' ? false : undefined, updatedAt: new Date() })
+		.where(eq(products.id, id));
+	await audit(tx, actor, {
+		action: status === 'archived' ? 'archive' : 'restore',
+		entity: 'product',
+		entityId: id,
+		diff: { status: [before.status, status] }
+	});
 }

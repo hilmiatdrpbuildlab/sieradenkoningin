@@ -28,14 +28,40 @@ const seoSchema = z.object({ title: i18nOptional(70), description: i18nOptional(
  * slug may not shadow them.
  */
 export const RESERVED_SLUGS = new Set([
-	'p', 'c', 'api', 'admin', 'media', 'zoeken', 'recherche', 'verlanglijst', 'liste-de-souhaits', 'winkelmand', 'panier',
-	'afrekenen', 'commande', 'bedankt', 'merci', 'betalen', 'paiement', 'bestelling-volgen', 'suivi-commande', 'collectie',
-	'collection', 'account', 'compte', 'nieuwsbrief', 'newsletter', 'faq', 'contact', 'journal'
+	'p',
+	'c',
+	'api',
+	'admin',
+	'media',
+	'zoeken',
+	'recherche',
+	'verlanglijst',
+	'liste-de-souhaits',
+	'winkelmand',
+	'panier',
+	'afrekenen',
+	'commande',
+	'bedankt',
+	'merci',
+	'betalen',
+	'paiement',
+	'bestelling-volgen',
+	'suivi-commande',
+	'collectie',
+	'collection',
+	'account',
+	'compte',
+	'nieuwsbrief',
+	'newsletter',
+	'faq',
+	'contact',
+	'journal'
 ]);
 
 const notReserved = (s: { nl: string; fr: string }, ctx: z.RefinementCtx) => {
 	for (const lang of ['nl', 'fr'] as const)
-		if (RESERVED_SLUGS.has(s[lang])) ctx.addIssue({ code: 'custom', path: ['slugs', lang], message: 'Deze slug is gereserveerd door de winkel' });
+		if (RESERVED_SLUGS.has(s[lang]))
+			ctx.addIssue({ code: 'custom', path: ['slugs', lang], message: 'Deze slug is gereserveerd door de winkel' });
 };
 
 export const categorySchema = z
@@ -114,7 +140,9 @@ export const collectionSchema = z
 		products: z
 			.union([z.string(), z.array(z.string())])
 			.optional()
-			.transform((v) => [...new Set((Array.isArray(v) ? v : v ? [v] : []).filter((x) => z.uuid().safeParse(x).success))])
+			.transform((v) => [
+				...new Set((Array.isArray(v) ? v : v ? [v] : []).filter((x) => z.uuid().safeParse(x).success))
+			])
 	})
 	.superRefine((c, ctx) => {
 		notReserved(c.slugs, ctx);
@@ -171,6 +199,10 @@ export function toCollectionModel(raw: Record<string, unknown>): CollectionModel
 			onSale: rule.onSale === true || rule.onSale === 'on' ? 'on' : undefined,
 			priceLt: typeof rule.priceLt === 'number' ? (rule.priceLt / 100).toFixed(2).replace('.', ',') : s(rule.priceLt)
 		},
-		products: Array.isArray(products) ? products.filter((x): x is string => typeof x === 'string') : typeof products === 'string' ? [products] : []
+		products: Array.isArray(products)
+			? products.filter((x): x is string => typeof x === 'string')
+			: typeof products === 'string'
+				? [products]
+				: []
 	};
 }

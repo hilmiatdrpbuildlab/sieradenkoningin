@@ -42,8 +42,16 @@ export const actions: Actions = {
 		if (id) {
 			const [before] = await locals.db.select().from(discounts).where(eq(discounts.id, id));
 			if (!before) error(404);
-			await locals.db.update(discounts).set({ ...v, updatedAt: new Date() }).where(eq(discounts.id, id));
-			await audit(locals.db, locals, { action: 'update', entity: 'discount', entityId: id, diff: diffObjects(before as never, v) });
+			await locals.db
+				.update(discounts)
+				.set({ ...v, updatedAt: new Date() })
+				.where(eq(discounts.id, id));
+			await audit(locals.db, locals, {
+				action: 'update',
+				entity: 'discount',
+				entityId: id,
+				diff: diffObjects(before as never, v)
+			});
 		} else {
 			const [row] = await locals.db.insert(discounts).values(v).returning();
 			await audit(locals.db, locals, { action: 'create', entity: 'discount', entityId: row.id, diff: v });
@@ -62,8 +70,14 @@ export const actions: Actions = {
 	delete: async ({ request, locals }) => {
 		requirePermission(locals, 'discounts:write');
 		const id = String((await request.formData()).get('id'));
-		const [{ n }] = await locals.db.select({ n: sql<number>`count(*)::int` }).from(discountRedemptions).where(eq(discountRedemptions.discountId, id));
-		if (n > 0) return fail(400, { deleteError: 'Een gebruikte code kan niet verwijderd worden (boekhouding). Deactiveer ze in de plaats.' });
+		const [{ n }] = await locals.db
+			.select({ n: sql<number>`count(*)::int` })
+			.from(discountRedemptions)
+			.where(eq(discountRedemptions.discountId, id));
+		if (n > 0)
+			return fail(400, {
+				deleteError: 'Een gebruikte code kan niet verwijderd worden (boekhouding). Deactiveer ze in de plaats.'
+			});
 		await locals.db.delete(discounts).where(eq(discounts.id, id));
 		await audit(locals.db, locals, { action: 'delete', entity: 'discount', entityId: id });
 		return { deleted: true };

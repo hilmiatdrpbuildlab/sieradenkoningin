@@ -52,7 +52,9 @@ async function audit(page: Page, path: string) {
 	const violations: string[] = [];
 	await page.addInitScript(() => {
 		(window as unknown as { __csp: string[] }).__csp = [];
-		document.addEventListener('securitypolicyviolation', (e) => (window as unknown as { __csp: string[] }).__csp.push(`${e.violatedDirective} ${e.blockedURI}`));
+		document.addEventListener('securitypolicyviolation', (e) =>
+			(window as unknown as { __csp: string[] }).__csp.push(`${e.violatedDirective} ${e.blockedURI}`)
+		);
 	});
 	// Measure at rest: reveal animations are disabled under reduced motion (contrast is sampled mid-fade otherwise).
 	await page.emulateMedia({ reducedMotion: 'reduce' });
@@ -61,10 +63,17 @@ async function audit(page: Page, path: string) {
 	// Close the consent banner the way a visitor would, so it doesn't hide content during the scan.
 	const reject = page.getByRole('button', { name: /Alles weigeren|Tout refuser/ });
 	if (await reject.isVisible().catch(() => false)) await reject.click();
-	const result = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();
+	const result = await new AxeBuilder({ page })
+		.withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
+		.analyze();
 	for (const v of result.violations) {
 		if (v.impact === 'serious' || v.impact === 'critical') {
-			violations.push(`${path}: [${v.impact}] ${v.id} — ${v.help} (${v.nodes.slice(0, 3).map((n) => n.target.join(' ')).join(' | ')})`);
+			violations.push(
+				`${path}: [${v.impact}] ${v.id} — ${v.help} (${v.nodes
+					.slice(0, 3)
+					.map((n) => n.target.join(' '))
+					.join(' | ')})`
+			);
 		}
 	}
 	const csp = await page.evaluate(() => (window as unknown as { __csp: string[] }).__csp);
@@ -73,7 +82,10 @@ async function audit(page: Page, path: string) {
 }
 
 test.describe('accessibility', () => {
-	test.skip(({ browserName }) => browserName === 'webkit', 'axe results are engine-independent; run on chromium (desktop + tablet)');
+	test.skip(
+		({ browserName }) => browserName === 'webkit',
+		'axe results are engine-independent; run on chromium (desktop + tablet)'
+	);
 
 	test('storefront has no serious/critical axe violations and no CSP violations', async ({ page }) => {
 		test.setTimeout(240_000);

@@ -3,7 +3,11 @@
 	import Icon from '#lib/components/ui/Icon.svelte';
 	import { reveal } from '#lib/actions/reveal.ts';
 	import { m } from '#lib/paraglide/messages.js';
-	let { quote, attribution, surface = 'espresso' }: { quote: string; attribution?: string; surface?: 'espresso' | 'inverse' } = $props();
+	let {
+		quote,
+		attribution,
+		surface = 'espresso'
+	}: { quote: string; attribution?: string; surface?: 'espresso' | 'inverse' } = $props();
 </script>
 
 <section class="band" data-surface={surface} aria-label={m.quote_label()}>

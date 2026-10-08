@@ -44,7 +44,11 @@
 			<button type="submit" disabled={status === 'sending'}>{m.newsletter_submit()}</button>
 		</div>
 		<p id="nl{uid}-hint" class="hint" role={status === 'invalid' || status === 'error' ? 'alert' : undefined}>
-			{status === 'invalid' ? m.newsletter_invalid() : status === 'error' ? m.newsletter_error() : m.newsletter_consent()}
+			{status === 'invalid'
+				? m.newsletter_invalid()
+				: status === 'error'
+					? m.newsletter_error()
+					: m.newsletter_consent()}
 		</p>
 	{/if}
 </form>

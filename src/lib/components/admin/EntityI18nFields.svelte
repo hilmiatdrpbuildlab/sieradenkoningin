@@ -34,17 +34,44 @@
 		<Field label="Naam ({lang.toUpperCase()})" error={e(`name.${lang}`)} required>
 			<Input name="name.{lang}" bind:value={model.name[lang]} maxlength={120} />
 		</Field>
-		<Field label="Slug ({lang.toUpperCase()})" hint="{prefix[lang]}{model.slugs[lang] || '…'}" error={e(`slugs.${lang}`)} required>
-			<Input name="slugs.{lang}" bind:value={model.slugs[lang]} autocomplete="off" spellcheck="false" oninput={() => (auto[lang] = false)} />
+		<Field
+			label="Slug ({lang.toUpperCase()})"
+			hint="{prefix[lang]}{model.slugs[lang] || '…'}"
+			error={e(`slugs.${lang}`)}
+			required
+		>
+			<Input
+				name="slugs.{lang}"
+				bind:value={model.slugs[lang]}
+				autocomplete="off"
+				spellcheck="false"
+				oninput={() => (auto[lang] = false)}
+			/>
 		</Field>
-		<Field label="Omschrijving ({lang.toUpperCase()})" hint="Introtekst bovenaan de pagina." error={e(`description.${lang}`)} optional>
+		<Field
+			label="Omschrijving ({lang.toUpperCase()})"
+			hint="Introtekst bovenaan de pagina."
+			error={e(`description.${lang}`)}
+			optional
+		>
 			<Textarea name="description.{lang}" bind:value={model.description[lang]} rows={4} />
 		</Field>
-		<Field label="SEO-titel ({lang.toUpperCase()})" hint="Leeg = naam. Ideaal ≤ 60 tekens." error={e(`seo.title.${lang}`)} optional>
+		<Field
+			label="SEO-titel ({lang.toUpperCase()})"
+			hint="Leeg = naam. Ideaal ≤ 60 tekens."
+			error={e(`seo.title.${lang}`)}
+			optional
+		>
 			<Input name="seo.title.{lang}" bind:value={model.seo.title[lang]} maxlength={70} />
 		</Field>
 		<Field label="Meta-omschrijving ({lang.toUpperCase()})" error={e(`seo.description.${lang}`)} optional>
-			<Textarea name="seo.description.{lang}" bind:value={model.seo.description[lang]} rows={2} maxlength={170} counter />
+			<Textarea
+				name="seo.description.{lang}"
+				bind:value={model.seo.description[lang]}
+				rows={2}
+				maxlength={170}
+				counter
+			/>
 		</Field>
 	{/snippet}
 </I18nTabs>

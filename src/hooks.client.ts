@@ -19,7 +19,16 @@ export const handleError: HandleClientError = ({ error, event, kind }) => {
 	try {
 		navigator.sendBeacon?.(
 			'/api/client-error',
-			new Blob([JSON.stringify({ message: e.message.slice(0, 1000), stack: e.stack?.slice(0, 5000), path: event.url.pathname })], { type: 'application/json' })
+			new Blob(
+				[
+					JSON.stringify({
+						message: e.message.slice(0, 1000),
+						stack: e.stack?.slice(0, 5000),
+						path: event.url.pathname
+					})
+				],
+				{ type: 'application/json' }
+			)
 		);
 	} catch {
 		/* ignore */

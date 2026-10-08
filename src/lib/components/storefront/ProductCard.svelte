@@ -60,7 +60,17 @@
 			decoding="async"
 		/>
 		{#if secondary}
-			<img class="img img--secondary" src={secondary.src} srcset={secondary.srcset} {sizes} alt="" width="800" height="1000" loading="lazy" decoding="async" />
+			<img
+				class="img img--secondary"
+				src={secondary.src}
+				srcset={secondary.srcset}
+				{sizes}
+				alt=""
+				width="800"
+				height="1000"
+				loading="lazy"
+				decoding="async"
+			/>
 		{/if}
 
 		{#if product.inStock === false}
@@ -81,7 +91,12 @@
 		</button>
 
 		{#if product.inStock !== false}
-			<button class="quick" onclick={quickAdd} aria-label={m.quick_add_label({ name: product.name })} disabled={cart.pending}>
+			<button
+				class="quick"
+				onclick={quickAdd}
+				aria-label={m.quick_add_label({ name: product.name })}
+				disabled={cart.pending}
+			>
 				<Icon name="bag" size={16} />
 				<span class="quick-label">{product.quickAddVariantId ? m.quick_add() : m.quick_choose()}</span>
 			</button>
@@ -89,7 +104,9 @@
 	</div>
 
 	<div class="body">
-		<svelte:element this={`h${headingLevel}`} class="name"><a href={product.href} class="stretched">{product.name}</a></svelte:element>
+		<svelte:element this={`h${headingLevel}`} class="name"
+			><a href={product.href} class="stretched">{product.name}</a></svelte:element
+		>
 		{#if product.material}<p class="material">{product.material}</p>{/if}
 		<p class="price">
 			{#if onSale}
@@ -101,7 +118,9 @@
 		</p>
 		{#if product.metals?.length}
 			<ul class="metals" aria-label={m.available_in()}>
-				{#each product.metals as metal (metal)}<li class="swatch swatch--{metal}"><span class="sr-only">{metalName[metal]}</span></li>{/each}
+				{#each product.metals as metal (metal)}<li class="swatch swatch--{metal}">
+						<span class="sr-only">{metalName[metal]}</span>
+					</li>{/each}
 			</ul>
 		{/if}
 	</div>

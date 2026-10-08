@@ -5,6 +5,7 @@
   (checkboxes) are applied by the server on save — see `applyListEdits()`.
 -->
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import Icon from '#lib/components/ui/Icon.svelte';
 
 	interface Option {
@@ -25,9 +26,7 @@
 	let { name, label, ids = $bindable(), options, hint, max = 24, onchange }: Props = $props();
 
 	let mounted = $state(false);
-	$effect(() => {
-		mounted = true;
-	});
+	onMount(() => (mounted = true));
 	let dragIndex = $state<number | null>(null);
 	let status = $state('');
 	const uid = $props.id();
@@ -77,13 +76,27 @@
 					<input type="hidden" {name} value={id} />
 					{#if mounted}<span class="grip" aria-hidden="true"><Icon name="grip" size={14} /></span>{/if}
 					<span class="pos">{i + 1}</span>
-					{#if o?.image}<img src={o.image} alt="" width="32" height="40" />{:else}<span class="ph" aria-hidden="true"></span>{/if}
-					<span class="name">{o?.name ?? 'Onbekend product'}{#if o?.status && o.status !== 'active'}<small> · {o.status === 'draft' ? 'concept' : 'gearchiveerd'}</small>{/if}</span>
+					{#if o?.image}<img src={o.image} alt="" width="32" height="40" />{:else}<span class="ph" aria-hidden="true"
+						></span>{/if}
+					<span class="name"
+						>{o?.name ?? 'Onbekend product'}{#if o?.status && o.status !== 'active'}<small>
+								· {o.status === 'draft' ? 'concept' : 'gearchiveerd'}</small
+							>{/if}</span
+					>
 					{#if mounted}
 						<span class="btns">
-							<button type="button" aria-label="{o?.name} omhoog" disabled={i === 0} onclick={() => move(i, i - 1)}><Icon name="arrow-up" size={14} /></button>
-							<button type="button" aria-label="{o?.name} omlaag" disabled={i === ids.length - 1} onclick={() => move(i, i + 1)}><Icon name="arrow-down" size={14} /></button>
-							<button type="button" aria-label="{o?.name} verwijderen" onclick={() => remove(i)}><Icon name="close" size={14} /></button>
+							<button type="button" aria-label="{o?.name} omhoog" disabled={i === 0} onclick={() => move(i, i - 1)}
+								><Icon name="arrow-up" size={14} /></button
+							>
+							<button
+								type="button"
+								aria-label="{o?.name} omlaag"
+								disabled={i === ids.length - 1}
+								onclick={() => move(i, i + 1)}><Icon name="arrow-down" size={14} /></button
+							>
+							<button type="button" aria-label="{o?.name} verwijderen" onclick={() => remove(i)}
+								><Icon name="close" size={14} /></button
+							>
 						</span>
 					{:else}
 						<label class="rm"><input type="checkbox" name="{name}Remove" value={id} /> Verwijderen</label>

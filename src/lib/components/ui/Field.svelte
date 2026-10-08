@@ -22,7 +22,17 @@
 		children: Snippet;
 	}
 
-	let { label, hint, error, required = false, optional = false, hideLabel = false, id: idProp, class: className = '', children }: Props = $props();
+	let {
+		label,
+		hint,
+		error,
+		required = false,
+		optional = false,
+		hideLabel = false,
+		id: idProp,
+		class: className = '',
+		children
+	}: Props = $props();
 
 	const uid = $props.id();
 	const id = $derived(idProp ?? `f${uid}`);

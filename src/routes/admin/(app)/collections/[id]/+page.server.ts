@@ -3,7 +3,13 @@ import { z } from 'zod';
 import type { Actions, PageServerLoad } from './$types';
 import { requirePermission } from '#lib/server/auth/guard.ts';
 import { can } from '#lib/permissions.ts';
-import { deleteCollection, listCategories, loadCollection, previewRule, saveCollection } from '#lib/server/services/collections.ts';
+import {
+	deleteCollection,
+	listCategories,
+	loadCollection,
+	previewRule,
+	saveCollection
+} from '#lib/server/services/collections.ts';
 import { productOptions, ValidationError } from '#lib/server/services/products-admin.ts';
 import { listMedia } from '#lib/server/services/media.ts';
 import { collectionSchema, ruleSchema, toCollectionModel } from '#lib/schemas/collection.ts';
@@ -55,7 +61,11 @@ export const load: PageServerLoad = async ({ locals, params }) => {
 		crumbs: [{ label: 'Collecties', href: '/admin/collections' }, { label: c.name.nl }],
 		isNew: false,
 		collection: { id: c.id, name: c.name.nl, slug: c.slugs.nl, type: c.type, updatedAt: c.updatedAt },
-		model: toCollectionModel({ ...c, products: data.items.map((i) => i.id), active: c.active ? 'on' : 'off' } as unknown as Record<string, unknown>),
+		model: toCollectionModel({
+			...c,
+			products: data.items.map((i) => i.id),
+			active: c.active ? 'on' : 'off'
+		} as unknown as Record<string, unknown>),
 		preview: c.type === 'rule' ? await previewRule(locals.db, c.rule ?? {}) : null,
 		...opts,
 		canWrite: can(admin.role, 'catalog:write')
@@ -92,7 +102,11 @@ export const actions: Actions = {
 		const raw = readForm(await request.formData());
 		const values = toCollectionModel({ ...raw, active: raw.active ?? 'off' });
 		const rule = ruleSchema.safeParse(raw.rule);
-		if (!rule.success) return fail(400, { errors: Object.fromEntries(Object.entries(fieldErrors(rule.error)).map(([k, v]) => [`rule.${k}`, v])), values });
+		if (!rule.success)
+			return fail(400, {
+				errors: Object.fromEntries(Object.entries(fieldErrors(rule.error)).map(([k, v]) => [`rule.${k}`, v])),
+				values
+			});
 		return { values, preview: await previewRule(locals.db, rule.data as CollectionRule) };
 	},
 

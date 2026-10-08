@@ -1,7 +1,12 @@
 <!-- @component PageHeader — admin page title, optional description and action buttons. -->
 <script lang="ts">
 	import type { Snippet } from 'svelte';
-	let { title, description, actions, meta }: { title: string; description?: string; actions?: Snippet; meta?: Snippet } = $props();
+	let {
+		title,
+		description,
+		actions,
+		meta
+	}: { title: string; description?: string; actions?: Snippet; meta?: Snippet } = $props();
 </script>
 
 <div class="ph">

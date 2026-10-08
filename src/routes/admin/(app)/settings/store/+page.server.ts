@@ -21,7 +21,12 @@ export const actions: Actions = {
 		if (!parsed.success) return fail(400, { form: 'store', errors: fieldErrors(parsed.error), values: raw });
 		const before = (await getSettings(locals.db, ['store'])).store;
 		await setSetting(locals.db, 'store', parsed.data);
-		await audit(locals.db, locals, { action: 'update', entity: 'settings', entityId: 'store', diff: diffObjects(before as never, parsed.data) });
+		await audit(locals.db, locals, {
+			action: 'update',
+			entity: 'settings',
+			entityId: 'store',
+			diff: diffObjects(before as never, parsed.data)
+		});
 		return { form: 'store', saved: true };
 	},
 	general: async ({ request, locals }) => {

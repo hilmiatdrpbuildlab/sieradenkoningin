@@ -15,7 +15,16 @@
 		disabled?: boolean;
 		onchange?: (n: number) => void;
 	}
-	let { value = $bindable(1), min = 1, max = 99, name, label, size = 'md', disabled = false, onchange }: Props = $props();
+	let {
+		value = $bindable(1),
+		min = 1,
+		max = 99,
+		name,
+		label,
+		size = 'md',
+		disabled = false,
+		onchange
+	}: Props = $props();
 
 	function set(n: number) {
 		const next = Math.max(min, Math.min(max, Math.round(n) || min));
@@ -26,7 +35,9 @@
 </script>
 
 <div class="qty qty--{size}" role="group" aria-label={label ?? m.ui_quantity()}>
-	<button type="button" aria-label={m.ui_decrease()} disabled={disabled || value <= min} onclick={() => set(value - 1)}><Icon name="minus" size={14} /></button>
+	<button type="button" aria-label={m.ui_decrease()} disabled={disabled || value <= min} onclick={() => set(value - 1)}
+		><Icon name="minus" size={14} /></button
+	>
 	<input
 		type="number"
 		inputmode="numeric"
@@ -34,11 +45,13 @@
 		{min}
 		{max}
 		{disabled}
-		value={value}
+		{value}
 		aria-label={label ?? m.ui_quantity()}
 		onchange={(e) => set(Number(e.currentTarget.value))}
 	/>
-	<button type="button" aria-label={m.ui_increase()} disabled={disabled || value >= max} onclick={() => set(value + 1)}><Icon name="plus" size={14} /></button>
+	<button type="button" aria-label={m.ui_increase()} disabled={disabled || value >= max} onclick={() => set(value + 1)}
+		><Icon name="plus" size={14} /></button
+	>
 </div>
 
 <style>

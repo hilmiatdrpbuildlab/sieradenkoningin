@@ -27,7 +27,9 @@ export function wishlistOwner(cookies: Cookies, customerId?: string | null, crea
 }
 
 const ownerWhere = (o: WishlistOwner) =>
-	o.customerId ? eq(wishlists.customerId, o.customerId) : and(isNull(wishlists.customerId), eq(wishlists.guestToken, o.guestToken!));
+	o.customerId
+		? eq(wishlists.customerId, o.customerId)
+		: and(isNull(wishlists.customerId), eq(wishlists.guestToken, o.guestToken!));
 
 export async function wishlistProductIds(db: Executor, owner: WishlistOwner | null): Promise<string[]> {
 	if (!owner) return [];
@@ -35,11 +37,22 @@ export async function wishlistProductIds(db: Executor, owner: WishlistOwner | nu
 	return rows.map((r) => r.id);
 }
 
-export async function toggleWishlist(db: Executor, owner: WishlistOwner, productId: string, on?: boolean): Promise<boolean> {
-	const [existing] = await db.select().from(wishlists).where(and(ownerWhere(owner), eq(wishlists.productId, productId)));
+export async function toggleWishlist(
+	db: Executor,
+	owner: WishlistOwner,
+	productId: string,
+	on?: boolean
+): Promise<boolean> {
+	const [existing] = await db
+		.select()
+		.from(wishlists)
+		.where(and(ownerWhere(owner), eq(wishlists.productId, productId)));
 	const want = on ?? !existing;
 	if (want && !existing) {
-		await db.insert(wishlists).values({ customerId: owner.customerId, guestToken: owner.customerId ? null : owner.guestToken, productId }).onConflictDoNothing();
+		await db
+			.insert(wishlists)
+			.values({ customerId: owner.customerId, guestToken: owner.customerId ? null : owner.guestToken, productId })
+			.onConflictDoNothing();
 	} else if (!want && existing) {
 		await db.delete(wishlists).where(eq(wishlists.id, existing.id));
 	}
@@ -48,9 +61,16 @@ export async function toggleWishlist(db: Executor, owner: WishlistOwner, product
 
 /** Merge the guest list into the customer's list (called on login). */
 export async function mergeWishlist(db: Executor, guestToken: string, customerId: string) {
-	const guest = await db.select().from(wishlists).where(and(isNull(wishlists.customerId), eq(wishlists.guestToken, guestToken)));
+	const guest = await db
+		.select()
+		.from(wishlists)
+		.where(and(isNull(wishlists.customerId), eq(wishlists.guestToken, guestToken)));
 	if (!guest.length) return;
-	const mine = new Set((await db.select({ p: wishlists.productId }).from(wishlists).where(eq(wishlists.customerId, customerId))).map((r) => r.p));
+	const mine = new Set(
+		(await db.select({ p: wishlists.productId }).from(wishlists).where(eq(wishlists.customerId, customerId))).map(
+			(r) => r.p
+		)
+	);
 	const move = guest.filter((g) => !mine.has(g.productId)).map((g) => g.id);
 	if (move.length) await db.update(wishlists).set({ customerId, guestToken: null }).where(inArray(wishlists.id, move));
 	await db.delete(wishlists).where(and(isNull(wishlists.customerId), eq(wishlists.guestToken, guestToken)));
@@ -61,7 +81,11 @@ export async function shareToken(db: Executor, owner: WishlistOwner) {
 	const [existing] = await db
 		.select()
 		.from(wishlistShares)
-		.where(owner.customerId ? eq(wishlistShares.customerId, owner.customerId) : eq(wishlistShares.guestToken, owner.guestToken!));
+		.where(
+			owner.customerId
+				? eq(wishlistShares.customerId, owner.customerId)
+				: eq(wishlistShares.guestToken, owner.guestToken!)
+		);
 	if (existing) return existing.token;
 	const token = randomToken(16);
 	await db.insert(wishlistShares).values({ token, customerId: owner.customerId, guestToken: owner.guestToken });
@@ -72,4 +96,3 @@ export async function ownerFromShare(db: Executor, token: string): Promise<Wishl
 	const [s] = await db.select().from(wishlistShares).where(eq(wishlistShares.token, token));
 	return s ? { customerId: s.customerId, guestToken: s.guestToken } : null;
 }
-

@@ -19,7 +19,13 @@ export const ADMIN_NAV: AdminNavGroup[] = [
 	{
 		title: 'Verkoop',
 		items: [
-			{ label: 'Bestellingen', href: '/admin/orders', icon: 'receipt', permission: 'orders:read', badgeKey: 'ordersToProcess' },
+			{
+				label: 'Bestellingen',
+				href: '/admin/orders',
+				icon: 'receipt',
+				permission: 'orders:read',
+				badgeKey: 'ordersToProcess'
+			},
 			{ label: 'Klanten', href: '/admin/customers', icon: 'users', permission: 'customers:read' },
 			{ label: 'Kortingscodes', href: '/admin/discounts', icon: 'percent', permission: 'discounts:read' },
 			{ label: 'Rapporten', href: '/admin/reports', icon: 'chart', permission: 'reports' }
@@ -31,7 +37,13 @@ export const ADMIN_NAV: AdminNavGroup[] = [
 			{ label: 'Producten', href: '/admin/products', icon: 'box', permission: 'catalog:read' },
 			{ label: 'Categorieën', href: '/admin/categories', icon: 'tag', permission: 'catalog:read' },
 			{ label: 'Collecties', href: '/admin/collections', icon: 'collection', permission: 'catalog:read' },
-			{ label: 'Voorraad', href: '/admin/inventory', icon: 'inventory', permission: 'inventory:read', badgeKey: 'lowStock' },
+			{
+				label: 'Voorraad',
+				href: '/admin/inventory',
+				icon: 'inventory',
+				permission: 'inventory:read',
+				badgeKey: 'lowStock'
+			},
 			{ label: 'Media', href: '/admin/media', icon: 'image', permission: 'catalog:read' },
 			{ label: 'Import / export', href: '/admin/import', icon: 'import', permission: 'catalog:write' }
 		]
@@ -57,7 +69,14 @@ export const ADMIN_NAV: AdminNavGroup[] = [
 export function navForRole(role: Role, badges: Partial<Record<NonNullable<AdminNavItem['badgeKey']>, number>> = {}) {
 	return ADMIN_NAV.map((g) => ({
 		title: g.title,
-		items: g.items.filter((i) => can(role, i.permission)).map((i) => ({ label: i.label, href: i.href, icon: i.icon, badge: i.badgeKey ? badges[i.badgeKey] || undefined : undefined }))
+		items: g.items
+			.filter((i) => can(role, i.permission))
+			.map((i) => ({
+				label: i.label,
+				href: i.href,
+				icon: i.icon,
+				badge: i.badgeKey ? badges[i.badgeKey] || undefined : undefined
+			}))
 	})).filter((g) => g.items.length);
 }
 

@@ -12,7 +12,10 @@
 <svelte:head><title>Tweestapsverificatie instellen — Beheer</title></svelte:head>
 
 {#if form?.recoveryCodes}
-	<AuthCard title="Bewaar je herstelcodes" subtitle="Elke code werkt één keer, als je je authenticator-app niet bij de hand hebt. Ze worden maar één keer getoond.">
+	<AuthCard
+		title="Bewaar je herstelcodes"
+		subtitle="Elke code werkt één keer, als je je authenticator-app niet bij de hand hebt. Ze worden maar één keer getoond."
+	>
 		<ol class="codes" data-testid="recovery-codes">
 			{#each form.recoveryCodes as c (c)}<li><code>{c}</code></li>{/each}
 		</ol>
@@ -23,9 +26,16 @@
 		<Button href={next} full>Naar het dashboard</Button>
 	</AuthCard>
 {:else}
-	<AuthCard title="Tweestapsverificatie instellen" subtitle="Verplicht voor elk beheerdersaccount. Scan de QR-code met een authenticator-app (bv. Google Authenticator, 1Password).">
+	<AuthCard
+		title="Tweestapsverificatie instellen"
+		subtitle="Verplicht voor elk beheerdersaccount. Scan de QR-code met een authenticator-app (bv. Google Authenticator, 1Password)."
+	>
 		<div class="qr" aria-hidden="true">{@html data.qr}</div>
-		<p class="manual">Lukt scannen niet? Voer deze sleutel handmatig in voor <strong>{data.email}</strong>:<br /><code data-testid="totp-secret">{data.secret}</code></p>
+		<p class="manual">
+			Lukt scannen niet? Voer deze sleutel handmatig in voor <strong>{data.email}</strong>:<br /><code
+				data-testid="totp-secret">{data.secret}</code
+			>
+		</p>
 		<form
 			method="POST"
 			use:enhance={() =>
@@ -35,7 +45,17 @@
 				}}
 		>
 			{#if form?.error}<p class="err" role="alert">{form.error}</p>{/if}
-			<Field label="Code uit je app" hint="6 cijfers"><Input name="code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9 ]*" maxlength={7} required autofocus /></Field>
+			<Field label="Code uit je app" hint="6 cijfers"
+				><Input
+					name="code"
+					inputmode="numeric"
+					autocomplete="one-time-code"
+					pattern="[0-9 ]*"
+					maxlength={7}
+					required
+					autofocus
+				/></Field
+			>
 			<Button type="submit" full>Bevestigen</Button>
 		</form>
 	</AuthCard>

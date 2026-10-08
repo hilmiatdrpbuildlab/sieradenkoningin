@@ -79,26 +79,60 @@
 		<h2>Buttons & icons</h2>
 		<div class="row">
 			<Button>Primary</Button><Button variant="outline">Outline</Button><Button variant="ghost">Ghost</Button>
-			<Button variant="link" iconRight="arrow-right">Link</Button><Button variant="gold">Gold</Button><Button variant="danger">Danger</Button>
+			<Button variant="link" iconRight="arrow-right">Link</Button><Button variant="gold">Gold</Button><Button
+				variant="danger">Danger</Button
+			>
 			<Button loading>Loading</Button><Button icon="heart" aria-label="Favoriet" />
 		</div>
 		<ul class="row icons">
 			{#each cats as c (c)}<li><Icon name={c} size={72} stroke={0.9} label={c} /><span>{c}</span></li>{/each}
-			<li><Icon name="crown" size={40} label="crown" /></li><li><Icon name="clover" size={40} label="clover" /></li><li><Icon name="sparkle" size={40} label="sparkle" /></li>
+			<li><Icon name="crown" size={40} label="crown" /></li>
+			<li><Icon name="clover" size={40} label="clover" /></li>
+			<li><Icon name="sparkle" size={40} label="sparkle" /></li>
 		</ul>
 	</section>
 
 	<section>
 		<h2>Form controls</h2>
 		<form class="grid" onsubmit={(e) => e.preventDefault()}>
-			<Field label="Naam" required hint="Zoals op je identiteitskaart"><Input name="ks-name" autocomplete="name" /></Field>
-			<Field label="E-mail" error="Vul een geldig e-mailadres in"><Input name="ks-email" type="email" value="fout@" /></Field>
+			<Field label="Naam" required hint="Zoals op je identiteitskaart"
+				><Input name="ks-name" autocomplete="name" /></Field
+			>
+			<Field label="E-mail" error="Vul een geldig e-mailadres in"
+				><Input name="ks-email" type="email" value="fout@" /></Field
+			>
 			<Field label="Wachtwoord"><Input name="ks-pw" type="password" /></Field>
-			<Field label="Categorie"><Select name="ks-cat" options={[{ value: 'rings', label: 'Ringen' }, { value: 'bracelets', label: 'Armbanden' }]} /></Field>
+			<Field label="Categorie"
+				><Select
+					name="ks-cat"
+					options={[
+						{ value: 'rings', label: 'Ringen' },
+						{ value: 'bracelets', label: 'Armbanden' }
+					]}
+				/></Field
+			>
 			<Field label="Bericht" optional><Textarea name="ks-msg" maxlength={200} counter /></Field>
 			<Checkbox name="ks-terms">Ik ga akkoord met de voorwaarden</Checkbox>
-			<Radio name="ks-ship" legend="Verzending" variant="card" options={[{ value: 'home', label: 'Thuislevering', meta: '€ 4,95' }, { value: 'pickup', label: 'Afhaalpunt', meta: '€ 3,95' }]} value="home" />
-			<Radio name="ks-metal" legend="Metaal" variant="swatch" bind:value={metal} options={[{ value: 'gold', label: 'Goud', swatch: 'var(--ui-swatch-gold)' }, { value: 'silver', label: 'Zilver', swatch: 'var(--ui-swatch-silver)' }]} />
+			<Radio
+				name="ks-ship"
+				legend="Verzending"
+				variant="card"
+				options={[
+					{ value: 'home', label: 'Thuislevering', meta: '€ 4,95' },
+					{ value: 'pickup', label: 'Afhaalpunt', meta: '€ 3,95' }
+				]}
+				value="home"
+			/>
+			<Radio
+				name="ks-metal"
+				legend="Metaal"
+				variant="swatch"
+				bind:value={metal}
+				options={[
+					{ value: 'gold', label: 'Goud', swatch: 'var(--ui-swatch-gold)' },
+					{ value: 'silver', label: 'Zilver', swatch: 'var(--ui-swatch-silver)' }
+				]}
+			/>
 			<QuantityStepper bind:value={qty} max={5} label="Aantal" />
 		</form>
 	</section>
@@ -111,10 +145,19 @@
 			<Button variant="outline" onclick={() => (confirmOpen = true)}>Confirm</Button>
 			<Button variant="outline" onclick={() => toasts.push({ message: 'Toegevoegd aan je winkelmand' })}>Toast</Button>
 			<Button variant="outline" onclick={() => (cart.open = true)}>Cart drawer</Button>
-			<Tooltip text="Extra uitleg">{#snippet children(id)}<Button variant="ghost" icon="info" aria-label="Info" aria-describedby={id} />{/snippet}</Tooltip>
+			<Tooltip text="Extra uitleg"
+				>{#snippet children(id)}<Button
+						variant="ghost"
+						icon="info"
+						aria-label="Info"
+						aria-describedby={id}
+					/>{/snippet}</Tooltip
+			>
 		</div>
 		<div class="row">
-			<Badge>Neutraal</Badge><Badge tone="success">Actief</Badge><Badge tone="warning">Lage voorraad</Badge><Badge tone="danger">Mislukt</Badge><Badge tone="sale">−20%</Badge>
+			<Badge>Neutraal</Badge><Badge tone="success">Actief</Badge><Badge tone="warning">Lage voorraad</Badge><Badge
+				tone="danger">Mislukt</Badge
+			><Badge tone="sale">−20%</Badge>
 			<StatusBadge status="paid" /><StatusBadge status="shipped" /><StatusBadge status="low_stock" />
 		</div>
 		<div class="row"><Skeleton width="12rem" height="1rem" /><Skeleton width="6rem" ratio="4 / 5" /></div>
@@ -124,10 +167,21 @@
 		<h2>Navigation</h2>
 		<Breadcrumbs items={[{ label: 'Home', href: '#' }, { label: 'Ringen', href: '#' }, { label: 'DEMO Klaverring' }]} />
 		<Pagination page={2} pages={6} href={(n) => `?page=${n}`} />
-		<Tabs tabs={[{ id: 'nl', label: 'Nederlands' }, { id: 'fr', label: 'Français', badge: '!' }]} label="Taal">
+		<Tabs
+			tabs={[
+				{ id: 'nl', label: 'Nederlands' },
+				{ id: 'fr', label: 'Français', badge: '!' }
+			]}
+			label="Taal"
+		>
 			{#snippet panel(id)}<p>Inhoud voor {id}</p>{/snippet}
 		</Tabs>
-		<Accordion items={[{ id: 'a', title: 'Details' }, { id: 'b', title: 'Met betekenis' }]}>{#snippet content(id)}<p>Tekst {id}</p>{/snippet}</Accordion>
+		<Accordion
+			items={[
+				{ id: 'a', title: 'Details' },
+				{ id: 'b', title: 'Met betekenis' }
+			]}>{#snippet content(id)}<p>Tekst {id}</p>{/snippet}</Accordion
+		>
 	</section>
 
 	<section>
@@ -146,7 +200,13 @@
 
 <Dialog bind:open={dialogOpen} title="Maatgids"><p>Inhoud van de dialoog.</p></Dialog>
 <Drawer bind:open={drawerOpen} side="bottom" title="Filters"><p>Filterinhoud.</p></Drawer>
-<ConfirmDialog bind:open={confirmOpen} title="Product archiveren?" message="Het product verdwijnt uit de winkel." danger confirmLabel="Archiveren" />
+<ConfirmDialog
+	bind:open={confirmOpen}
+	title="Product archiveren?"
+	message="Het product verdwijnt uit de winkel."
+	danger
+	confirmLabel="Archiveren"
+/>
 <CartDrawer />
 <Toast />
 

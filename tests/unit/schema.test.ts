@@ -37,7 +37,9 @@ describe('schema', () => {
 
 	it('has the indexes required by §6', () => {
 		const names = (t: Parameters<typeof getTableConfig>[0]) => getTableConfig(t).indexes.map((i) => i.config.name);
-		expect(names(s.products)).toEqual(expect.arrayContaining(['products_cat_status_idx', 'products_name_trgm_idx', 'products_slug_uq']));
+		expect(names(s.products)).toEqual(
+			expect.arrayContaining(['products_cat_status_idx', 'products_name_trgm_idx', 'products_slug_uq'])
+		);
 		expect(names(s.orders)).toEqual(expect.arrayContaining(['orders_status_placed_idx', 'orders_number_uq']));
 	});
 });

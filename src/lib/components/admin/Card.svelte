@@ -1,7 +1,21 @@
 <!-- @component Card — admin panel with optional title and header actions. -->
 <script lang="ts">
 	import type { Snippet } from 'svelte';
-	let { title, description, actions, children, padded = true, id }: { title?: string; description?: string; actions?: Snippet; children: Snippet; padded?: boolean; id?: string } = $props();
+	let {
+		title,
+		description,
+		actions,
+		children,
+		padded = true,
+		id
+	}: {
+		title?: string;
+		description?: string;
+		actions?: Snippet;
+		children: Snippet;
+		padded?: boolean;
+		id?: string;
+	} = $props();
 </script>
 
 <section class="card" class:padded aria-labelledby={title && id ? `${id}-t` : undefined} {id}>

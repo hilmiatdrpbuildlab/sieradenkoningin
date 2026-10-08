@@ -21,8 +21,7 @@
 		{rows}
 		{maxlength}
 		bind:value
-		{...rest}
-	></textarea>
+		{...rest}></textarea>
 	{#if counter && maxlength}<span class="count" aria-live="polite">{length}/{maxlength}</span>{/if}
 </div>
 

@@ -2,7 +2,14 @@ import { fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { requirePermission } from '#lib/server/auth/guard.ts';
 import { can } from '#lib/permissions.ts';
-import { adjustStock, INVENTORY_SORTS, listInventory, recentMovements, StockError, type InventorySort } from '#lib/server/services/inventory.ts';
+import {
+	adjustStock,
+	INVENTORY_SORTS,
+	listInventory,
+	recentMovements,
+	StockError,
+	type InventorySort
+} from '#lib/server/services/inventory.ts';
 import { categoryOptions } from '#lib/server/services/products-admin.ts';
 import { stockAdjustSchema } from '#lib/schemas/inventory.ts';
 import { fieldErrors } from '#lib/schemas/common.ts';
@@ -43,12 +50,19 @@ export const actions: Actions = {
 		const raw = Object.fromEntries(await request.formData());
 		const variantId = typeof raw.variantId === 'string' ? raw.variantId : null;
 		const parsed = stockAdjustSchema.safeParse(raw);
-		if (!parsed.success) return fail(400, { variantId, errors: fieldErrors(parsed.error), values: raw as Record<string, string> });
+		if (!parsed.success)
+			return fail(400, { variantId, errors: fieldErrors(parsed.error), values: raw as Record<string, string> });
 		try {
 			const stock = await locals.db.transaction((tx) => adjustStock(tx, locals, parsed.data));
-			return { ok: true, variantId, stock, message: `Voorraad aangepast (${parsed.data.delta > 0 ? '+' : ''}${parsed.data.delta}) → ${stock}` };
+			return {
+				ok: true,
+				variantId,
+				stock,
+				message: `Voorraad aangepast (${parsed.data.delta > 0 ? '+' : ''}${parsed.data.delta}) → ${stock}`
+			};
 		} catch (e) {
-			if (e instanceof StockError) return fail(400, { variantId, errors: { delta: [e.message] }, values: raw as Record<string, string> });
+			if (e instanceof StockError)
+				return fail(400, { variantId, errors: { delta: [e.message] }, values: raw as Record<string, string> });
 			throw e;
 		}
 	}

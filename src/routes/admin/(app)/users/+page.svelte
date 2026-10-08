@@ -11,12 +11,18 @@
 
 	let { data, form } = $props();
 	const errs = $derived(form && 'errors' in form ? (form.errors as Record<string, string[]>) : {});
-	const keep = () => async ({ update }: { update: (o?: { reset?: boolean }) => Promise<void> }) => update({ reset: false });
+	const keep =
+		() =>
+		async ({ update }: { update: (o?: { reset?: boolean }) => Promise<void> }) =>
+			update({ reset: false });
 </script>
 
 <svelte:head><title>Gebruikers — Beheer</title></svelte:head>
 
-<PageHeader title="Gebruikers & rollen" description="Eigenaar: alles · Redacteur: catalogus, content, kortingen · Fulfilment: bestellingen verwerken, voorraad · Klantendienst: bestellingen, terugbetalingen, klanten." />
+<PageHeader
+	title="Gebruikers & rollen"
+	description="Eigenaar: alles · Redacteur: catalogus, content, kortingen · Fulfilment: bestellingen verwerken, voorraad · Klantendienst: bestellingen, terugbetalingen, klanten."
+/>
 
 {#if form && 'error' in form && form.error}<p class="err" role="alert">{form.error}</p>{/if}
 
@@ -25,7 +31,13 @@
 		<!-- svelte-ignore a11y_no_noninteractive_tabindex (scrollable region must be keyboard-focusable, WCAG 2.1.1) -->
 		<div class="scroller" tabindex="0" role="region" aria-label="Teamleden">
 			<table>
-				<thead><tr><th scope="col">Naam</th><th scope="col">Rol</th><th scope="col">Status</th><th scope="col">Laatst ingelogd</th><th scope="col"><span class="sr-only">Acties</span></th></tr></thead>
+				<thead
+					><tr
+						><th scope="col">Naam</th><th scope="col">Rol</th><th scope="col">Status</th><th scope="col"
+							>Laatst ingelogd</th
+						><th scope="col"><span class="sr-only">Acties</span></th></tr
+					></thead
+				>
 				<tbody>
 					{#each data.users as u (u.id)}
 						<tr>
@@ -34,7 +46,12 @@
 								<form method="POST" action="?/role" use:enhance={keep} class="inline">
 									<input type="hidden" name="id" value={u.id} />
 									<label class="sr-only" for="role-{u.id}">Rol van {u.name}</label>
-									<select id="role-{u.id}" name="role" value={u.role} onchange={(e) => e.currentTarget.form?.requestSubmit()}>
+									<select
+										id="role-{u.id}"
+										name="role"
+										value={u.role}
+										onchange={(e) => e.currentTarget.form?.requestSubmit()}
+									>
 										{#each data.roles as r (r.value)}<option value={r.value}>{r.label}</option>{/each}
 									</select>
 									<noscript><button type="submit">Wijzig</button></noscript>
@@ -44,13 +61,23 @@
 								{#if !u.active}<Badge tone="neutral">Gedeactiveerd</Badge>
 								{:else if u.invited}<Badge tone="info">Uitgenodigd</Badge>
 								{:else}<Badge tone="success">Actief</Badge>{/if}
-								{#if u.twoFactor}<Badge tone="success">2FA</Badge>{:else if !u.invited}<Badge tone="warning">2FA nog in te stellen</Badge>{/if}
+								{#if u.twoFactor}<Badge tone="success">2FA</Badge>{:else if !u.invited}<Badge tone="warning"
+										>2FA nog in te stellen</Badge
+									>{/if}
 							</td>
 							<td>{u.lastLoginAt ? formatDateTime(u.lastLoginAt) : '—'}</td>
 							<td class="actions">
 								{#if u.id !== data.me}
-									<form method="POST" action="?/toggleActive" use:enhance={keep}><input type="hidden" name="id" value={u.id} /><Button type="submit" size="sm" variant="ghost">{u.active ? 'Deactiveren' : 'Activeren'}</Button></form>
-									{#if u.twoFactor}<form method="POST" action="?/reset2fa" use:enhance={keep}><input type="hidden" name="id" value={u.id} /><Button type="submit" size="sm" variant="ghost">2FA resetten</Button></form>{/if}
+									<form method="POST" action="?/toggleActive" use:enhance={keep}>
+										<input type="hidden" name="id" value={u.id} /><Button type="submit" size="sm" variant="ghost"
+											>{u.active ? 'Deactiveren' : 'Activeren'}</Button
+										>
+									</form>
+									{#if u.twoFactor}<form method="POST" action="?/reset2fa" use:enhance={keep}>
+											<input type="hidden" name="id" value={u.id} /><Button type="submit" size="sm" variant="ghost"
+												>2FA resetten</Button
+											>
+										</form>{/if}
 								{:else}<small>(jij)</small>{/if}
 							</td>
 						</tr>
@@ -60,10 +87,17 @@
 		</div>
 	</Card>
 
-	<Card title="Iemand uitnodigen" description="De uitnodiging is 7 dagen geldig; bij de eerste login is tweestapsverificatie verplicht.">
+	<Card
+		title="Iemand uitnodigen"
+		description="De uitnodiging is 7 dagen geldig; bij de eerste login is tweestapsverificatie verplicht."
+	>
 		<form method="POST" action="?/invite" use:enhance>
 			{#if form && 'invited' in form}
-				<p class="ok" role="status">Uitnodiging verstuurd naar {form.invited}.{#if form.link}<br /><small>Simulatie — link: <code>{form.link}</code></small>{/if}</p>
+				<p class="ok" role="status">
+					Uitnodiging verstuurd naar {form.invited}.{#if form.link}<br /><small
+							>Simulatie — link: <code>{form.link}</code></small
+						>{/if}
+				</p>
 			{/if}
 			<Field label="Naam" required error={errs.name}><Input name="name" /></Field>
 			<Field label="E-mailadres" required error={errs.email}><Input name="email" type="email" /></Field>

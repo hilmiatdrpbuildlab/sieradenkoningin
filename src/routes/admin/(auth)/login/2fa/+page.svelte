@@ -11,13 +11,20 @@
 
 <svelte:head><title>Verificatiecode — Beheer</title></svelte:head>
 
-<AuthCard title="Verificatiecode" subtitle="Voer de 6-cijferige code uit je authenticator-app in, of een van je herstelcodes.">
+<AuthCard
+	title="Verificatiecode"
+	subtitle="Voer de 6-cijferige code uit je authenticator-app in, of een van je herstelcodes."
+>
 	<form method="POST" action="?next={encodeURIComponent(page.url.searchParams.get('next') ?? '')}" use:enhance>
 		{#if form?.error}<p class="err" role="alert">{form.error}</p>{/if}
-		<Field label="Code"><Input name="code" inputmode="text" autocomplete="one-time-code" maxlength={9} required autofocus /></Field>
+		<Field label="Code"
+			><Input name="code" inputmode="text" autocomplete="one-time-code" maxlength={9} required autofocus /></Field
+		>
 		<Button type="submit" full>Verifiëren</Button>
 	</form>
-	<form method="POST" action="/admin/logout"><Button type="submit" variant="link" size="sm">Annuleren en uitloggen</Button></form>
+	<form method="POST" action="/admin/logout">
+		<Button type="submit" variant="link" size="sm">Annuleren en uitloggen</Button>
+	</form>
 </AuthCard>
 
 <style>

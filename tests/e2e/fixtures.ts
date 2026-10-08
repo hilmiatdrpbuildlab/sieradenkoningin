@@ -33,7 +33,9 @@ export async function freshAdminLogin(page: Page, admin = E2E_ADMIN) {
  */
 export async function adminLogin(page: Page, admin = E2E_ADMIN) {
 	if (admin === E2E_ADMIN && existsSync(ADMIN_STATE)) {
-		const state = JSON.parse(readFileSync(ADMIN_STATE, 'utf8')) as { cookies: Parameters<ReturnType<Page['context']>['addCookies']>[0] };
+		const state = JSON.parse(readFileSync(ADMIN_STATE, 'utf8')) as {
+			cookies: Parameters<ReturnType<Page['context']>['addCookies']>[0];
+		};
 		await page.context().addCookies(state.cookies.filter((c) => c.name === 'sk_admin'));
 		await page.goto('/admin/audit');
 		if (!new URL(page.url()).pathname.startsWith('/admin/login')) return;

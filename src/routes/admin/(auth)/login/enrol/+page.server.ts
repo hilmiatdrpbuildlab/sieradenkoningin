@@ -22,8 +22,10 @@ export const load: PageServerLoad = async ({ locals, cookies, url }) => {
 	const pending = await pendingAdmin(locals.db, cookies);
 	if (!pending) redirect(303, '/admin/login');
 	// Just enrolled in this request (form action ran first): let the page show the recovery codes.
-	if (pending.user.totpEnabledAt && pending.session.twoFactorVerified) return { done: true as const, next: safeNext(url.searchParams.get('next')) };
-	if (pending.user.totpEnabledAt) redirect(303, `/admin/login/2fa?next=${encodeURIComponent(safeNext(url.searchParams.get('next')))}`);
+	if (pending.user.totpEnabledAt && pending.session.twoFactorVerified)
+		return { done: true as const, next: safeNext(url.searchParams.get('next')) };
+	if (pending.user.totpEnabledAt)
+		redirect(303, `/admin/login/2fa?next=${encodeURIComponent(safeNext(url.searchParams.get('next')))}`);
 	const key = requireKey();
 	let secret = await readTotpSecret(pending.user.totpSecret, key);
 	if (!secret) {
@@ -32,7 +34,13 @@ export const load: PageServerLoad = async ({ locals, cookies, url }) => {
 	}
 	const uri = otpauthUrl(secret, pending.user.email);
 	const qr = await QRCode.toString(uri, { type: 'svg', margin: 1, errorCorrectionLevel: 'M' });
-	return { done: false as const, qr, secret: secret.replace(/(.{4})/g, '$1 ').trim(), email: pending.user.email, next: url.searchParams.get('next') ?? '' };
+	return {
+		done: false as const,
+		qr,
+		secret: secret.replace(/(.{4})/g, '$1 ').trim(),
+		email: pending.user.email,
+		next: url.searchParams.get('next') ?? ''
+	};
 };
 
 export const actions: Actions = {
@@ -43,12 +51,29 @@ export const actions: Actions = {
 		if (!limit.allowed) return fail(429, { error: 'Te veel pogingen. Probeer het later opnieuw.' });
 		const code = String((await request.formData()).get('code') ?? '');
 		const secret = await readTotpSecret(pending.user.totpSecret, requireKey());
-		if (!secret || !(await verifyTotp(secret, code))) return fail(400, { error: 'Deze code klopt niet. Controleer de tijd op je toestel en probeer opnieuw.' });
+		if (!secret || !(await verifyTotp(secret, code)))
+			return fail(400, { error: 'Deze code klopt niet. Controleer de tijd op je toestel en probeer opnieuw.' });
 
 		const { plain, hashes } = await generateRecoveryCodes();
-		await locals.db.update(adminUsers).set({ totpEnabledAt: new Date(), recoveryCodes: hashes }).where(eq(adminUsers.id, pending.user.id));
+		await locals.db
+			.update(adminUsers)
+			.set({ totpEnabledAt: new Date(), recoveryCodes: hashes })
+			.where(eq(adminUsers.id, pending.user.id));
 		await completeLogin(locals.db, pending.session.id, pending.user.id);
-		await audit(locals.db, { admin: { id: pending.user.id, name: pending.user.name, email: pending.user.email, role: pending.user.role, sessionId: pending.session.id }, ip: locals.ip }, { action: 'totp_enrolled', entity: 'admin_user', entityId: pending.user.id });
+		await audit(
+			locals.db,
+			{
+				admin: {
+					id: pending.user.id,
+					name: pending.user.name,
+					email: pending.user.email,
+					role: pending.user.role,
+					sessionId: pending.session.id
+				},
+				ip: locals.ip
+			},
+			{ action: 'totp_enrolled', entity: 'admin_user', entityId: pending.user.id }
+		);
 		return { recoveryCodes: plain };
 	}
 };

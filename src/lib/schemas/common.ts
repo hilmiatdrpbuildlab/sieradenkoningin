@@ -10,7 +10,11 @@ export const i18nSchema = z.object({
 	en: z.string().trim().optional()
 });
 export const i18nRequired = (message = 'Nederlandse tekst is verplicht') =>
-	z.object({ nl: z.string().trim().min(1, message), fr: z.string().trim().optional(), en: z.string().trim().optional() });
+	z.object({
+		nl: z.string().trim().min(1, message),
+		fr: z.string().trim().optional(),
+		en: z.string().trim().optional()
+	});
 
 export const slugSchema = z
 	.string()
@@ -33,7 +37,12 @@ export const euroToCents = z
 		return Math.round(n * 100);
 	});
 
-export const emailSchema = z.string().trim().toLowerCase().pipe(z.email('Ongeldig e-mailadres')).pipe(z.string().max(254));
+export const emailSchema = z
+	.string()
+	.trim()
+	.toLowerCase()
+	.pipe(z.email('Ongeldig e-mailadres'))
+	.pipe(z.string().max(254));
 
 export const checkbox = z
 	.union([z.literal('on'), z.literal('true'), z.literal('1'), z.literal(''), z.undefined(), z.null()])

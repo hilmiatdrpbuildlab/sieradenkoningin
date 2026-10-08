@@ -69,7 +69,12 @@ export function lastDays(days: number, now = new Date()): Range {
 export async function byDay(db: Executor, r: Range) {
 	const day = sql<string>`to_char(${orders.paidAt} at time zone ${TZ_SQL}, 'YYYY-MM-DD')`;
 	const rows = await db
-		.select({ day, orders: sql<number>`count(*)::int`, gross: sql<number>`sum(${orders.total})::int`, net: sql<number>`sum(${orders.total} - ${orders.refundedTotal})::int` })
+		.select({
+			day,
+			orders: sql<number>`count(*)::int`,
+			gross: sql<number>`sum(${orders.total})::int`,
+			net: sql<number>`sum(${orders.total} - ${orders.refundedTotal})::int`
+		})
 		.from(orders)
 		.where(inRange(r))
 		.groupBy(day)
@@ -157,7 +162,15 @@ export async function discountPerformance(db: Executor, r: Range) {
 /** Orders waiting for fulfilment (paid, not yet processed). */
 export async function toProcess(db: Executor, limit = 8) {
 	return db
-		.select({ id: orders.id, number: orders.number, email: orders.email, total: orders.total, placedAt: orders.placedAt, status: orders.status, shippingMethod: orders.shippingMethod })
+		.select({
+			id: orders.id,
+			number: orders.number,
+			email: orders.email,
+			total: orders.total,
+			placedAt: orders.placedAt,
+			status: orders.status,
+			shippingMethod: orders.shippingMethod
+		})
 		.from(orders)
 		.where(eq(orders.status, 'paid'))
 		.orderBy(orders.placedAt)
@@ -170,7 +183,13 @@ export function toCsv(rows: Record<string, unknown>[], columns: { key: string; l
 		const s = v == null ? '' : String(v);
 		return /["\n\r;,]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 	};
-	return '﻿' + [columns.map((c) => q(c.label)).join(sep), ...rows.map((r) => columns.map((c) => q(r[c.key])).join(sep))].join('\r\n') + '\r\n';
+	return (
+		'﻿' +
+		[columns.map((c) => q(c.label)).join(sep), ...rows.map((r) => columns.map((c) => q(r[c.key])).join(sep))].join(
+			'\r\n'
+		) +
+		'\r\n'
+	);
 }
 
 /** Cents → "49,95" (Belgian Excel decimal comma). */

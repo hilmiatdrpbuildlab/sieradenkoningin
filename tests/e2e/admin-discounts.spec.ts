@@ -7,7 +7,9 @@ test.describe.configure({ mode: 'serial' });
 const CODE = `E2E${Date.now().toString().slice(-6)}`;
 
 async function firstVariantId() {
-	const db = new pg.Client({ connectionString: process.env.DATABASE_URL || 'postgres://sk@localhost:54329/sieradenkoningin' });
+	const db = new pg.Client({
+		connectionString: process.env.DATABASE_URL || 'postgres://sk@localhost:54329/sieradenkoningin'
+	});
 	await db.connect();
 	const { rows } = await db.query(
 		`select v.id from variants v join products p on p.id = v.product_id where p.status = 'active' and v.stock > 2 order by p.price desc limit 1`

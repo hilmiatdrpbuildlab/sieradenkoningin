@@ -13,13 +13,27 @@
 		label: string;
 		badge?: string;
 	}
-	let { tabs, active = $bindable(tabs[0]?.id), label, panel }: { tabs: Tab[]; active?: string; label?: string; panel: Snippet<[string]> } = $props();
+	let {
+		tabs,
+		active = $bindable(tabs[0]?.id),
+		label,
+		panel
+	}: { tabs: Tab[]; active?: string; label?: string; panel: Snippet<[string]> } = $props();
 	const uid = $props.id();
 	let buttons: HTMLButtonElement[] = $state([]);
 
 	function onKey(e: KeyboardEvent, i: number) {
 		const n = tabs.length;
-		const to = e.key === 'ArrowRight' ? (i + 1) % n : e.key === 'ArrowLeft' ? (i - 1 + n) % n : e.key === 'Home' ? 0 : e.key === 'End' ? n - 1 : -1;
+		const to =
+			e.key === 'ArrowRight'
+				? (i + 1) % n
+				: e.key === 'ArrowLeft'
+					? (i - 1 + n) % n
+					: e.key === 'Home'
+						? 0
+						: e.key === 'End'
+							? n - 1
+							: -1;
 		if (to < 0) return;
 		e.preventDefault();
 		active = tabs[to].id;
@@ -47,7 +61,14 @@
 		{/each}
 	</div>
 	{#each tabs as t (t.id)}
-		<div role="tabpanel" id="panel{uid}-{t.id}" aria-labelledby="tab{uid}-{t.id}" hidden={active !== t.id} tabindex="0" class="panel">
+		<div
+			role="tabpanel"
+			id="panel{uid}-{t.id}"
+			aria-labelledby="tab{uid}-{t.id}"
+			hidden={active !== t.id}
+			tabindex="0"
+			class="panel"
+		>
 			{@render panel(t.id)}
 		</div>
 	{/each}

@@ -8,7 +8,11 @@
 
 	let { title, kind = 'ring' }: { title?: string; kind?: 'ring' | 'bracelet' } = $props();
 	const uid = $props.id();
-	const rings = [48, 50, 52, 54, 56, 58, 60].map((size) => ({ size, circumference: size, diameter: (size / Math.PI).toFixed(1) }));
+	const rings = [48, 50, 52, 54, 56, 58, 60].map((size) => ({
+		size,
+		circumference: size,
+		diameter: (size / Math.PI).toFixed(1)
+	}));
 	const bracelets = [
 		{ size: 'S', wrist: '15 – 16' },
 		{ size: 'M', wrist: '16,5 – 17,5' },
@@ -23,13 +27,17 @@
 			<thead>
 				<tr>
 					<th scope="col">{m.size_col_size()}</th>
-					{#if kind === 'ring'}<th scope="col">{m.size_col_circumference()}</th><th scope="col">{m.size_col_diameter()}</th>
+					{#if kind === 'ring'}<th scope="col">{m.size_col_circumference()}</th><th scope="col"
+							>{m.size_col_diameter()}</th
+						>
 					{:else}<th scope="col">{m.size_col_wrist()}</th>{/if}
 				</tr>
 			</thead>
 			<tbody>
 				{#if kind === 'ring'}
-					{#each rings as r (r.size)}<tr><th scope="row">{r.size}</th><td>{r.circumference}</td><td>{r.diameter}</td></tr>{/each}
+					{#each rings as r (r.size)}<tr
+							><th scope="row">{r.size}</th><td>{r.circumference}</td><td>{r.diameter}</td></tr
+						>{/each}
 				{:else}
 					{#each bracelets as b (b.size)}<tr><th scope="row">{b.size}</th><td>{b.wrist}</td></tr>{/each}
 				{/if}

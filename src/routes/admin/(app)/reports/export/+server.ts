@@ -2,7 +2,15 @@
 import { error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { requirePermission } from '#lib/server/auth/guard.ts';
-import { byCategory, byDay, csvMoney, discountPerformance, toCsv, topProducts, vatByMonth } from '#lib/server/services/reports.ts';
+import {
+	byCategory,
+	byDay,
+	csvMoney,
+	discountPerformance,
+	toCsv,
+	topProducts,
+	vatByMonth
+} from '#lib/server/services/reports.ts';
 import { parseRange } from '#lib/server/services/report-range.ts';
 import { audit } from '#lib/server/services/audit.ts';
 
@@ -16,24 +24,52 @@ export const GET: RequestHandler = async ({ locals, url }) => {
 		case 'days':
 			csv = toCsv(
 				(await byDay(db, range)).map((d) => ({ ...d, gross: csvMoney(d.gross), net: csvMoney(d.net) })),
-				[{ key: 'day', label: 'Datum' }, { key: 'orders', label: 'Bestellingen' }, { key: 'gross', label: 'Bruto (incl. btw)' }, { key: 'net', label: 'Netto na terugbetalingen' }]
+				[
+					{ key: 'day', label: 'Datum' },
+					{ key: 'orders', label: 'Bestellingen' },
+					{ key: 'gross', label: 'Bruto (incl. btw)' },
+					{ key: 'net', label: 'Netto na terugbetalingen' }
+				]
 			);
 			break;
 		case 'categories':
 			csv = toCsv(
-				(await byCategory(db, range)).map((c) => ({ name: c.name?.nl ?? '', units: c.units, revenue: csvMoney(c.revenue) })),
-				[{ key: 'name', label: 'Categorie' }, { key: 'units', label: 'Stuks' }, { key: 'revenue', label: 'Omzet (incl. btw)' }]
+				(await byCategory(db, range)).map((c) => ({
+					name: c.name?.nl ?? '',
+					units: c.units,
+					revenue: csvMoney(c.revenue)
+				})),
+				[
+					{ key: 'name', label: 'Categorie' },
+					{ key: 'units', label: 'Stuks' },
+					{ key: 'revenue', label: 'Omzet (incl. btw)' }
+				]
 			);
 			break;
 		case 'products':
 			csv = toCsv(
-				(await topProducts(db, range, 1000)).map((p) => ({ name: p.name?.nl ?? '', units: p.units, revenue: csvMoney(p.revenue) })),
-				[{ key: 'name', label: 'Product' }, { key: 'units', label: 'Stuks' }, { key: 'revenue', label: 'Omzet (incl. btw)' }]
+				(await topProducts(db, range, 1000)).map((p) => ({
+					name: p.name?.nl ?? '',
+					units: p.units,
+					revenue: csvMoney(p.revenue)
+				})),
+				[
+					{ key: 'name', label: 'Product' },
+					{ key: 'units', label: 'Stuks' },
+					{ key: 'revenue', label: 'Omzet (incl. btw)' }
+				]
 			);
 			break;
 		case 'vat':
 			csv = toCsv(
-				(await vatByMonth(db, range)).map((v) => ({ month: v.month, orders: v.orders, gross: csvMoney(v.gross), vat: csvMoney(v.vat), net: csvMoney(v.netExVat), refunded: csvMoney(v.refunded) })),
+				(await vatByMonth(db, range)).map((v) => ({
+					month: v.month,
+					orders: v.orders,
+					gross: csvMoney(v.gross),
+					vat: csvMoney(v.vat),
+					net: csvMoney(v.netExVat),
+					refunded: csvMoney(v.refunded)
+				})),
 				[
 					{ key: 'month', label: 'Maand' },
 					{ key: 'orders', label: 'Bestellingen' },
@@ -46,8 +82,18 @@ export const GET: RequestHandler = async ({ locals, url }) => {
 			break;
 		case 'discounts':
 			csv = toCsv(
-				(await discountPerformance(db, range)).map((d) => ({ ...d, discount: csvMoney(d.discount), revenue: csvMoney(d.revenue) })),
-				[{ key: 'code', label: 'Code' }, { key: 'type', label: 'Type' }, { key: 'uses', label: 'Gebruikt' }, { key: 'discount', label: 'Korting' }, { key: 'revenue', label: 'Omzet' }]
+				(await discountPerformance(db, range)).map((d) => ({
+					...d,
+					discount: csvMoney(d.discount),
+					revenue: csvMoney(d.revenue)
+				})),
+				[
+					{ key: 'code', label: 'Code' },
+					{ key: 'type', label: 'Type' },
+					{ key: 'uses', label: 'Gebruikt' },
+					{ key: 'discount', label: 'Korting' },
+					{ key: 'revenue', label: 'Omzet' }
+				]
 			);
 			break;
 		default:

@@ -6,7 +6,17 @@
 import type { Cookies } from '@sveltejs/kit';
 import { and, asc, eq, inArray, ne, sql } from 'drizzle-orm';
 import type { Executor } from '../db/index.ts';
-import { cartLines, carts, productImages, products, media, stockReservations, variants, shippingRates, shippingZones } from '../db/schema.ts';
+import {
+	cartLines,
+	carts,
+	productImages,
+	products,
+	media,
+	stockReservations,
+	variants,
+	shippingRates,
+	shippingZones
+} from '../db/schema.ts';
 import type { I18n } from '../db/schema.ts';
 import { randomToken } from '../crypto.ts';
 import { evaluateDiscount, lookupDiscount, type DiscountFailure } from './discounts.ts';
@@ -20,7 +30,6 @@ export type { CartLineView, CartView };
 
 export const CART_COOKIE = 'sk_cart';
 export const MAX_LINE_QTY = 10;
-
 
 export const emptyCart = (freeFrom = 5000): CartView => ({
 	id: null,
@@ -45,7 +54,10 @@ export function variantLabel(metal: string, size: string | null, lang: Lang) {
 	const sizeLabel = size ? (lang === 'fr' ? `taille ${size}` : `maat ${size}`) : '';
 	return [METAL_LABEL[lang][metal] ?? metal, sizeLabel].filter(Boolean).join(' · ');
 }
-export const variantLabelI18n = (metal: string, size: string | null): I18n => ({ nl: variantLabel(metal, size, 'nl'), fr: variantLabel(metal, size, 'fr') });
+export const variantLabelI18n = (metal: string, size: string | null): I18n => ({
+	nl: variantLabel(metal, size, 'nl'),
+	fr: variantLabel(metal, size, 'fr')
+});
 
 export async function findCart(db: Executor, cookies: Cookies) {
 	const token = cookies.get(CART_COOKIE);
@@ -58,13 +70,20 @@ export async function getOrCreateCart(db: Executor, cookies: Cookies, lang: Lang
 	const existing = await findCart(db, cookies);
 	if (existing) return existing;
 	const token = randomToken(24);
-	const [cart] = await db.insert(carts).values({ token, locale: lang, customerId: customerId ?? null }).returning();
+	const [cart] = await db
+		.insert(carts)
+		.values({ token, locale: lang, customerId: customerId ?? null })
+		.returning();
 	cookies.set(CART_COOKIE, token, { path: '/', httpOnly: true, sameSite: 'lax', maxAge: 60 * 86400 });
 	return cart;
 }
 
 /** Available units per variant for `cartId` (excludes this cart's own reservations). */
-export async function availableStock(db: Executor, variantIds: string[], cartId?: string | null): Promise<Map<string, number>> {
+export async function availableStock(
+	db: Executor,
+	variantIds: string[],
+	cartId?: string | null
+): Promise<Map<string, number>> {
 	if (!variantIds.length) return new Map();
 	const rows = await db
 		.select({
@@ -77,7 +96,12 @@ export async function availableStock(db: Executor, variantIds: string[], cartId?
 	return new Map(rows.map((r) => [r.id, Math.max(0, r.stock - r.reserved)]));
 }
 
-export async function loadCart(db: Executor, cartId: string | null, lang: Lang, opts: { email?: string | null } = {}): Promise<CartView> {
+export async function loadCart(
+	db: Executor,
+	cartId: string | null,
+	lang: Lang,
+	opts: { email?: string | null } = {}
+): Promise<CartView> {
 	const shippingSettings = await getSetting(db, 'shipping');
 	if (!cartId) return emptyCart(shippingSettings.freeFrom);
 	const [cart] = await db.select().from(carts).where(eq(carts.id, cartId));
@@ -87,8 +111,18 @@ export async function loadCart(db: Executor, cartId: string | null, lang: Lang, 
 		.select({
 			line: cartLines,
 			variant: variants,
-			product: { id: products.id, slug: products.slug, name: products.name, price: products.price, compareAtPrice: products.compareAtPrice, status: products.status },
-			image: sql<{ key: string; alt: I18n } | null>`(select json_build_object('key', ${media.storageKey}, 'alt', ${productImages.alt}) from ${productImages} join ${media} on ${media.id} = ${productImages.mediaId} where ${productImages.productId} = ${sql.raw('"products"."id"')} order by ${productImages.position} limit 1)`
+			product: {
+				id: products.id,
+				slug: products.slug,
+				name: products.name,
+				price: products.price,
+				compareAtPrice: products.compareAtPrice,
+				status: products.status
+			},
+			image: sql<{
+				key: string;
+				alt: I18n;
+			} | null>`(select json_build_object('key', ${media.storageKey}, 'alt', ${productImages.alt}) from ${productImages} join ${media} on ${media.id} = ${productImages.mediaId} where ${productImages.productId} = ${sql.raw('"products"."id"')} order by ${productImages.position} limit 1)`
 		})
 		.from(cartLines)
 		.innerJoin(variants, eq(variants.id, cartLines.variantId))
@@ -96,7 +130,11 @@ export async function loadCart(db: Executor, cartId: string | null, lang: Lang, 
 		.where(eq(cartLines.cartId, cartId))
 		.orderBy(asc(cartLines.createdAt));
 
-	const avail = await availableStock(db, rows.map((r) => r.variant.id), cartId);
+	const avail = await availableStock(
+		db,
+		rows.map((r) => r.variant.id),
+		cartId
+	);
 	const lines: CartLineView[] = rows.map(({ line, variant, product, image }) => {
 		const max = Math.min(MAX_LINE_QTY, avail.get(variant.id) ?? 0);
 		return {
@@ -134,7 +172,9 @@ export async function loadCart(db: Executor, cartId: string | null, lang: Lang, 
 	}
 	const rates = await getRates(db, 'BE');
 	const merch = subtotal - discount;
-	const shippingEstimate = lines.length ? (shippingPrice(rates, 'home', merch, shippingSettings.freeFrom, freeShipping) ?? 0) : 0;
+	const shippingEstimate = lines.length
+		? (shippingPrice(rates, 'home', merch, shippingSettings.freeFrom, freeShipping) ?? 0)
+		: 0;
 	const homeRate = rates.find((r) => r.method === 'home');
 	const freeFrom = homeRate?.freeFrom ?? shippingSettings.freeFrom;
 	return {
@@ -155,7 +195,13 @@ export async function loadCart(db: Executor, cartId: string | null, lang: Lang, 
 
 export async function getRates(db: Executor, country: string): Promise<(ShippingRate & { carrier: string })[]> {
 	const rows = await db
-		.select({ method: shippingRates.method, price: shippingRates.price, freeFrom: shippingRates.freeFrom, active: shippingRates.active, carrier: shippingRates.carrier })
+		.select({
+			method: shippingRates.method,
+			price: shippingRates.price,
+			freeFrom: shippingRates.freeFrom,
+			active: shippingRates.active,
+			carrier: shippingRates.carrier
+		})
 		.from(shippingRates)
 		.innerJoin(shippingZones, eq(shippingZones.id, shippingRates.zoneId))
 		.where(and(eq(shippingZones.active, true), sql`${country} = any(${shippingZones.countries})`));
@@ -164,7 +210,11 @@ export async function getRates(db: Executor, country: string): Promise<(Shipping
 
 export type CartMutationError = 'unavailable' | 'not_found' | 'qty';
 
-export async function addToCart(db: Executor, cartId: string, input: { variantId: string; qty: number; giftWrap?: boolean }): Promise<{ ok: true; capped: boolean } | { ok: false; error: CartMutationError }> {
+export async function addToCart(
+	db: Executor,
+	cartId: string,
+	input: { variantId: string; qty: number; giftWrap?: boolean }
+): Promise<{ ok: true; capped: boolean } | { ok: false; error: CartMutationError }> {
 	const [v] = await db
 		.select({ id: variants.id, status: products.status })
 		.from(variants)
@@ -172,18 +222,28 @@ export async function addToCart(db: Executor, cartId: string, input: { variantId
 		.where(eq(variants.id, input.variantId));
 	if (!v || v.status !== 'active') return { ok: false, error: 'not_found' };
 	const available = (await availableStock(db, [v.id], cartId)).get(v.id) ?? 0;
-	const [existing] = await db.select().from(cartLines).where(and(eq(cartLines.cartId, cartId), eq(cartLines.variantId, v.id)));
+	const [existing] = await db
+		.select()
+		.from(cartLines)
+		.where(and(eq(cartLines.cartId, cartId), eq(cartLines.variantId, v.id)));
 	const wanted = (existing?.qty ?? 0) + Math.max(1, input.qty);
 	const qty = Math.min(wanted, available, MAX_LINE_QTY);
 	if (qty <= 0) return { ok: false, error: 'unavailable' };
-	if (existing) await db.update(cartLines).set({ qty, giftWrap: input.giftWrap ?? existing.giftWrap }).where(eq(cartLines.id, existing.id));
+	if (existing)
+		await db
+			.update(cartLines)
+			.set({ qty, giftWrap: input.giftWrap ?? existing.giftWrap })
+			.where(eq(cartLines.id, existing.id));
 	else await db.insert(cartLines).values({ cartId, variantId: v.id, qty, giftWrap: input.giftWrap ?? false });
 	await touch(db, cartId);
 	return { ok: true, capped: qty < wanted };
 }
 
 export async function setLineQty(db: Executor, cartId: string, lineId: string, qty: number) {
-	const [line] = await db.select().from(cartLines).where(and(eq(cartLines.id, lineId), eq(cartLines.cartId, cartId)));
+	const [line] = await db
+		.select()
+		.from(cartLines)
+		.where(and(eq(cartLines.id, lineId), eq(cartLines.cartId, cartId)));
 	if (!line) return { ok: false as const, error: 'not_found' as const };
 	if (qty <= 0) {
 		await db.delete(cartLines).where(eq(cartLines.id, lineId));
@@ -198,7 +258,10 @@ export async function setLineQty(db: Executor, cartId: string, lineId: string, q
 }
 
 export async function setLineGiftWrap(db: Executor, cartId: string, lineId: string, giftWrap: boolean) {
-	await db.update(cartLines).set({ giftWrap }).where(and(eq(cartLines.id, lineId), eq(cartLines.cartId, cartId)));
+	await db
+		.update(cartLines)
+		.set({ giftWrap })
+		.where(and(eq(cartLines.id, lineId), eq(cartLines.cartId, cartId)));
 }
 
 export async function setDiscountCode(db: Executor, cartId: string, code: string | null) {
@@ -212,13 +275,25 @@ export async function clearCart(db: Executor, cartId: string) {
 
 /** On login: move guest cart lines into the customer's cart (P3-01). */
 export async function mergeCarts(db: Executor, guestCartId: string, customerId: string) {
-	const [own] = await db.select().from(carts).where(and(eq(carts.customerId, customerId), ne(carts.id, guestCartId))).orderBy(sql`${carts.updatedAt} desc`).limit(1);
+	const [own] = await db
+		.select()
+		.from(carts)
+		.where(and(eq(carts.customerId, customerId), ne(carts.id, guestCartId)))
+		.orderBy(sql`${carts.updatedAt} desc`)
+		.limit(1);
 	await db.update(carts).set({ customerId }).where(eq(carts.id, guestCartId));
 	if (!own) return guestCartId;
 	const ownLines = await db.select().from(cartLines).where(eq(cartLines.cartId, own.id));
 	for (const l of ownLines) {
-		const [dup] = await db.select().from(cartLines).where(and(eq(cartLines.cartId, guestCartId), eq(cartLines.variantId, l.variantId)));
-		if (dup) await db.update(cartLines).set({ qty: Math.min(MAX_LINE_QTY, Math.max(dup.qty, l.qty)) }).where(eq(cartLines.id, dup.id));
+		const [dup] = await db
+			.select()
+			.from(cartLines)
+			.where(and(eq(cartLines.cartId, guestCartId), eq(cartLines.variantId, l.variantId)));
+		if (dup)
+			await db
+				.update(cartLines)
+				.set({ qty: Math.min(MAX_LINE_QTY, Math.max(dup.qty, l.qty)) })
+				.where(eq(cartLines.id, dup.id));
 		else await db.update(cartLines).set({ cartId: guestCartId }).where(eq(cartLines.id, l.id));
 	}
 	await db.delete(carts).where(eq(carts.id, own.id));
@@ -231,6 +306,7 @@ async function touch(db: Executor, cartId: string) {
 
 /** Purge abandoned anonymous carts (cron). */
 export async function purgeOldCarts(db: Executor, days = 60) {
-	await db.delete(carts).where(and(sql`${carts.customerId} is null`, sql`${carts.updatedAt} < now() - (${days} || ' days')::interval`));
+	await db
+		.delete(carts)
+		.where(and(sql`${carts.customerId} is null`, sql`${carts.updatedAt} < now() - (${days} || ' days')::interval`));
 }
-

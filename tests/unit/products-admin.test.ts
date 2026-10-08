@@ -1,7 +1,17 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { and, desc, eq, inArray, like } from 'drizzle-orm';
 import { createDb, type DB } from '#lib/server/db/index.ts';
-import { auditLog, categories, media, priceHistory, productImages, productRelations, products, stockMovements, variants } from '#lib/server/db/schema.ts';
+import {
+	auditLog,
+	categories,
+	media,
+	priceHistory,
+	productImages,
+	productRelations,
+	products,
+	stockMovements,
+	variants
+} from '#lib/server/db/schema.ts';
 import {
 	activationErrors,
 	formToObject,
@@ -13,7 +23,15 @@ import {
 	parseTags
 } from '#lib/schemas/product.ts';
 import { fieldErrors } from '#lib/schemas/common.ts';
-import { duplicateProduct, listProducts, loadProduct, modelFromProduct, saveProduct, setProductStatus, ValidationError } from '#lib/server/services/products-admin.ts';
+import {
+	duplicateProduct,
+	listProducts,
+	loadProduct,
+	modelFromProduct,
+	saveProduct,
+	setProductStatus,
+	ValidationError
+} from '#lib/server/services/products-admin.ts';
 import { imageInfo, checkUpload } from '#lib/server/services/media.ts';
 
 const fd = (entries: [string, string][]) => {
@@ -36,11 +54,22 @@ describe('formToObject', () => {
 				['_intent', 'ignored']
 			])
 		);
-		expect(o).toEqual({ name: { nl: 'Ring', fr: 'Bague' }, variants: [{ sku: 'A' }, { sku: 'B' }, { sku: 'K' }], related: ['x', 'y'] });
+		expect(o).toEqual({
+			name: { nl: 'Ring', fr: 'Bague' },
+			variants: [{ sku: 'A' }, { sku: 'B' }, { sku: 'K' }],
+			related: ['x', 'y']
+		});
 	});
 
 	it('normalizeModel fills every path for re-rendering', () => {
-		const m = normalizeModel(formToObject(fd([['name.nl', 'Ring'], ['related', 'a']])));
+		const m = normalizeModel(
+			formToObject(
+				fd([
+					['name.nl', 'Ring'],
+					['related', 'a']
+				])
+			)
+		);
 		expect(m.name).toEqual({ nl: 'Ring', fr: '' });
 		expect(m.related).toEqual(['a']);
 		expect(m.seo.title).toEqual({ nl: '', fr: '' });
@@ -75,13 +104,24 @@ const base = {
 
 describe('productSchema', () => {
 	it('converts euros to cents and checkboxes to booleans', () => {
-		const r = productSchema.safeParse({ ...base, featured: 'on', tags: 'a, b', variants: [{ sku: 'x-1', metal: 'gold', stock: '3', priceOverride: '55' }] });
+		const r = productSchema.safeParse({
+			...base,
+			featured: 'on',
+			tags: 'a, b',
+			variants: [{ sku: 'x-1', metal: 'gold', stock: '3', priceOverride: '55' }]
+		});
 		expect(r.success).toBe(true);
 		expect(r.data!.price).toBe(4995);
 		expect(r.data!.featured).toBe(true);
 		expect(r.data!.engravable).toBe(false);
 		expect(r.data!.tags).toEqual(['a', 'b']);
-		expect(r.data!.variants[0]).toMatchObject({ sku: 'X-1', stock: 3, priceOverride: 5500, lowStockThreshold: 2, size: null });
+		expect(r.data!.variants[0]).toMatchObject({
+			sku: 'X-1',
+			stock: 3,
+			priceOverride: 5500,
+			lowStockThreshold: 2,
+			size: null
+		});
 		expect(r.data!.description).toBeNull();
 	});
 
@@ -131,7 +171,11 @@ describe('activationErrors', () => {
 	});
 	it('needs an image with NL alt text and a variant', () => {
 		expect(activationErrors({ status: 'active', images: [img], variants: [{}] })).toEqual({});
-		const e = activationErrors({ status: 'active', images: [{ alt: { nl: '' } }, { ...img, remove: true }], variants: [{ remove: true }] });
+		const e = activationErrors({
+			status: 'active',
+			images: [{ alt: { nl: '' } }, { ...img, remove: true }],
+			variants: [{ remove: true }]
+		});
 		expect(Object.keys(e).sort()).toEqual(['images', 'status', 'variants']);
 	});
 });
@@ -149,7 +193,9 @@ describe('imageInfo', () => {
 		expect(checkUpload(imageInfo(new TextEncoder().encode('<svg></svg>')), 10)).toMatch(/Alleen/);
 	});
 	it('reads JPEG SOF dimensions', () => {
-		const jpg = new Uint8Array([0xff, 0xd8, 0xff, 0xe0, 0, 4, 0, 0, 0xff, 0xc0, 0, 17, 8, 0x07, 0xd0, 0x0a, 0x00, 3, 0, 0, 0, 0, 0, 0, 0, 0]);
+		const jpg = new Uint8Array([
+			0xff, 0xd8, 0xff, 0xe0, 0, 4, 0, 0, 0xff, 0xc0, 0, 17, 8, 0x07, 0xd0, 0x0a, 0x00, 3, 0, 0, 0, 0, 0, 0, 0, 0
+		]);
 		expect(imageInfo(jpg)).toEqual({ mime: 'image/jpeg', width: 2560, height: 2000 });
 	});
 });
@@ -158,7 +204,13 @@ describe('imageInfo', () => {
 const DB_URL = process.env.DATABASE_URL || 'postgres://sk@localhost:54329/sieradenkoningin';
 const RUN = `test-pa-${Date.now().toString(36)}`;
 const actor = {
-	admin: { id: crypto.randomUUID(), name: 'Unit test', email: 'unit@example.invalid', role: 'owner' as const, sessionId: 'unit' },
+	admin: {
+		id: crypto.randomUUID(),
+		name: 'Unit test',
+		email: 'unit@example.invalid',
+		role: 'owner' as const,
+		sessionId: 'unit'
+	},
 	ip: '127.0.0.1'
 };
 
@@ -173,7 +225,11 @@ describe('saveProduct / duplicate / archive (database)', () => {
 		({ db, close } = createDb(DB_URL, 2));
 		[{ id: categoryId }] = await db.select({ id: categories.id }).from(categories).where(eq(categories.key, 'rings'));
 		[{ id: mediaId }] = await db.select({ id: media.id }).from(media).limit(1);
-		[{ id: otherProductId }] = await db.select({ id: products.id }).from(products).where(like(products.slug, 'demo-%')).limit(1);
+		[{ id: otherProductId }] = await db
+			.select({ id: products.id })
+			.from(products)
+			.where(like(products.slug, 'demo-%'))
+			.limit(1);
 	});
 	afterAll(async () => {
 		await db.delete(products).where(like(products.slug, `${RUN}%`));
@@ -187,7 +243,9 @@ describe('saveProduct / duplicate / archive (database)', () => {
 	};
 
 	it('refuses activation without image/variant, then creates, edits, duplicates and archives', async () => {
-		await expect(db.transaction((tx) => saveProduct(tx, actor, null, parse({ status: 'active' })))).rejects.toBeInstanceOf(ValidationError);
+		await expect(
+			db.transaction((tx) => saveProduct(tx, actor, null, parse({ status: 'active' })))
+		).rejects.toBeInstanceOf(ValidationError);
 
 		const id = await db.transaction((tx) =>
 			saveProduct(
@@ -209,7 +267,9 @@ describe('saveProduct / duplicate / archive (database)', () => {
 		expect(loaded.product.status).toBe('active');
 		expect(loaded.variants.map((v) => v.stock)).toEqual([4, 0]);
 		expect(loaded.relations).toEqual([{ relatedId: otherProductId, kind: 'related' }]);
-		expect((await db.select().from(priceHistory).where(eq(priceHistory.productId, id))).map((p) => p.price)).toEqual([4995]);
+		expect((await db.select().from(priceHistory).where(eq(priceHistory.productId, id))).map((p) => p.price)).toEqual([
+			4995
+		]);
 
 		// Edit: new price → price_history row; stock change → stock movement; remove a variant
 		const model = modelFromProduct(loaded, (k) => `/media/${k}`);
@@ -223,13 +283,26 @@ describe('saveProduct / duplicate / archive (database)', () => {
 		const after = (await loadProduct(db, id))!;
 		expect(after.product.price).toBe(5995);
 		expect(after.variants).toHaveLength(1);
-		expect((await db.select().from(priceHistory).where(eq(priceHistory.productId, id))).map((p) => p.price).sort()).toEqual([4995, 5995]);
-		const moves = await db.select().from(stockMovements).where(eq(stockMovements.variantId, after.variants[0].id)).orderBy(desc(stockMovements.createdAt));
+		expect(
+			(await db.select().from(priceHistory).where(eq(priceHistory.productId, id))).map((p) => p.price).sort()
+		).toEqual([4995, 5995]);
+		const moves = await db
+			.select()
+			.from(stockMovements)
+			.where(eq(stockMovements.variantId, after.variants[0].id))
+			.orderBy(desc(stockMovements.createdAt));
 		expect(moves.map((m) => m.delta)).toEqual([-3, 4]);
 
 		// SKU clash with another product is a field error
-		const [demoVariant] = await db.select({ sku: variants.sku }).from(variants).where(eq(variants.productId, otherProductId)).limit(1);
-		const clash = parse({ ...modelFromProduct(after, (k) => k), variants: [{ sku: demoVariant.sku, metal: 'rosegold', stock: '0' }] });
+		const [demoVariant] = await db
+			.select({ sku: variants.sku })
+			.from(variants)
+			.where(eq(variants.productId, otherProductId))
+			.limit(1);
+		const clash = parse({
+			...modelFromProduct(after, (k) => k),
+			variants: [{ sku: demoVariant.sku, metal: 'rosegold', stock: '0' }]
+		});
 		const err = await db.transaction((tx) => saveProduct(tx, actor, id, clash)).catch((e) => e);
 		expect(err).toBeInstanceOf(ValidationError);
 		expect(Object.keys((err as ValidationError).errors)).toContain('variants.0.sku');
@@ -280,7 +353,12 @@ describe('prepareProductForm (no-JS edits)', () => {
 		) as Record<string, unknown>;
 		const out = prepareProductForm(raw);
 		expect(out.related).toEqual(['b', 'c']);
-		expect((out.variants as { sku: string }[]).map((v) => v.sku)).toEqual(['RING-GO-50', 'RING-GO-52', 'RING-SI-50', 'RING-SI-52']);
+		expect((out.variants as { sku: string }[]).map((v) => v.sku)).toEqual([
+			'RING-GO-50',
+			'RING-GO-52',
+			'RING-SI-50',
+			'RING-SI-52'
+		]);
 		expect(out.matrix).toBeUndefined();
 	});
 });

@@ -105,21 +105,51 @@
 			box-shadow var(--dur-base) var(--motion-out);
 		-webkit-tap-highlight-color: transparent;
 	}
-	.btn--sm { --_h: 2.5rem; --_px: 1.25rem; }
-	.btn--lg { --_h: 3.5rem; --_px: 2.5rem; font-size: var(--fs-sm); }
-	.btn--full { width: 100%; }
-	.btn--icon { --_px: 0; width: var(--_h); }
+	.btn--sm {
+		--_h: 2.5rem;
+		--_px: 1.25rem;
+	}
+	.btn--lg {
+		--_h: 3.5rem;
+		--_px: 2.5rem;
+		font-size: var(--fs-sm);
+	}
+	.btn--full {
+		width: 100%;
+	}
+	.btn--icon {
+		--_px: 0;
+		width: var(--_h);
+	}
 
 	/* Solid — "Add to cart", "Shop now" on light */
-	.btn--primary { background: var(--ui-action); color: var(--ui-action-text); }
-	.btn--primary:hover { background: var(--ui-action-hover); }
+	.btn--primary {
+		background: var(--ui-action);
+		color: var(--ui-action-text);
+	}
+	.btn--primary:hover {
+		background: var(--ui-action-hover);
+	}
 
 	/* Hairline — the board's "SHOP NOW" on imagery */
-	.btn--outline { background: transparent; color: var(--ui-text); border-color: var(--ui-border-strong); }
-	.btn--outline:hover { background: var(--ui-text); color: var(--ui-bg); border-color: var(--ui-text); }
+	.btn--outline {
+		background: transparent;
+		color: var(--ui-text);
+		border-color: var(--ui-border-strong);
+	}
+	.btn--outline:hover {
+		background: var(--ui-text);
+		color: var(--ui-bg);
+		border-color: var(--ui-text);
+	}
 
-	.btn--ghost { background: transparent; color: var(--ui-text); }
-	.btn--ghost:hover { background: color-mix(in srgb, var(--ui-text) 8%, transparent); }
+	.btn--ghost {
+		background: transparent;
+		color: var(--ui-text);
+	}
+	.btn--ghost:hover {
+		background: color-mix(in srgb, var(--ui-text) 8%, transparent);
+	}
 
 	/* Text link with animated hairline underline */
 	.btn--link {
@@ -134,20 +164,46 @@
 		background-repeat: no-repeat;
 		border-radius: 0;
 	}
-	.btn--link:hover { background-size: 0% 1px; background-position: 100% 100%; transition: background-size var(--dur-slow) var(--motion-out); }
+	.btn--link:hover {
+		background-size: 0% 1px;
+		background-position: 100% 100%;
+		transition: background-size var(--dur-slow) var(--motion-out);
+	}
 
 	/* Special occasions only — gift cards, VIP. Max one per view. */
-	.btn--gold { background: var(--ui-gold-gradient); color: var(--sk-burgundy); background-size: 200% 100%; }
-	.btn--gold:hover { background-position: 100% 0; box-shadow: var(--elev-glow); }
+	.btn--gold {
+		background: var(--ui-gold-gradient);
+		color: var(--sk-burgundy);
+		background-size: 200% 100%;
+	}
+	.btn--gold:hover {
+		background-position: 100% 0;
+		box-shadow: var(--elev-glow);
+	}
 
-	.btn--danger { background: var(--ui-danger); color: var(--ui-action-text); }
-	.btn--danger:hover { background: color-mix(in srgb, var(--ui-danger) 82%, black); }
+	.btn--danger {
+		background: var(--ui-danger);
+		color: var(--ui-action-text);
+	}
+	.btn--danger:hover {
+		background: color-mix(in srgb, var(--ui-danger) 82%, black);
+	}
 
-	.btn:focus-visible { outline: none; box-shadow: var(--elev-focus); }
-	.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+	.btn:focus-visible {
+		outline: none;
+		box-shadow: var(--elev-focus);
+	}
+	.btn:disabled {
+		opacity: 0.45;
+		cursor: not-allowed;
+	}
 
-	.btn :global(.arrow) { transition: transform var(--dur-base) var(--motion-out); }
-	.btn:hover :global(.arrow) { transform: translateX(3px); }
+	.btn :global(.arrow) {
+		transition: transform var(--dur-base) var(--motion-out);
+	}
+	.btn:hover :global(.arrow) {
+		transform: translateX(3px);
+	}
 
 	.spinner {
 		width: 1em;
@@ -157,6 +213,17 @@
 		border-radius: 50%;
 		animation: spin 0.8s linear infinite;
 	}
-	@keyframes spin { to { transform: rotate(360deg); } }
-	.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+	@keyframes spin {
+		to {
+			transform: rotate(360deg);
+		}
+	}
+	.sr-only {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		overflow: hidden;
+		clip: rect(0 0 0 0);
+		white-space: nowrap;
+	}
 </style>

@@ -10,13 +10,19 @@
 
 	let { data, form } = $props();
 	const errs = $derived(form && 'errors' in form ? (form.errors as Record<string, string[]>) : {});
-	const keep = () => async ({ update }: { update: (o?: { reset?: boolean }) => Promise<void> }) => update({ reset: false });
+	const keep =
+		() =>
+		async ({ update }: { update: (o?: { reset?: boolean }) => Promise<void> }) =>
+			update({ reset: false });
 	const methodLabel = { home: 'Thuislevering', pickup: 'Afhaalpunt / pakjesautomaat' } as const;
 </script>
 
 <svelte:head><title>Verzending — Beheer</title></svelte:head>
 
-<PageHeader title="Verzending" description="Wijzigingen gelden meteen voor winkelmandjes en de kassa. Prijzen incl. btw.">
+<PageHeader
+	title="Verzending"
+	description="Wijzigingen gelden meteen voor winkelmandjes en de kassa. Prijzen incl. btw."
+>
 	{#snippet meta()}Levering naar: {#each data.shipping.shipToCountries as c (c)}<Badge>{c}</Badge>{/each}{/snippet}
 </PageHeader>
 
@@ -24,12 +30,26 @@
 	<Card title="Algemeen">
 		<form method="POST" action="?/general" use:enhance={keep}>
 			{#if form?.form === 'general' && 'saved' in form}<p class="ok" role="status">Opgeslagen.</p>{/if}
-			<Field label="Gratis verzending vanaf" hint="Standaarddrempel (beslissing D9). Een tarief kan een eigen drempel hebben." error={errs.freeFrom}>
+			<Field
+				label="Gratis verzending vanaf"
+				hint="Standaarddrempel (beslissing D9). Een tarief kan een eigen drempel hebben."
+				error={errs.freeFrom}
+			>
 				<Input name="freeFrom" inputmode="decimal" prefix="€" value={centsToInput(data.shipping.freeFrom)} />
 			</Field>
 			<div class="two">
-				<Field label="Uiterste besteltijd" hint="Uur (0–23) voor 'morgen in huis'" error={errs.cutoffHour}><Input name="cutoffHour" type="number" min={0} max={23} value={String(data.shipping.cutoffHour)} /></Field>
-				<Field label="Levertijd (werkdagen)" error={errs.deliveryDays}><Input name="deliveryDays" type="number" min={1} max={10} value={String(data.shipping.deliveryDays)} /></Field>
+				<Field label="Uiterste besteltijd" hint="Uur (0–23) voor 'morgen in huis'" error={errs.cutoffHour}
+					><Input name="cutoffHour" type="number" min={0} max={23} value={String(data.shipping.cutoffHour)} /></Field
+				>
+				<Field label="Levertijd (werkdagen)" error={errs.deliveryDays}
+					><Input
+						name="deliveryDays"
+						type="number"
+						min={1}
+						max={10}
+						value={String(data.shipping.deliveryDays)}
+					/></Field
+				>
 			</div>
 			<div><Button type="submit" size="sm">Opslaan</Button></div>
 		</form>
@@ -52,8 +72,12 @@
 					{#if form?.form === r.id && 'error' in form}<p class="err" role="alert">{form.error}</p>{/if}
 					{#if form?.form === r.id && 'saved' in form}<p class="ok" role="status">Opgeslagen.</p>{/if}
 					<div class="three">
-						<Field label="Prijs"><Input name="price" inputmode="decimal" prefix="€" value={centsToInput(r.price)} /></Field>
-						<Field label="Gratis vanaf" optional><Input name="freeFrom" inputmode="decimal" prefix="€" value={centsToInput(r.freeFrom)} /></Field>
+						<Field label="Prijs"
+							><Input name="price" inputmode="decimal" prefix="€" value={centsToInput(r.price)} /></Field
+						>
+						<Field label="Gratis vanaf" optional
+							><Input name="freeFrom" inputmode="decimal" prefix="€" value={centsToInput(r.freeFrom)} /></Field
+						>
 						<Field label="Vervoerder"><Input name="carrier" value={r.carrier} /></Field>
 					</div>
 					<label class="check"><input type="checkbox" name="active" checked={r.active} /> Aangeboden in de kassa</label>

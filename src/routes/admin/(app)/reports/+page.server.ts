@@ -1,6 +1,13 @@
 import type { PageServerLoad } from './$types';
 import { requirePermission } from '#lib/server/auth/guard.ts';
-import { byCategory, byDay, discountPerformance, summary, topProducts, vatByMonth } from '#lib/server/services/reports.ts';
+import {
+	byCategory,
+	byDay,
+	discountPerformance,
+	summary,
+	topProducts,
+	vatByMonth
+} from '#lib/server/services/reports.ts';
 import { parseRange } from '#lib/server/services/report-range.ts';
 
 export const load: PageServerLoad = async ({ locals, url }) => {

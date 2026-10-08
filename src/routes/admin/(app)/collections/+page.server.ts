@@ -15,7 +15,10 @@ export const load: PageServerLoad = async ({ locals }) => {
 			slug: c.slugs.nl,
 			type: c.type,
 			active: c.active,
-			summary: c.type === 'rule' ? describeRule(c.rule, catName) : `${c.manualCount} product${c.manualCount === 1 ? '' : 'en'}`,
+			summary:
+				c.type === 'rule'
+					? describeRule(c.rule, catName)
+					: `${c.manualCount} product${c.manualCount === 1 ? '' : 'en'}`,
 			updatedAt: c.updatedAt
 		})),
 		canWrite: can(admin.role, 'catalog:write')

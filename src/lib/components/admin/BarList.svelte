@@ -8,7 +8,12 @@
 		value: number;
 		meta?: string;
 	}
-	let { title, items, format, hideTitle = false }: { title: string; items: Item[]; format: (v: number) => string; hideTitle?: boolean } = $props();
+	let {
+		title,
+		items,
+		format,
+		hideTitle = false
+	}: { title: string; items: Item[]; format: (v: number) => string; hideTitle?: boolean } = $props();
 	const max = $derived(Math.max(1, ...items.map((i) => i.value)));
 	const uid = $props.id();
 </script>
@@ -21,7 +26,9 @@
 				<li>
 					<div class="row">
 						<span class="label">{item.label}</span>
-						<span class="value">{format(item.value)}{#if item.meta}<small> · {item.meta}</small>{/if}</span>
+						<span class="value"
+							>{format(item.value)}{#if item.meta}<small> · {item.meta}</small>{/if}</span
+						>
 					</div>
 					<div class="track" aria-hidden="true"><span style:width="{(item.value / max) * 100}%"></span></div>
 				</li>

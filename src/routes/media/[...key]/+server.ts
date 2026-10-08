@@ -18,7 +18,8 @@ export const GET: RequestHandler = async ({ params, locals, url }) => {
 	if (key === 'private') {
 		key = url.searchParams.get('key') ?? '';
 		const exp = Number(url.searchParams.get('exp'));
-		if (!(await verifyMockSignature(env.SESSION_SECRET, 'GET', key, exp, url.searchParams.get('sig') ?? ''))) error(403);
+		if (!(await verifyMockSignature(env.SESSION_SECRET, 'GET', key, exp, url.searchParams.get('sig') ?? '')))
+			error(403);
 		cache = 'private, no-store';
 	} else if (PRIVATE_PREFIXES.some((p) => key.startsWith(p))) {
 		error(404);
@@ -27,6 +28,11 @@ export const GET: RequestHandler = async ({ params, locals, url }) => {
 	const obj = await locals.storage.get(key);
 	if (!obj) error(404);
 	return new Response(new Blob([new Uint8Array(obj.body)]), {
-		headers: { 'content-type': obj.contentType, 'cache-control': cache, 'x-content-type-options': 'nosniff', 'content-security-policy': "default-src 'none'; style-src 'unsafe-inline'" }
+		headers: {
+			'content-type': obj.contentType,
+			'cache-control': cache,
+			'x-content-type-options': 'nosniff',
+			'content-security-policy': "default-src 'none'; style-src 'unsafe-inline'"
+		}
 	});
 };

@@ -22,7 +22,16 @@
 		slugName?: string;
 		onchange?: () => void;
 	}
-	let { slug = $bindable(), seo = $bindable(), name, autoSlug = false, errors = {}, urlPrefix = '/nl/p/', slugName = 'slug', onchange }: Props = $props();
+	let {
+		slug = $bindable(),
+		seo = $bindable(),
+		name,
+		autoSlug = false,
+		errors = {},
+		urlPrefix = '/nl/p/',
+		slugName = 'slug',
+		onchange
+	}: Props = $props();
 
 	// svelte-ignore state_referenced_locally (initial value only; the user owns the toggle afterwards)
 	let auto = $state(autoSlug && !slug);
@@ -31,12 +40,19 @@
 	});
 
 	const previewTitle = $derived(seo.title.nl || name.nl || 'Titel');
-	const previewDesc = $derived(seo.description.nl || 'Voeg een meta-omschrijving toe zodat zoekmachines een goede samenvatting tonen.');
+	const previewDesc = $derived(
+		seo.description.nl || 'Voeg een meta-omschrijving toe zodat zoekmachines een goede samenvatting tonen.'
+	);
 	const e = (k: string) => errors[k]?.[0];
 </script>
 
 <div class="seo">
-	<Field label="Slug (URL)" hint="{urlPrefix}… · kleine letters, cijfers en koppeltekens. Wijzigen breekt bestaande links." error={e(slugName)} required>
+	<Field
+		label="Slug (URL)"
+		hint="{urlPrefix}… · kleine letters, cijfers en koppeltekens. Wijzigen breekt bestaande links."
+		error={e(slugName)}
+		required
+	>
 		<Input
 			name={slugName}
 			bind:value={slug}
@@ -52,11 +68,28 @@
 
 	<I18nTabs label="SEO-taal" {errors} frMissing={!seo.title.fr && !seo.description.fr}>
 		{#snippet panel(lang)}
-			<Field label="SEO-titel ({lang.toUpperCase()})" hint="Leeg = naam. Ideaal ≤ 60 tekens." error={e(`seo.title.${lang}`)} optional>
+			<Field
+				label="SEO-titel ({lang.toUpperCase()})"
+				hint="Leeg = naam. Ideaal ≤ 60 tekens."
+				error={e(`seo.title.${lang}`)}
+				optional
+			>
 				<Input name="seo.title.{lang}" bind:value={seo.title[lang]} maxlength={70} oninput={onchange} />
 			</Field>
-			<Field label="Meta-omschrijving ({lang.toUpperCase()})" hint="Ideaal 120–160 tekens." error={e(`seo.description.${lang}`)} optional>
-				<Textarea name="seo.description.{lang}" bind:value={seo.description[lang]} rows={3} maxlength={170} counter oninput={onchange} />
+			<Field
+				label="Meta-omschrijving ({lang.toUpperCase()})"
+				hint="Ideaal 120–160 tekens."
+				error={e(`seo.description.${lang}`)}
+				optional
+			>
+				<Textarea
+					name="seo.description.{lang}"
+					bind:value={seo.description[lang]}
+					rows={3}
+					maxlength={170}
+					counter
+					oninput={onchange}
+				/>
 			</Field>
 		{/snippet}
 	</I18nTabs>

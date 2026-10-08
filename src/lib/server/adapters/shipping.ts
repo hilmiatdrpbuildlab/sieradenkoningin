@@ -48,7 +48,10 @@ export function createShipping(publicKey: string, secretKey: string): ShippingAd
 	if (!publicKey || !secretKey) return createMockShipping();
 	const auth = 'Basic ' + btoa(`${publicKey}:${secretKey}`);
 	const api = async (url: string, init: RequestInit = {}) => {
-		const res = await fetch(url, { ...init, headers: { authorization: auth, 'content-type': 'application/json', ...init.headers } });
+		const res = await fetch(url, {
+			...init,
+			headers: { authorization: auth, 'content-type': 'application/json', ...init.headers }
+		});
 		if (!res.ok) throw new Error(`Sendcloud ${url} → ${res.status}: ${await res.text()}`);
 		return res;
 	};
@@ -85,7 +88,11 @@ export function createShipping(publicKey: string, secretKey: string): ShippingAd
 					shipment: { id: 8 } // unstamped letter fallback; real shipping method id configured in Sendcloud
 				}
 			};
-			const parcel = ((await (await api('https://panel.sendcloud.sc/api/v2/parcels', { method: 'POST', body: JSON.stringify(body) })).json()) as any).parcel;
+			const parcel = (
+				(await (
+					await api('https://panel.sendcloud.sc/api/v2/parcels', { method: 'POST', body: JSON.stringify(body) })
+				).json()) as any
+			).parcel;
 			const pdf = await api(parcel.label.label_printer ?? parcel.label.normal_printer[0]);
 			return {
 				providerRef: String(parcel.id),
@@ -116,9 +123,30 @@ function createMockShipping(): ShippingAdapter {
 		async servicePoints(postalCode) {
 			const pc = postalCode.replace(/\D/g, '').slice(0, 4) || '1000';
 			return [
-				{ id: `${pc}01`, name: 'DEMO bpost punt — Krantenwinkel', street: 'Marktplein 1', postalCode: pc, city: 'Demostad', carrier: 'bpost' },
-				{ id: `${pc}02`, name: 'DEMO Pakjesautomaat Station', street: 'Stationsstraat 12', postalCode: pc, city: 'Demostad', carrier: 'bpost' },
-				{ id: `${pc}03`, name: 'DEMO Postkantoor', street: 'Kerkstraat 8', postalCode: pc, city: 'Demostad', carrier: 'bpost' }
+				{
+					id: `${pc}01`,
+					name: 'DEMO bpost punt — Krantenwinkel',
+					street: 'Marktplein 1',
+					postalCode: pc,
+					city: 'Demostad',
+					carrier: 'bpost'
+				},
+				{
+					id: `${pc}02`,
+					name: 'DEMO Pakjesautomaat Station',
+					street: 'Stationsstraat 12',
+					postalCode: pc,
+					city: 'Demostad',
+					carrier: 'bpost'
+				},
+				{
+					id: `${pc}03`,
+					name: 'DEMO Postkantoor',
+					street: 'Kerkstraat 8',
+					postalCode: pc,
+					city: 'Demostad',
+					carrier: 'bpost'
+				}
 			];
 		},
 		async createLabel(input) {

@@ -14,5 +14,10 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 		dir: url.searchParams.get('dir') === 'asc' ? 'asc' : 'desc',
 		page: Math.max(1, Number(url.searchParams.get('page')) || 1)
 	});
-	return { ...r, q: url.searchParams.get('q') ?? '', newsletter: url.searchParams.get('newsletter') === '1', crumbs: [{ label: 'Klanten' }] };
+	return {
+		...r,
+		q: url.searchParams.get('q') ?? '',
+		newsletter: url.searchParams.get('newsletter') === '1',
+		crumbs: [{ label: 'Klanten' }]
+	};
 };

@@ -19,7 +19,13 @@
 	import Textarea from '#lib/components/ui/Textarea.svelte';
 	import Checkbox from '#lib/components/ui/Checkbox.svelte';
 	import Icon from '#lib/components/ui/Icon.svelte';
-	import { BADGES, BADGE_LABELS, PRODUCT_STATUSES, STATUS_LABELS, type ProductFormModel } from '#lib/schemas/product.ts';
+	import {
+		BADGES,
+		BADGE_LABELS,
+		PRODUCT_STATUSES,
+		STATUS_LABELS,
+		type ProductFormModel
+	} from '#lib/schemas/product.ts';
 
 	interface Option {
 		value: string;
@@ -43,7 +49,17 @@
 		formId?: string;
 		cancelHref?: string;
 	}
-	let { model, errors = {}, isNew, categories, products, stoneColors = [], startDirty = false, formId = 'product-form', cancelHref = '/admin/products' }: Props = $props();
+	let {
+		model,
+		errors = {},
+		isNew,
+		categories,
+		products,
+		stoneColors = [],
+		startDirty = false,
+		formId = 'product-form',
+		cancelHref = '/admin/products'
+	}: Props = $props();
 
 	// svelte-ignore state_referenced_locally (the form owns its copy; the page remounts it via {#key})
 	let m = $state(structuredClone(model));
@@ -55,7 +71,11 @@
 	let saving = $state(false);
 
 	const serialize = () =>
-		formEl ? new URLSearchParams([...new FormData(formEl)].filter((e): e is [string, string] => typeof e[1] === 'string')).toString() : '';
+		formEl
+			? new URLSearchParams(
+					[...new FormData(formEl)].filter((e): e is [string, string] => typeof e[1] === 'string')
+				).toString()
+			: '';
 
 	$effect(() => {
 		baseline = serialize();
@@ -80,7 +100,11 @@
 	<div class="alert" role="alert">
 		<Icon name="alert" size={18} />
 		<div>
-			<strong>Niet opgeslagen — controleer {errorCount === 1 ? 'het gemarkeerde veld' : `de ${errorCount} gemarkeerde velden`}.</strong>
+			<strong
+				>Niet opgeslagen — controleer {errorCount === 1
+					? 'het gemarkeerde veld'
+					: `de ${errorCount} gemarkeerde velden`}.</strong
+			>
 			{#each generalErrors as msg (msg)}<p>{msg}</p>{/each}
 			{#if errors.status}<p>{errors.status[0]}</p>{/if}
 		</div>
@@ -114,16 +138,31 @@
 			<Card title="Inhoud" description="Naam en teksten in het Nederlands (verplicht) en Frans.">
 				<I18nTabs label="Taal van de inhoud" errors={contentErrors} frMissing={!m.name.fr}>
 					{#snippet panel(lang)}
-						<Field label="Naam ({lang.toUpperCase()})" error={e(`name.${lang}`)} required={lang === 'nl'} optional={lang === 'fr'}>
+						<Field
+							label="Naam ({lang.toUpperCase()})"
+							error={e(`name.${lang}`)}
+							required={lang === 'nl'}
+							optional={lang === 'fr'}
+						>
 							<Input name="name.{lang}" bind:value={m.name[lang]} maxlength={160} />
 						</Field>
-						<Field label="Materiaal ({lang.toUpperCase()})" hint="bv. 18k verguld edelstaal · granaat" error={e(`material.${lang}`)} optional>
+						<Field
+							label="Materiaal ({lang.toUpperCase()})"
+							hint="bv. 18k verguld edelstaal · granaat"
+							error={e(`material.${lang}`)}
+							optional
+						>
 							<Input name="material.{lang}" bind:value={m.material[lang]} maxlength={200} />
 						</Field>
 						<Field label="Beschrijving ({lang.toUpperCase()})" error={e(`description.${lang}`)} optional>
 							<Textarea name="description.{lang}" bind:value={m.description[lang]} rows={6} />
 						</Field>
-						<Field label="Met betekenis ({lang.toUpperCase()})" hint="Het verhaal achter het juweel." error={e(`meaning.${lang}`)} optional>
+						<Field
+							label="Met betekenis ({lang.toUpperCase()})"
+							hint="Het verhaal achter het juweel."
+							error={e(`meaning.${lang}`)}
+							optional
+						>
 							<Textarea name="meaning.{lang}" bind:value={m.meaning[lang]} rows={4} />
 						</Field>
 						<Field label="Onderhoud ({lang.toUpperCase()})" error={e(`care.${lang}`)} optional>
@@ -133,26 +172,54 @@
 				</I18nTabs>
 			</Card>
 
-			<Card title="Foto's" description="Eerste foto = hoofdfoto. Alt-tekst in het Nederlands is verplicht, Frans optioneel." id="images">
+			<Card
+				title="Foto's"
+				description="Eerste foto = hoofdfoto. Alt-tekst in het Nederlands is verplicht, Frans optioneel."
+				id="images"
+			>
 				<ImageUploader bind:value={m.images} {errors} onchange={check} />
 			</Card>
 
-			<Card title="Varianten" description="Metaal × maat → SKU, voorraad en eventueel een afwijkende prijs." id="variants">
+			<Card
+				title="Varianten"
+				description="Metaal × maat → SKU, voorraad en eventueel een afwijkende prijs."
+				id="variants"
+			>
 				<VariantTable bind:variants={m.variants} slug={m.slug} {errors} onchange={check} />
 			</Card>
 
 			<Card title="Gerelateerde producten" description="Getoond op de productpagina.">
 				<div class="relations">
-					<RelationPicker name="related" label="Misschien vind je dit ook mooi" bind:ids={m.related} options={products} onchange={check} />
-					<RelationPicker name="completeSet" label="Maak de set compleet" bind:ids={m.completeSet} options={products} onchange={check} />
+					<RelationPicker
+						name="related"
+						label="Misschien vind je dit ook mooi"
+						bind:ids={m.related}
+						options={products}
+						onchange={check}
+					/>
+					<RelationPicker
+						name="completeSet"
+						label="Maak de set compleet"
+						bind:ids={m.completeSet}
+						options={products}
+						onchange={check}
+					/>
 				</div>
 			</Card>
 		</div>
 
 		<aside class="side">
 			<Card title="Status">
-				<Field label="Status" error={e('status')} hint="Actief = zichtbaar in de winkel. Vereist een foto met alt-tekst en een variant.">
-					<Select name="status" bind:value={m.status} options={PRODUCT_STATUSES.map((s) => ({ value: s, label: STATUS_LABELS[s] }))} />
+				<Field
+					label="Status"
+					error={e('status')}
+					hint="Actief = zichtbaar in de winkel. Vereist een foto met alt-tekst en een variant."
+				>
+					<Select
+						name="status"
+						bind:value={m.status}
+						options={PRODUCT_STATUSES.map((s) => ({ value: s, label: STATUS_LABELS[s] }))}
+					/>
 				</Field>
 			</Card>
 
@@ -165,7 +232,9 @@
 						<Input name="compareAtPrice" bind:value={m.compareAtPrice} prefix="€" inputmode="decimal" placeholder="—" />
 					</Field>
 				</div>
-				{#if !isNew}<p class="note">Een nieuwe prijs wordt bewaard in de prijshistoriek (laagste prijs van 30 dagen).</p>{/if}
+				{#if !isNew}<p class="note">
+						Een nieuwe prijs wordt bewaard in de prijshistoriek (laagste prijs van 30 dagen).
+					</p>{/if}
 			</Card>
 
 			<Card title="Organisatie">
@@ -174,17 +243,38 @@
 						<Select name="categoryId" bind:value={m.categoryId} options={categories} placeholder="Kies een categorie" />
 					</Field>
 					<Field label="Badge" error={e('badge')} optional>
-						<Select name="badge" bind:value={m.badge} options={BADGES.map((b) => ({ value: b, label: BADGE_LABELS[b] }))} placeholder="Geen (Nieuw wordt automatisch berekend)" />
+						<Select
+							name="badge"
+							bind:value={m.badge}
+							options={BADGES.map((b) => ({ value: b, label: BADGE_LABELS[b] }))}
+							placeholder="Geen (Nieuw wordt automatisch berekend)"
+						/>
 					</Field>
-					<Field label="Steenkleur" hint="Filter in de winkel, bv. rood, groen, wit, geen" error={e('stoneColor')} optional>
+					<Field
+						label="Steenkleur"
+						hint="Filter in de winkel, bv. rood, groen, wit, geen"
+						error={e('stoneColor')}
+						optional
+					>
 						<Input name="stoneColor" bind:value={m.stoneColor} list="stone-colors" maxlength={40} />
 					</Field>
-					<datalist id="stone-colors">{#each stoneColors as c (c)}<option value={c}></option>{/each}</datalist>
+					<datalist id="stone-colors"
+						>{#each stoneColors as c (c)}<option value={c}></option>{/each}</datalist
+					>
 					<Field label="Tags" hint="Komma-gescheiden, bv. klaver, valentijn" error={e('tags')} optional>
 						<Input name="tags" bind:value={m.tags} />
 					</Field>
-					<Checkbox name="featured" checked={!!m.featured} onchange={(ev) => (m.featured = ev.currentTarget.checked ? 'on' : undefined)}>Uitgelicht op de homepage</Checkbox>
-					<Checkbox name="engravable" checked={!!m.engravable} onchange={(ev) => (m.engravable = ev.currentTarget.checked ? 'on' : undefined)}>Graveerbaar</Checkbox>
+					<Checkbox
+						name="featured"
+						checked={!!m.featured}
+						onchange={(ev) => (m.featured = ev.currentTarget.checked ? 'on' : undefined)}
+						>Uitgelicht op de homepage</Checkbox
+					>
+					<Checkbox
+						name="engravable"
+						checked={!!m.engravable}
+						onchange={(ev) => (m.engravable = ev.currentTarget.checked ? 'on' : undefined)}>Graveerbaar</Checkbox
+					>
 				</div>
 			</Card>
 
@@ -203,7 +293,11 @@
 					<Field label="Contact (e-mail of website)" error={e('gpsr.contact')} optional>
 						<Input name="gpsr.contact" bind:value={m.gpsr.contact} maxlength={200} />
 					</Field>
-					<I18nTabs label="Taal veiligheidsinformatie" errors={has('gpsr') ? errors : {}} frMissing={!!m.gpsr.safetyInfo.nl && !m.gpsr.safetyInfo.fr}>
+					<I18nTabs
+						label="Taal veiligheidsinformatie"
+						errors={has('gpsr') ? errors : {}}
+						frMissing={!!m.gpsr.safetyInfo.nl && !m.gpsr.safetyInfo.fr}
+					>
 						{#snippet panel(lang)}
 							<Field label="Veiligheidsinformatie ({lang.toUpperCase()})" error={e(`gpsr.safetyInfo.${lang}`)} optional>
 								<Textarea name="gpsr.safetyInfo.{lang}" bind:value={m.gpsr.safetyInfo[lang]} rows={3} />

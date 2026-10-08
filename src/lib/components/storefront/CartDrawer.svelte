@@ -27,11 +27,19 @@
 		if (!cart.open && dialog.open) dialog.close();
 	});
 
-	const progress = $derived(Math.min(100, ((cart.freeShippingFrom - cart.toFreeShipping) / Math.max(1, cart.freeShippingFrom)) * 100));
+	const progress = $derived(
+		Math.min(100, ((cart.freeShippingFrom - cart.toFreeShipping) / Math.max(1, cart.freeShippingFrom)) * 100)
+	);
 	const total = $derived(cart.view.subtotal - cart.view.discount);
 </script>
 
-<dialog bind:this={dialog} class="drawer" aria-labelledby="cart-title" onclose={() => (cart.open = false)} onclick={(e) => e.target === dialog && (cart.open = false)}>
+<dialog
+	bind:this={dialog}
+	class="drawer"
+	aria-labelledby="cart-title"
+	onclose={() => (cart.open = false)}
+	onclick={(e) => e.target === dialog && (cart.open = false)}
+>
 	<div class="panel">
 		<header class="head">
 			<h2 id="cart-title">{m.cart_title()} <span class="n">({cart.count})</span></h2>
@@ -59,7 +67,13 @@
 				{#each cart.lines as line (line.id)}
 					<li class="line">
 						<a href={L(`/p/${line.slug}`)} class="thumb" tabindex="-1">
-							{#if line.imageKey}<img src={img(line.imageKey, 200)} alt="" width="96" height="120" loading="lazy" />{/if}
+							{#if line.imageKey}<img
+									src={img(line.imageKey, 200)}
+									alt=""
+									width="96"
+									height="120"
+									loading="lazy"
+								/>{/if}
 						</a>
 						<div class="info">
 							<a href={L(`/p/${line.slug}`)} class="name">{line.name}</a>
@@ -77,8 +91,19 @@
 								<span class="price">{fp(line.unitPrice * line.quantity)}</span>
 							</div>
 							<div class="line-actions">
-								<label class="gift"><input type="checkbox" checked={line.giftWrap} onchange={(e) => cart.setGiftWrap(line.id, e.currentTarget.checked)} /> {m.cart_gift_wrap()}</label>
-								<button class="remove" aria-label={m.cart_remove_item({ name: line.name })} onclick={() => cart.remove(line.id)}>{m.cart_remove()}</button>
+								<label class="gift"
+									><input
+										type="checkbox"
+										checked={line.giftWrap}
+										onchange={(e) => cart.setGiftWrap(line.id, e.currentTarget.checked)}
+									/>
+									{m.cart_gift_wrap()}</label
+								>
+								<button
+									class="remove"
+									aria-label={m.cart_remove_item({ name: line.name })}
+									onclick={() => cart.remove(line.id)}>{m.cart_remove()}</button
+								>
 							</div>
 						</div>
 					</li>
@@ -91,7 +116,8 @@
 				<dl class="totals">
 					<dt>{m.cart_subtotal()}</dt>
 					<dd>{fp(cart.subtotal)}</dd>
-					{#if cart.view.discount > 0}<dt>{m.cart_discount()}</dt><dd>−{fp(cart.view.discount)}</dd>{/if}
+					{#if cart.view.discount > 0}<dt>{m.cart_discount()}</dt>
+						<dd>−{fp(cart.view.discount)}</dd>{/if}
 				</dl>
 				<p class="tax">{m.cart_vat_included({ amount: fp(vatIncluded(total)) })} · {m.cart_vat_note()}</p>
 				<Button href={L('/checkout')} full size="lg">{m.cart_checkout()}</Button>

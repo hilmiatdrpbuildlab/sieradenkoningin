@@ -22,7 +22,17 @@
 		headingLevel?: 1 | 2;
 	}
 
-	let { variant = 'overlay', overline, title, script, lead, image, cta, secondaryCta, headingLevel = 1 }: Props = $props();
+	let {
+		variant = 'overlay',
+		overline,
+		title,
+		script,
+		lead,
+		image,
+		cta,
+		secondaryCta,
+		headingLevel = 1
+	}: Props = $props();
 	const uid = $props.id();
 </script>
 
@@ -53,7 +63,9 @@
 		{#if cta || secondaryCta}
 			<div class="ctas">
 				{#if cta}<Button href={cta.href} variant="outline" size="lg">{cta.label}</Button>{/if}
-				{#if secondaryCta}<Button href={secondaryCta.href} variant="link" iconRight="arrow-right">{secondaryCta.label}</Button>{/if}
+				{#if secondaryCta}<Button href={secondaryCta.href} variant="link" iconRight="arrow-right"
+						>{secondaryCta.label}</Button
+					>{/if}
 			</div>
 		{/if}
 	</div>

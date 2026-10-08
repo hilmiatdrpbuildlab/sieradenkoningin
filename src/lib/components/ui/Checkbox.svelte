@@ -7,7 +7,11 @@
 	import type { HTMLInputAttributes } from 'svelte/elements';
 	import { getFieldContext } from './field-context.ts';
 
-	type Props = Omit<HTMLInputAttributes, 'type' | 'children'> & { checked?: boolean; children?: Snippet; description?: string };
+	type Props = Omit<HTMLInputAttributes, 'type' | 'children'> & {
+		checked?: boolean;
+		children?: Snippet;
+		description?: string;
+	};
 	let { checked = $bindable(false), children, description, class: className = '', id, ...rest }: Props = $props();
 	const field = getFieldContext();
 	const uid = $props.id();
@@ -59,7 +63,9 @@
 		background: var(--ui-surface);
 		display: grid;
 		place-items: center;
-		transition: background-color var(--dur-fast), border-color var(--dur-fast);
+		transition:
+			background-color var(--dur-fast),
+			border-color var(--dur-fast);
 	}
 	.box::after {
 		content: '';

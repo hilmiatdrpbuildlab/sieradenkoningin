@@ -14,7 +14,10 @@ import { usageSql } from './media.ts';
  * Deletes a soft-deleted media object from storage, then its row — but only if it is still marked
  * deleted AND unused (someone may have re-used the image after it was queued).
  */
-export async function storageDeleteJob(job: { payload: Record<string, unknown> }, deps: { db: Executor; storage?: Storage }) {
+export async function storageDeleteJob(
+	job: { payload: Record<string, unknown> },
+	deps: { db: Executor; storage?: Storage }
+) {
 	const key = String(job.payload.key ?? '');
 	if (!key) return;
 	if (!deps.storage) throw new Error('storage.delete needs storage');
@@ -42,7 +45,12 @@ export async function dailyMaintenance(db: Executor, now = new Date()): Promise<
 	const rl = await db.delete(rateLimits).where(lt(rateLimits.resetAt, now)).returning({ k: rateLimits.key });
 	const ml = await db
 		.delete(magicLinks)
-		.where(or(lt(magicLinks.expiresAt, new Date(now.getTime() - 86400_000)), and(isNotNull(magicLinks.usedAt), lt(magicLinks.usedAt, new Date(now.getTime() - 86400_000)))))
+		.where(
+			or(
+				lt(magicLinks.expiresAt, new Date(now.getTime() - 86400_000)),
+				and(isNotNull(magicLinks.usedAt), lt(magicLinks.usedAt, new Date(now.getTime() - 86400_000)))
+			)
+		)
 		.returning({ t: magicLinks.tokenHash });
 	const jb = await db
 		.delete(jobs)
@@ -53,12 +61,42 @@ export async function dailyMaintenance(db: Executor, now = new Date()): Promise<
 
 /** Tables included in the nightly logical export (business data; sessions/rate limits/jobs excluded). */
 export const EXPORT_TABLES = [
-	'categories', 'products', 'variants', 'product_images', 'media', 'price_history', 'collections', 'collection_products', 'product_relations',
-	'customers', 'addresses', 'orders', 'order_lines', 'order_events', 'payments', 'refunds', 'shipments', 'discounts', 'discount_redemptions',
-	'stock_movements', 'pages', 'page_blocks', 'menus', 'faqs', 'redirects', 'newsletter_subscribers', 'settings', 'shipping_zones', 'shipping_rates',
-	'admin_users', 'audit_log'
+	'categories',
+	'products',
+	'variants',
+	'product_images',
+	'media',
+	'price_history',
+	'collections',
+	'collection_products',
+	'product_relations',
+	'customers',
+	'addresses',
+	'orders',
+	'order_lines',
+	'order_events',
+	'payments',
+	'refunds',
+	'shipments',
+	'discounts',
+	'discount_redemptions',
+	'stock_movements',
+	'pages',
+	'page_blocks',
+	'menus',
+	'faqs',
+	'redirects',
+	'newsletter_subscribers',
+	'settings',
+	'shipping_zones',
+	'shipping_rates',
+	'admin_users',
+	'audit_log'
 ] as const;
-const SECRET_COLUMNS: Record<string, string[]> = { customers: ['password_hash'], admin_users: ['password_hash', 'totp_secret', 'recovery_codes', 'invite_token_hash'] };
+const SECRET_COLUMNS: Record<string, string[]> = {
+	customers: ['password_hash'],
+	admin_users: ['password_hash', 'totp_secret', 'recovery_codes', 'invite_token_hash']
+};
 
 /**
  * Nightly logical export (P5-04) → `exports/YYYY-MM-DD/<table>.json` in private storage. Complements
@@ -70,10 +108,16 @@ export async function dailyExport(db: Executor, storage: Storage, now = new Date
 	for (const table of EXPORT_TABLES) {
 		const { rows } = await db.execute<Record<string, unknown>>(sql.raw(`select * from "${table}"`));
 		const drop = SECRET_COLUMNS[table] ?? [];
-		const clean = drop.length ? rows.map((r) => Object.fromEntries(Object.entries(r).filter(([k]) => !drop.includes(k)))) : rows;
+		const clean = drop.length
+			? rows.map((r) => Object.fromEntries(Object.entries(r).filter(([k]) => !drop.includes(k))))
+			: rows;
 		await storage.put(`exports/${day}/${table}.json`, JSON.stringify(clean), 'application/json');
 		summary[table] = rows.length;
 	}
-	await storage.put(`exports/${day}/_manifest.json`, JSON.stringify({ createdAt: now.toISOString(), tables: summary }), 'application/json');
+	await storage.put(
+		`exports/${day}/_manifest.json`,
+		JSON.stringify({ createdAt: now.toISOString(), tables: summary }),
+		'application/json'
+	);
 	return summary;
 }

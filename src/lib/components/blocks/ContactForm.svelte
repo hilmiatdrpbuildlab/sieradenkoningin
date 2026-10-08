@@ -36,13 +36,23 @@
 			}}
 		>
 			<div class="grid">
-				<Field label={m.contact_name()} required error={errors.name}><Input name="name" autocomplete="name" maxlength={120} /></Field>
-				<Field label={m.contact_email()} required error={errors.email}><Input name="email" type="email" autocomplete="email" /></Field>
+				<Field label={m.contact_name()} required error={errors.name}
+					><Input name="name" autocomplete="name" maxlength={120} /></Field
+				>
+				<Field label={m.contact_email()} required error={errors.email}
+					><Input name="email" type="email" autocomplete="email" /></Field
+				>
 			</div>
-			<Field label={m.contact_order()} optional error={errors.orderNumber}><Input name="orderNumber" placeholder="SK-2026-000123" maxlength={20} /></Field>
-			<Field label={m.contact_message()} required error={errors.message}><Textarea name="message" rows={6} maxlength={3000} counter /></Field>
+			<Field label={m.contact_order()} optional error={errors.orderNumber}
+				><Input name="orderNumber" placeholder="SK-2026-000123" maxlength={20} /></Field
+			>
+			<Field label={m.contact_message()} required error={errors.message}
+				><Textarea name="message" rows={6} maxlength={3000} counter /></Field
+			>
 			<Turnstile />
-			{#if status === 'error' || status === 'rate'}<p class="err" role="alert">{status === 'rate' ? m.contact_rate() : m.contact_error()}</p>{/if}
+			{#if status === 'error' || status === 'rate'}<p class="err" role="alert">
+					{status === 'rate' ? m.contact_rate() : m.contact_error()}
+				</p>{/if}
 			<div><Button type="submit" loading={status === 'sending'}>{m.contact_send()}</Button></div>
 		</form>
 	{/if}

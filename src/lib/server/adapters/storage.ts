@@ -32,9 +32,16 @@ export interface Storage {
 const MOCK_DIR = '.data/uploads';
 
 const mimeFromKey = (key: string) =>
-	({ jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', webp: 'image/webp', avif: 'image/avif', svg: 'image/svg+xml', pdf: 'application/pdf', json: 'application/json' })[
-		key.split('.').pop()?.toLowerCase() ?? ''
-	] ?? 'application/octet-stream';
+	({
+		jpg: 'image/jpeg',
+		jpeg: 'image/jpeg',
+		png: 'image/png',
+		webp: 'image/webp',
+		avif: 'image/avif',
+		svg: 'image/svg+xml',
+		pdf: 'application/pdf',
+		json: 'application/json'
+	})[key.split('.').pop()?.toLowerCase() ?? ''] ?? 'application/octet-stream';
 
 export function isSafeKey(key: string) {
 	return /^[a-z0-9][a-z0-9/_.-]*$/i.test(key) && !key.includes('..');
@@ -77,7 +84,10 @@ export function createStorage(env: StorageEnv): Storage {
 			const res = await client.fetch(objectUrl(key));
 			if (res.status === 404) return null;
 			if (!res.ok) throw new Error(`Storage get failed: ${res.status}`);
-			return { body: new Uint8Array(await res.arrayBuffer()), contentType: res.headers.get('content-type') ?? mimeFromKey(key) };
+			return {
+				body: new Uint8Array(await res.arrayBuffer()),
+				contentType: res.headers.get('content-type') ?? mimeFromKey(key)
+			};
 		},
 		async delete(key) {
 			const res = await client.fetch(objectUrl(key), { method: 'DELETE' });
@@ -137,8 +147,9 @@ function createMockStorage(env: StorageEnv): Storage {
 /** products/2026/10/<uuid>.<ext> — unguessable, cache-forever (immutable) keys. */
 export function mediaKey(contentType: string, folder = 'products') {
 	const ext =
-		{ 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'image/avif': 'avif', 'image/svg+xml': 'svg' }[contentType] ??
-		'bin';
+		{ 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'image/avif': 'avif', 'image/svg+xml': 'svg' }[
+			contentType
+		] ?? 'bin';
 	const d = new Date();
 	return `${folder}/${d.getUTCFullYear()}/${String(d.getUTCMonth() + 1).padStart(2, '0')}/${crypto.randomUUID()}.${ext}`;
 }

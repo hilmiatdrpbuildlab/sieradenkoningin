@@ -62,7 +62,16 @@ export function computeTotals(lines: TotalsLine[], discount: number, shipping: n
 	const lineVat = lineTotals.map((t, i) => vatIncluded(t - lineDiscounts[i], rate));
 	const shippingVat = vatIncluded(shipping, rate);
 	const total = subtotal - d + shipping;
-	return { subtotal, discount: d, shipping, total, vat: lineVat.reduce((a, b) => a + b, 0) + shippingVat, lineDiscounts, lineVat, shippingVat };
+	return {
+		subtotal,
+		discount: d,
+		shipping,
+		total,
+		vat: lineVat.reduce((a, b) => a + b, 0) + shippingVat,
+		lineDiscounts,
+		lineVat,
+		shippingVat
+	};
 }
 
 /** Split `amount` over `weights` proportionally; the parts always sum exactly to `amount`. */

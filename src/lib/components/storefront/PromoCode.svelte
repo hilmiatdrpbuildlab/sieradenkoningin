@@ -35,7 +35,12 @@
 {#if cart.view.discountCode && !cart.view.discountError}
 	<div class="applied" role="status">
 		<span><Icon name="tag" size={14} /> {m.cart_promo_applied({ code: cart.view.discountCode })}</span>
-		<button type="button" class="remove" aria-label={m.cart_promo_remove({ code: cart.view.discountCode })} onclick={() => cart.removeCode()}>
+		<button
+			type="button"
+			class="remove"
+			aria-label={m.cart_promo_remove({ code: cart.view.discountCode })}
+			onclick={() => cart.removeCode()}
+		>
 			<Icon name="close" size={14} />
 		</button>
 	</div>
@@ -43,7 +48,14 @@
 	<form class="promo" onsubmit={apply}>
 		<label for="promo{uid}" class="lbl">{m.cart_promo_label()}</label>
 		<div class="row">
-			<input id="promo{uid}" bind:value={code} autocomplete="off" autocapitalize="characters" aria-invalid={!!error || undefined} aria-describedby={error ? `promo${uid}-e` : undefined} />
+			<input
+				id="promo{uid}"
+				bind:value={code}
+				autocomplete="off"
+				autocapitalize="characters"
+				aria-invalid={!!error || undefined}
+				aria-describedby={error ? `promo${uid}-e` : undefined}
+			/>
 			<button type="submit" disabled={cart.pending || !code.trim()}>{m.cart_promo_apply()}</button>
 		</div>
 		{#if error || cart.view.discountError}

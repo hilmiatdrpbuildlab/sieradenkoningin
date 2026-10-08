@@ -41,7 +41,11 @@ export function createEmail(token: string, from: string): EmailAdapter {
 					ReplyTo: email.replyTo,
 					Tag: email.template,
 					MessageStream: 'outbound',
-					Attachments: email.attachments?.map((a) => ({ Name: a.name, ContentType: a.contentType, Content: toBase64(a.content) }))
+					Attachments: email.attachments?.map((a) => ({
+						Name: a.name,
+						ContentType: a.contentType,
+						Content: toBase64(a.content)
+					}))
 				})
 			});
 			if (!res.ok) throw new Error(`Postmark ${res.status}: ${await res.text()}`);

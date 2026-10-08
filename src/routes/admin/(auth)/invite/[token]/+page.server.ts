@@ -27,11 +27,23 @@ export const actions: Actions = {
 		if (!parsed.success) return fail(400, { error: parsed.error.issues[0].message });
 		await locals.db
 			.update(adminUsers)
-			.set({ passwordHash: await hashPassword(parsed.data.password), inviteTokenHash: null, inviteExpiresAt: null, updatedAt: new Date() })
+			.set({
+				passwordHash: await hashPassword(parsed.data.password),
+				inviteTokenHash: null,
+				inviteExpiresAt: null,
+				updatedAt: new Date()
+			})
 			.where(eq(adminUsers.id, user.id));
 		await destroySession(locals.db, cookies, 'admin');
-		await createSession(locals.db, cookies, 'admin', user.id, { ip: locals.ip, ua: request.headers.get('user-agent') ?? undefined });
-		await audit(locals.db, { admin: { id: user.id, name: user.name, email: user.email, role: user.role, sessionId: '' }, ip: locals.ip }, { action: 'accept_invite', entity: 'admin_user', entityId: user.id });
+		await createSession(locals.db, cookies, 'admin', user.id, {
+			ip: locals.ip,
+			ua: request.headers.get('user-agent') ?? undefined
+		});
+		await audit(
+			locals.db,
+			{ admin: { id: user.id, name: user.name, email: user.email, role: user.role, sessionId: '' }, ip: locals.ip },
+			{ action: 'accept_invite', entity: 'admin_user', entityId: user.id }
+		);
 		redirect(303, '/admin/login/enrol');
 	}
 };

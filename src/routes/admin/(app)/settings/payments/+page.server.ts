@@ -25,7 +25,12 @@ export const actions: Actions = {
 		const methods = PAYMENT_METHODS.filter((m) => fd.getAll('methods').includes(m));
 		const before = (await getSettings(locals.db, ['payments'])).payments;
 		await setSetting(locals.db, 'payments', { methods });
-		await audit(locals.db, locals, { action: 'update', entity: 'settings', entityId: 'payments', diff: { methods: [before.methods, methods] } });
+		await audit(locals.db, locals, {
+			action: 'update',
+			entity: 'settings',
+			entityId: 'payments',
+			diff: { methods: [before.methods, methods] }
+		});
 		return { saved: true };
 	}
 };

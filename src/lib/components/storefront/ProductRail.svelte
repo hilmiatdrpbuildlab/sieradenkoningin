@@ -20,7 +20,10 @@
 	const uid = $props.id();
 
 	function scroll(dir: 1 | -1) {
-		track?.scrollBy({ left: dir * (track?.clientWidth ?? 0) * 0.8, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+		track?.scrollBy({
+			left: dir * (track?.clientWidth ?? 0) * 0.8,
+			behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'
+		});
 	}
 </script>
 
@@ -34,8 +37,12 @@
 				</div>
 				<div class="controls">
 					{#if cta}<Button href={cta.href} variant="link" iconRight="arrow-right">{cta.label}</Button>{/if}
-					<button type="button" class="nav" aria-label={m.rail_previous()} onclick={() => scroll(-1)}><Icon name="chevron-left" size={18} /></button>
-					<button type="button" class="nav" aria-label={m.rail_next()} onclick={() => scroll(1)}><Icon name="chevron-right" size={18} /></button>
+					<button type="button" class="nav" aria-label={m.rail_previous()} onclick={() => scroll(-1)}
+						><Icon name="chevron-left" size={18} /></button
+					>
+					<button type="button" class="nav" aria-label={m.rail_next()} onclick={() => scroll(1)}
+						><Icon name="chevron-right" size={18} /></button
+					>
 				</div>
 			</header>
 			<ul class="track" bind:this={track}>

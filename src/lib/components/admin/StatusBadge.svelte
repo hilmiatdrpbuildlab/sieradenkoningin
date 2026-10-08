@@ -38,11 +38,34 @@
 		font-weight: var(--fw-medium);
 		white-space: nowrap;
 	}
-	.dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
-	.badge--success { background: var(--sk-success-bg); color: var(--sk-success); }
-	.badge--warning { background: var(--sk-warning-bg); color: var(--sk-warning); }
-	.badge--warning .dot { border-radius: 1px; transform: rotate(45deg); }
-	.badge--danger { background: var(--sk-danger-bg); color: var(--sk-danger); }
-	.badge--info { background: var(--sk-info-bg); color: var(--sk-info); }
-	.badge--neutral { background: var(--sk-cream-100); color: var(--sk-espresso); }
+	.dot {
+		width: 6px;
+		height: 6px;
+		border-radius: 50%;
+		background: currentColor;
+	}
+	.badge--success {
+		background: var(--sk-success-bg);
+		color: var(--sk-success);
+	}
+	.badge--warning {
+		background: var(--sk-warning-bg);
+		color: var(--sk-warning);
+	}
+	.badge--warning .dot {
+		border-radius: 1px;
+		transform: rotate(45deg);
+	}
+	.badge--danger {
+		background: var(--sk-danger-bg);
+		color: var(--sk-danger);
+	}
+	.badge--info {
+		background: var(--sk-info-bg);
+		color: var(--sk-info);
+	}
+	.badge--neutral {
+		background: var(--sk-cream-100);
+		color: var(--sk-espresso);
+	}
 </style>

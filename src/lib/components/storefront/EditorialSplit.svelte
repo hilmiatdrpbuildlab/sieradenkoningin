@@ -24,11 +24,22 @@
 <section class="split" class:reverse aria-labelledby="es{uid}">
 	<div class="container-lux grid">
 		<div class="media">
-			<img src={image.src} srcset={image.srcset} sizes="(min-width: 64rem) 50vw, 100vw" alt={image.alt} width={image.width ?? 1600} height={image.height ?? 2000} loading="lazy" decoding="async" />
+			<img
+				src={image.src}
+				srcset={image.srcset}
+				sizes="(min-width: 64rem) 50vw, 100vw"
+				alt={image.alt}
+				width={image.width ?? 1600}
+				height={image.height ?? 2000}
+				loading="lazy"
+				decoding="async"
+			/>
 		</div>
 		<div class="copy" use:reveal={{ stagger: true }}>
 			{#if eyebrow}<p class="eyebrow">{eyebrow}</p>{/if}
-			<h2 id="es{uid}">{title}{#if script}<span class="script">{script}</span>{/if}</h2>
+			<h2 id="es{uid}">
+				{title}{#if script}<span class="script">{script}</span>{/if}
+			</h2>
 			<div class="body">{@html markdownToHtml(body)}</div>
 			{#if cta}<div><Button href={cta.href} variant="outline">{cta.label}</Button></div>{/if}
 		</div>

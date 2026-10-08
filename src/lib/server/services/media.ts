@@ -14,8 +14,15 @@ type Actor = Pick<App.Locals, 'admin' | 'ip'>;
 
 export class MediaError extends Error {}
 
-const MIME_BY_EXT: Record<string, string> = { jpg: 'image/jpeg', png: 'image/png', webp: 'image/webp', avif: 'image/avif', svg: 'image/svg+xml' };
-export const mimeFromKey = (key: string) => MIME_BY_EXT[key.split('.').pop()?.toLowerCase() ?? ''] ?? 'application/octet-stream';
+const MIME_BY_EXT: Record<string, string> = {
+	jpg: 'image/jpeg',
+	png: 'image/png',
+	webp: 'image/webp',
+	avif: 'image/avif',
+	svg: 'image/svg+xml'
+};
+export const mimeFromKey = (key: string) =>
+	MIME_BY_EXT[key.split('.').pop()?.toLowerCase() ?? ''] ?? 'application/octet-stream';
 
 // ── Image header sniffing (no-JS upload fallback) ────────────────────────────────
 export interface ImageInfo {
@@ -53,10 +60,15 @@ export function imageInfo(b: Uint8Array): ImageInfo | null {
 	}
 	if (b.length > 30 && ascii(b, 0, 4) === 'RIFF' && ascii(b, 8, 4) === 'WEBP') {
 		const chunk = ascii(b, 12, 4);
-		if (chunk === 'VP8 ') return { mime: 'image/webp', width: dv.getUint16(26, true) & 0x3fff, height: dv.getUint16(28, true) & 0x3fff };
+		if (chunk === 'VP8 ')
+			return { mime: 'image/webp', width: dv.getUint16(26, true) & 0x3fff, height: dv.getUint16(28, true) & 0x3fff };
 		if (chunk === 'VP8L') {
 			const [b0, b1, b2, b3] = [b[21], b[22], b[23], b[24]];
-			return { mime: 'image/webp', width: 1 + (((b1 & 0x3f) << 8) | b0), height: 1 + (((b3 & 0xf) << 10) | (b2 << 2) | ((b1 & 0xc0) >> 6)) };
+			return {
+				mime: 'image/webp',
+				width: 1 + (((b1 & 0x3f) << 8) | b0),
+				height: 1 + (((b3 & 0xf) << 10) | (b2 << 2) | ((b1 & 0xc0) >> 6))
+			};
 		}
 		if (chunk === 'VP8X') {
 			const u24 = (at: number) => b[at] | (b[at + 1] << 8) | (b[at + 2] << 16);
@@ -64,9 +76,14 @@ export function imageInfo(b: Uint8Array): ImageInfo | null {
 		}
 		return null;
 	}
-	if (b.length > 16 && ascii(b, 4, 4) === 'ftyp' && /avi[fs]/.test(ascii(b, 8, 4) + ascii(b, 16, Math.min(32, b.length - 16)))) {
+	if (
+		b.length > 16 &&
+		ascii(b, 4, 4) === 'ftyp' &&
+		/avi[fs]/.test(ascii(b, 8, 4) + ascii(b, 16, Math.min(32, b.length - 16)))
+	) {
 		for (let i = 0; i + 16 < Math.min(b.length, 4096); i++) {
-			if (b[i] === 0x69 && ascii(b, i, 4) === 'ispe') return { mime: 'image/avif', width: dv.getUint32(i + 8), height: dv.getUint32(i + 12) };
+			if (b[i] === 0x69 && ascii(b, i, 4) === 'ispe')
+				return { mime: 'image/avif', width: dv.getUint32(i + 8), height: dv.getUint32(i + 12) };
 		}
 		return null;
 	}
@@ -77,7 +94,8 @@ export function imageInfo(b: Uint8Array): ImageInfo | null {
 export function checkUpload(info: ImageInfo | null, bytes: number, minEdge = MIN_EDGE_PX): string | null {
 	if (!info) return 'Alleen JPG, PNG, WebP of AVIF';
 	if (bytes > MAX_UPLOAD_MB * 1024 * 1024) return `Maximaal ${MAX_UPLOAD_MB} MB`;
-	if (Math.min(info.width, info.height) < minEdge) return `Minstens ${minEdge}px aan de kortste zijde (${info.width}×${info.height})`;
+	if (Math.min(info.width, info.height) < minEdge)
+		return `Minstens ${minEdge}px aan de kortste zijde (${info.width}×${info.height})`;
 	return null;
 }
 
@@ -107,7 +125,10 @@ export interface NewMedia {
 /** Returns the media id for an uploaded key, creating the row when it does not exist yet. */
 export async function ensureMedia(db: Executor, m: NewMedia): Promise<string> {
 	if (!UPLOAD_KEY_RE.test(m.key)) throw new MediaError('Ongeldige afbeelding');
-	const [existing] = await db.select({ id: media.id, deletedAt: media.deletedAt }).from(media).where(eq(media.storageKey, m.key));
+	const [existing] = await db
+		.select({ id: media.id, deletedAt: media.deletedAt })
+		.from(media)
+		.where(eq(media.storageKey, m.key));
 	if (existing) {
 		if (existing.deletedAt) throw new MediaError('Deze afbeelding is verwijderd');
 		return existing.id;
@@ -151,11 +172,18 @@ export async function listMedia(db: Executor, p: MediaListParams = {}) {
 	const conds: (SQL | undefined)[] = [isNull(media.deletedAt)];
 	if (p.q) {
 		const like = `%${p.q}%`;
-		conds.push(or(ilike(media.storageKey, like), sql`${media.alt}->>'nl' ilike ${like}`, sql`${media.alt}->>'fr' ilike ${like}`));
+		conds.push(
+			or(ilike(media.storageKey, like), sql`${media.alt}->>'nl' ilike ${like}`, sql`${media.alt}->>'fr' ilike ${like}`)
+		);
 	}
 	if (p.unused) conds.push(sql`${usageSql} = 0`);
 	const where = and(...conds);
-	const order = p.sort === 'old' ? [asc(media.createdAt)] : p.sort === 'usage' ? [desc(usageSql), desc(media.createdAt)] : [desc(media.createdAt)];
+	const order =
+		p.sort === 'old'
+			? [asc(media.createdAt)]
+			: p.sort === 'usage'
+				? [desc(usageSql), desc(media.createdAt)]
+				: [desc(media.createdAt)];
 	const [rows, [{ n }]] = await Promise.all([
 		db
 			.select({
@@ -174,7 +202,10 @@ export async function listMedia(db: Executor, p: MediaListParams = {}) {
 			.orderBy(...order)
 			.limit(pageSize)
 			.offset((page - 1) * pageSize),
-		db.select({ n: sql<number>`count(*)::int` }).from(media).where(where)
+		db
+			.select({ n: sql<number>`count(*)::int` })
+			.from(media)
+			.where(where)
 	]);
 	return { rows, total: n, page, pageSize };
 }
@@ -185,7 +216,10 @@ export async function mediaUsage(db: Executor, id: string): Promise<number> {
 }
 
 export async function updateMediaAlt(db: Executor, actor: Actor, id: string, alt: I18n) {
-	const [before] = await db.select({ alt: media.alt }).from(media).where(and(eq(media.id, id), isNull(media.deletedAt)));
+	const [before] = await db
+		.select({ alt: media.alt })
+		.from(media)
+		.where(and(eq(media.id, id), isNull(media.deletedAt)));
 	if (!before) throw new MediaError('Afbeelding niet gevonden');
 	await db.update(media).set({ alt, updatedAt: new Date() }).where(eq(media.id, id));
 	await audit(db, actor, { action: 'update', entity: 'media', entityId: id, diff: { alt: [before.alt, alt] } });
@@ -199,7 +233,8 @@ export async function deleteMedia(db: Executor, actor: Actor, id: string) {
 		.where(and(eq(media.id, id), isNull(media.deletedAt)))
 		.for('update');
 	if (!row) throw new MediaError('Afbeelding niet gevonden');
-	if (row.usage > 0) throw new MediaError(`Deze afbeelding wordt nog ${row.usage}× gebruikt en kan niet verwijderd worden`);
+	if (row.usage > 0)
+		throw new MediaError(`Deze afbeelding wordt nog ${row.usage}× gebruikt en kan niet verwijderd worden`);
 	await db.update(media).set({ deletedAt: new Date() }).where(eq(media.id, id));
 	await db
 		.insert(jobs)
@@ -212,14 +247,27 @@ export async function deleteMedia(db: Executor, actor: Actor, id: string) {
 export async function registerUploads(db: Executor, actor: Actor, items: NewMedia[]) {
 	const ids: string[] = [];
 	for (const item of items) ids.push(await ensureMedia(db, item));
-	if (ids.length) await audit(db, actor, { action: 'create', entity: 'media', entityId: ids.length === 1 ? ids[0] : null, diff: { ids } });
+	if (ids.length)
+		await audit(db, actor, {
+			action: 'create',
+			entity: 'media',
+			entityId: ids.length === 1 ? ids[0] : null,
+			diff: { ids }
+		});
 	return ids;
 }
 
 export async function mediaByIds(db: Executor, ids: string[]) {
 	if (!ids.length) return [];
 	return db
-		.select({ id: media.id, key: media.storageKey, width: media.width, height: media.height, bytes: media.bytes, alt: media.alt })
+		.select({
+			id: media.id,
+			key: media.storageKey,
+			width: media.width,
+			height: media.height,
+			bytes: media.bytes,
+			alt: media.alt
+		})
 		.from(media)
 		.where(and(inArray(media.id, ids), isNull(media.deletedAt)));
 }

@@ -5,7 +5,15 @@
  */
 import { and, asc, eq, inArray, ne, sql } from 'drizzle-orm';
 import type { Executor } from '../db/index.ts';
-import { categories, collectionProducts, collections, products, type CollectionRule, type I18n, type Seo } from '../db/schema.ts';
+import {
+	categories,
+	collectionProducts,
+	collections,
+	products,
+	type CollectionRule,
+	type I18n,
+	type Seo
+} from '../db/schema.ts';
 import { audit, diffObjects } from './audit.ts';
 import { ValidationError } from './products-admin.ts';
 import type { CategoryInput, CollectionInput } from '#lib/schemas/collection.ts';
@@ -40,7 +48,10 @@ export function matchesRule(product: RuleProduct, rule: CollectionRule, now: Dat
 }
 
 /** Human-readable summary of a rule (Dutch admin UI). */
-export function describeRule(rule: CollectionRule | null | undefined, categoryName: (key: string) => string = (k) => k): string {
+export function describeRule(
+	rule: CollectionRule | null | undefined,
+	categoryName: (key: string) => string = (k) => k
+): string {
 	if (!rule) return '—';
 	const parts: string[] = [];
 	if (rule.category) parts.push(`categorie ${categoryName(rule.category)}`);
@@ -88,7 +99,12 @@ export async function listCategories(db: Executor) {
 		.orderBy(asc(categories.position), asc(categories.key));
 }
 
-async function assertUniqueSlugs(db: Executor, table: typeof categories | typeof collections, id: string | null, slugs: { nl: string; fr: string }) {
+async function assertUniqueSlugs(
+	db: Executor,
+	table: typeof categories | typeof collections,
+	id: string | null,
+	slugs: { nl: string; fr: string }
+) {
 	const errors: Record<string, string[]> = {};
 	for (const lang of ['nl', 'fr'] as const) {
 		const where = id
@@ -123,17 +139,26 @@ export async function saveCategory(tx: Executor, actor: Actor, id: string, input
 		.update(categories)
 		.set({ ...values, updatedAt: new Date() })
 		.where(eq(categories.id, id));
-	await audit(tx, actor, { action: 'update', entity: 'category', entityId: id, diff: diffObjects(before as unknown as Record<string, unknown>, values) });
+	await audit(tx, actor, {
+		action: 'update',
+		entity: 'category',
+		entityId: id,
+		diff: diffObjects(before as unknown as Record<string, unknown>, values)
+	});
 }
 
 /** Moves a category one place up/down and renumbers positions 0..n. */
 export async function moveCategory(tx: Executor, actor: Actor, id: string, dir: 'up' | 'down') {
-	const list = await tx.select({ id: categories.id }).from(categories).orderBy(asc(categories.position), asc(categories.key));
+	const list = await tx
+		.select({ id: categories.id })
+		.from(categories)
+		.orderBy(asc(categories.position), asc(categories.key));
 	const i = list.findIndex((c) => c.id === id);
 	const j = dir === 'up' ? i - 1 : i + 1;
 	if (i < 0 || j < 0 || j >= list.length) return;
 	[list[i], list[j]] = [list[j], list[i]];
-	for (let n = 0; n < list.length; n++) await tx.update(categories).set({ position: n }).where(eq(categories.id, list[n].id));
+	for (let n = 0; n < list.length; n++)
+		await tx.update(categories).set({ position: n }).where(eq(categories.id, list[n].id));
 	await audit(tx, actor, { action: 'reorder', entity: 'category', entityId: id, diff: { dir } });
 }
 
@@ -158,7 +183,12 @@ export async function loadCollection(db: Executor, id: string) {
 	const [c] = await db.select().from(collections).where(eq(collections.id, id));
 	if (!c) return null;
 	const items = await db
-		.select({ id: products.id, name: sql<string>`${products.name}->>'nl'`, status: products.status, position: collectionProducts.position })
+		.select({
+			id: products.id,
+			name: sql<string>`${products.name}->>'nl'`,
+			status: products.status,
+			position: collectionProducts.position
+		})
 		.from(collectionProducts)
 		.innerJoin(products, eq(products.id, collectionProducts.productId))
 		.where(eq(collectionProducts.collectionId, id))
@@ -171,7 +201,10 @@ export async function saveCollection(tx: Executor, actor: Actor, id: string | nu
 	if (id && !before) throw new ValidationError({ _: ['Collectie niet gevonden'] });
 	await assertUniqueSlugs(tx, collections, id, input.slugs);
 	if (input.rule.category) {
-		const [cat] = await tx.select({ id: categories.id }).from(categories).where(eq(categories.key, input.rule.category));
+		const [cat] = await tx
+			.select({ id: categories.id })
+			.from(categories)
+			.where(eq(categories.key, input.rule.category));
 		if (!cat) throw new ValidationError({ 'rule.category': ['Onbekende categorie'] });
 	}
 	const values = {
@@ -200,20 +233,27 @@ export async function saveCollection(tx: Executor, actor: Actor, id: string | nu
 		const ok = new Set(
 			(await tx.select({ id: products.id }).from(products).where(inArray(products.id, input.products))).map((r) => r.id)
 		);
-		const rows = input.products.filter((p) => ok.has(p)).map((productId, position) => ({ collectionId: cid, productId, position }));
+		const rows = input.products
+			.filter((p) => ok.has(p))
+			.map((productId, position) => ({ collectionId: cid, productId, position }));
 		if (rows.length) await tx.insert(collectionProducts).values(rows);
 	}
 	await audit(tx, actor, {
 		action: before ? 'update' : 'create',
 		entity: 'collection',
 		entityId: cid,
-		diff: before ? { ...diffObjects(before as unknown as Record<string, unknown>, values), products: input.products.length } : { ...values, products: input.products.length }
+		diff: before
+			? { ...diffObjects(before as unknown as Record<string, unknown>, values), products: input.products.length }
+			: { ...values, products: input.products.length }
 	});
 	return cid;
 }
 
 export async function deleteCollection(tx: Executor, actor: Actor, id: string) {
-	const [before] = await tx.select({ name: collections.name, slugs: collections.slugs }).from(collections).where(eq(collections.id, id));
+	const [before] = await tx
+		.select({ name: collections.name, slugs: collections.slugs })
+		.from(collections)
+		.where(eq(collections.id, id));
 	if (!before) throw new ValidationError({ _: ['Collectie niet gevonden'] });
 	await tx.delete(collections).where(eq(collections.id, id));
 	await audit(tx, actor, { action: 'delete', entity: 'collection', entityId: id, diff: before });

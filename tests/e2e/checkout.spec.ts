@@ -28,7 +28,10 @@ async function stockedVariant() {
 }
 
 async function addToCart(ctx: BrowserContext, baseURL: string, variantId: string, lang = 'nl') {
-	const r = await ctx.request.post(`/api/cart?lang=${lang}`, { data: { variantId, qty: 1 }, headers: { origin: baseURL } });
+	const r = await ctx.request.post(`/api/cart?lang=${lang}`, {
+		data: { variantId, qty: 1 },
+		headers: { origin: baseURL }
+	});
 	expect(r.ok()).toBe(true);
 }
 
@@ -57,7 +60,11 @@ test.describe('checkout (mock payments)', () => {
 		await expect(page.locator('#co-email')).toBeFocused();
 	});
 
-	test('paid: lands on the thank-you page, stock is decremented, confirmation email is logged', async ({ page, context, baseURL }) => {
+	test('paid: lands on the thank-you page, stock is decremented, confirmation email is logged', async ({
+		page,
+		context,
+		baseURL
+	}) => {
 		const v = await stockedVariant();
 		await addToCart(context, baseURL!, v.id);
 		await page.goto('/nl/afrekenen');
@@ -70,12 +77,19 @@ test.describe('checkout (mock payments)', () => {
 		await expect(page.getByRole('link', { name: 'Account aanmaken' })).toBeVisible();
 
 		const number = /bedankt\/(SK-[\d-]+)/.exec(page.url())![1];
-		const [order] = await query<{ status: string; invoice_number: string }>('select status, invoice_number from orders where number = $1', [number]);
+		const [order] = await query<{ status: string; invoice_number: string }>(
+			'select status, invoice_number from orders where number = $1',
+			[number]
+		);
 		expect(order.status).toBe('paid');
 		expect(order.invoice_number).toMatch(/^SK-INV-/);
 		const [{ stock }] = await query<{ stock: number }>('select stock from variants where id = $1', [v.id]);
 		expect(stock).toBe(v.stock - 1);
-		const log = await query('select 1 from email_log where ref_id = $1 and template = $2 and status = $3', [number, 'order_confirmation', 'sent']);
+		const log = await query('select 1 from email_log where ref_id = $1 and template = $2 and status = $3', [
+			number,
+			'order_confirmation',
+			'sent'
+		]);
 		expect(log).toHaveLength(1);
 
 		// Without the token the page is not accessible
@@ -94,7 +108,9 @@ test.describe('checkout (mock payments)', () => {
 		await page.waitForURL(/\/nl\/bedankt\//);
 		await expect(page.getByRole('heading', { level: 1 })).toHaveText('Je betaling is niet gelukt');
 		const number = /bedankt\/(SK-[\d-]+)/.exec(page.url())![1];
-		expect((await query<{ status: string }>('select status from orders where number = $1', [number]))[0].status).toBe('cancelled');
+		expect((await query<{ status: string }>('select status from orders where number = $1', [number]))[0].status).toBe(
+			'cancelled'
+		);
 
 		await page.getByRole('button', { name: 'Opnieuw betalen' }).click();
 		await page.waitForURL(/\/nl\/betalen\/mock/);

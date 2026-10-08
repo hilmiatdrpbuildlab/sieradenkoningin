@@ -28,7 +28,9 @@ export async function sha256Hex(input: string): Promise<string> {
 }
 
 export async function hmacHex(secret: string, input: string): Promise<string> {
-	const key = await crypto.subtle.importKey('raw', enc.encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+	const key = await crypto.subtle.importKey('raw', enc.encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, [
+		'sign'
+	]);
 	return toHex(await crypto.subtle.sign('HMAC', key, enc.encode(input)));
 }
 
@@ -55,6 +57,10 @@ export async function encrypt(plain: string, keyB64: string): Promise<string> {
 
 export async function decrypt(payload: string, keyB64: string): Promise<string> {
 	const [iv, ct] = payload.split('.');
-	const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: base64ToBytes(iv) }, await aesKey(keyB64), base64ToBytes(ct));
+	const pt = await crypto.subtle.decrypt(
+		{ name: 'AES-GCM', iv: base64ToBytes(iv) },
+		await aesKey(keyB64),
+		base64ToBytes(ct)
+	);
 	return new TextDecoder().decode(pt);
 }

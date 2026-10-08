@@ -25,7 +25,11 @@ export function slugify(input: string, maxLength = 80): string {
  * First free slug: `base`, `base-2`, `base-3`, … `taken` decides whether a candidate is in use.
  * Pass a `suffix` (e.g. 'kopie') to start from `base-kopie`.
  */
-export async function uniqueSlug(base: string, taken: (slug: string) => boolean | Promise<boolean>, suffix?: string): Promise<string> {
+export async function uniqueSlug(
+	base: string,
+	taken: (slug: string) => boolean | Promise<boolean>,
+	suffix?: string
+): Promise<string> {
 	const root = slugify(suffix ? `${base}-${suffix}` : base) || 'item';
 	if (!(await taken(root))) return root;
 	for (let n = 2; n < 1000; n++) {

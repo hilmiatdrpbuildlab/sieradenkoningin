@@ -33,9 +33,10 @@ describe('translations', () => {
 
 	it('message keys are unique across areas', () => {
 		const seen = new Map<string, string>();
-		for (const a of areas) for (const k of keys(a, 'nl')) {
-			expect(seen.get(k), `duplicate key ${k} in ${a} and ${seen.get(k)}`).toBeUndefined();
-			seen.set(k, a);
-		}
+		for (const a of areas)
+			for (const k of keys(a, 'nl')) {
+				expect(seen.get(k), `duplicate key ${k} in ${a} and ${seen.get(k)}`).toBeUndefined();
+				seen.set(k, a);
+			}
 	});
 });

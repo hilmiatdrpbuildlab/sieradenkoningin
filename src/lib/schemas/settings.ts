@@ -17,8 +17,14 @@ export const storeSettingsSchema = z.object({
 	postalCode: optionalText(10),
 	city: optionalText(100),
 	country: z.string().trim().length(2).default('BE'),
-	kbo: optionalText(20).refine((v) => !v || isValidBeEnterpriseNumber(v), 'Ongeldig ondernemingsnummer (bv. 0123.456.749)'),
-	vat: optionalText(20).refine((v) => !v || /^BE\s?[01]\d{3}\.?\d{3}\.?\d{3}$/i.test(v.replace(/\s/g, '')) && isValidBeEnterpriseNumber(v), 'Ongeldig btw-nummer (bv. BE0123456749)'),
+	kbo: optionalText(20).refine(
+		(v) => !v || isValidBeEnterpriseNumber(v),
+		'Ongeldig ondernemingsnummer (bv. 0123.456.749)'
+	),
+	vat: optionalText(20).refine(
+		(v) => !v || (/^BE\s?[01]\d{3}\.?\d{3}\.?\d{3}$/i.test(v.replace(/\s/g, '')) && isValidBeEnterpriseNumber(v)),
+		'Ongeldig btw-nummer (bv. BE0123456749)'
+	),
 	email: z.union([z.literal(''), z.string().trim().email('Ongeldig e-mailadres')]).default(''),
 	phone: optionalText(30)
 });

@@ -41,7 +41,8 @@
 
 <div class="savebar" class:dirty role="region" aria-label="Opslaan">
 	<p class="state" aria-live="polite">
-		{#if saving}Bezig met opslaan…{:else if dirty}<span class="dot" aria-hidden="true"></span>Niet-opgeslagen wijzigingen{:else}Geen openstaande wijzigingen{/if}
+		{#if saving}Bezig met opslaan…{:else if dirty}<span class="dot" aria-hidden="true"></span>Niet-opgeslagen
+			wijzigingen{:else}Geen openstaande wijzigingen{/if}
 	</p>
 	<div class="actions">
 		{#if extra}{@render extra()}{/if}

@@ -52,8 +52,14 @@ export function buildEnvelope(dsn: string, r: ErrorReport, release: string, now 
 		release,
 		environment: 'production',
 		tags: { source: r.source, ...r.tags },
-		request: r.path ? { url: r.path.split('?')[0], method: r.method, headers: r.userAgent ? { 'User-Agent': r.userAgent } : {} } : undefined,
-		exception: { values: [{ type: 'Error', value: scrub(r.message).slice(0, 1000), stacktrace: frames.length ? { frames } : undefined }] }
+		request: r.path
+			? { url: r.path.split('?')[0], method: r.method, headers: r.userAgent ? { 'User-Agent': r.userAgent } : {} }
+			: undefined,
+		exception: {
+			values: [
+				{ type: 'Error', value: scrub(r.message).slice(0, 1000), stacktrace: frames.length ? { frames } : undefined }
+			]
+		}
 	};
 	const header = { event_id: eventId, dsn, sent_at: now.toISOString() };
 	return `${JSON.stringify(header)}\n${JSON.stringify({ type: 'event' })}\n${JSON.stringify(event)}`;
@@ -66,7 +72,10 @@ export async function reportError(dsn: string | undefined, r: ErrorReport, relea
 	try {
 		await fetch(target.endpoint, {
 			method: 'POST',
-			headers: { 'content-type': 'application/x-sentry-envelope', 'x-sentry-auth': `Sentry sentry_version=7, sentry_key=${target.key}, sentry_client=sk-min/1.0` },
+			headers: {
+				'content-type': 'application/x-sentry-envelope',
+				'x-sentry-auth': `Sentry sentry_version=7, sentry_key=${target.key}, sentry_client=sk-min/1.0`
+			},
 			body: buildEnvelope(dsn, r, release)
 		});
 	} catch {

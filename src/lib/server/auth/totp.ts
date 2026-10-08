@@ -50,7 +50,9 @@ export async function totpCode(secret: string, timeMs = Date.now(), step = 30): 
 	const view = new DataView(buf);
 	view.setUint32(0, Math.floor(counter / 2 ** 32));
 	view.setUint32(4, counter >>> 0);
-	const key = await crypto.subtle.importKey('raw', base32Decode(secret), { name: 'HMAC', hash: 'SHA-1' }, false, ['sign']);
+	const key = await crypto.subtle.importKey('raw', base32Decode(secret), { name: 'HMAC', hash: 'SHA-1' }, false, [
+		'sign'
+	]);
 	const mac = new Uint8Array(await crypto.subtle.sign('HMAC', key, buf));
 	const offset = mac[mac.length - 1] & 0xf;
 	const bin = ((mac[offset] & 0x7f) << 24) | (mac[offset + 1] << 16) | (mac[offset + 2] << 8) | mac[offset + 3];

@@ -16,7 +16,11 @@ export const PUT: RequestHandler = async ({ locals, request, url }) => {
 	const key = url.searchParams.get('key') ?? '';
 	const exp = Number(url.searchParams.get('exp'));
 	const sig = url.searchParams.get('sig') ?? '';
-	if (!isSafeKey(key) || !Number.isFinite(exp) || !(await verifyMockSignature(env.SESSION_SECRET, 'PUT', key, exp, sig)))
+	if (
+		!isSafeKey(key) ||
+		!Number.isFinite(exp) ||
+		!(await verifyMockSignature(env.SESSION_SECRET, 'PUT', key, exp, sig))
+	)
 		error(403, 'Ongeldige of verlopen upload-URL');
 
 	const contentType = (request.headers.get('content-type') ?? '').split(';')[0].trim();

@@ -8,6 +8,7 @@
   file input (`fallbackName`, needs enctype="multipart/form-data") plus remove / position fields.
 -->
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import Icon from '#lib/components/ui/Icon.svelte';
 	import type { ImageModel } from '#lib/schemas/product.ts';
 
@@ -53,9 +54,7 @@
 	let mounted = $state(false);
 	let input = $state<HTMLInputElement>();
 	let status = $state('');
-	$effect(() => {
-		mounted = true;
-	});
+	onMount(() => (mounted = true));
 
 	const ACCEPT = ['image/jpeg', 'image/png', 'image/webp', 'image/avif'];
 	const err = (path: string) => errors[`${name}.${path}`]?.[0];
@@ -106,8 +105,13 @@
 					headers: { 'content-type': 'application/json' },
 					body: JSON.stringify({ filename: file.name, contentType: file.type, size: file.size, folder })
 				});
-				if (!res.ok) throw new Error(((await res.json().catch(() => ({}))) as { message?: string }).message ?? 'Upload geweigerd');
-				const { uploadUrl, key, publicUrl } = (await res.json()) as { uploadUrl: string; key: string; publicUrl: string };
+				if (!res.ok)
+					throw new Error(((await res.json().catch(() => ({}))) as { message?: string }).message ?? 'Upload geweigerd');
+				const { uploadUrl, key, publicUrl } = (await res.json()) as {
+					uploadUrl: string;
+					key: string;
+					publicUrl: string;
+				};
 
 				await new Promise<void>((resolve, reject) => {
 					const xhr = new XMLHttpRequest();
@@ -124,7 +128,17 @@
 					xhr.send(file);
 				});
 
-				value = [...value, { key, url: publicUrl, alt: { nl: '', fr: '' }, width: String(size.width), height: String(size.height), bytes: String(file.size) }];
+				value = [
+					...value,
+					{
+						key,
+						url: publicUrl,
+						alt: { nl: '', fr: '' },
+						width: String(size.width),
+						height: String(size.height),
+						bytes: String(file.size)
+					}
+				];
 				URL.revokeObjectURL(p.preview);
 				pending = pending.filter((x) => x.id !== id);
 				status = `${file.name} geüpload. Vul de alt-tekst in.`;
@@ -192,7 +206,9 @@
 		</label>
 	{/if}
 	<p class="sr-only" role="status" aria-live="polite">{status}</p>
-	{#if err('_') || errors[name]?.[0]}<p class="error" role="alert"><Icon name="alert" size={14} />{errors[name]?.[0] ?? err('_')}</p>{/if}
+	{#if err('_') || errors[name]?.[0]}<p class="error" role="alert">
+			<Icon name="alert" size={14} />{errors[name]?.[0] ?? err('_')}
+		</p>{/if}
 
 	{#if value.length || pending.length}
 		<ul class="grid">
@@ -220,9 +236,21 @@
 						{#if i === 0}<span class="tag">Hoofdfoto</span>{/if}
 						{#if mounted}
 							<div class="actions">
-								<button type="button" aria-label="Foto {i + 1} naar links" disabled={i === 0} onclick={() => move(i, i - 1)}><Icon name="chevron-left" size={14} /></button>
-								<button type="button" aria-label="Foto {i + 1} naar rechts" disabled={i === value.length - 1} onclick={() => move(i, i + 1)}><Icon name="chevron-right" size={14} /></button>
-								<button type="button" aria-label="Foto {i + 1} verwijderen" onclick={() => remove(i)}><Icon name="trash" size={14} /></button>
+								<button
+									type="button"
+									aria-label="Foto {i + 1} naar links"
+									disabled={i === 0}
+									onclick={() => move(i, i - 1)}><Icon name="chevron-left" size={14} /></button
+								>
+								<button
+									type="button"
+									aria-label="Foto {i + 1} naar rechts"
+									disabled={i === value.length - 1}
+									onclick={() => move(i, i + 1)}><Icon name="chevron-right" size={14} /></button
+								>
+								<button type="button" aria-label="Foto {i + 1} verwijderen" onclick={() => remove(i)}
+									><Icon name="trash" size={14} /></button
+								>
 							</div>
 						{/if}
 					</div>
@@ -240,15 +268,24 @@
 								maxlength="250"
 							/>
 						</label>
-						{#if err(`${i}.alt.nl`)}<p class="error" role="alert"><Icon name="alert" size={14} />{err(`${i}.alt.nl`)}</p>{/if}
+						{#if err(`${i}.alt.nl`)}<p class="error" role="alert">
+								<Icon name="alert" size={14} />{err(`${i}.alt.nl`)}
+							</p>{/if}
 						<label class="alt">
 							<span>Alt-tekst FR <small>(optioneel)</small></span>
-							<input name="{name}.{i}.alt.fr" bind:value={img.alt.fr} oninput={changed} placeholder="ex. Bague trèfle dorée" maxlength="250" />
+							<input
+								name="{name}.{i}.alt.fr"
+								bind:value={img.alt.fr}
+								oninput={changed}
+								placeholder="ex. Bague trèfle dorée"
+								maxlength="250"
+							/>
 						</label>
 					{/if}
 					{#if !mounted}
 						<div class="nojs">
-							<label><span>Positie</span><input type="number" name="{name}.{i}.position" value={i + 1} min="1" /></label>
+							<label><span>Positie</span><input type="number" name="{name}.{i}.position" value={i + 1} min="1" /></label
+							>
 							<label class="rm"><input type="checkbox" name="{name}.{i}.remove" /> Verwijderen</label>
 						</div>
 					{/if}
@@ -457,7 +494,11 @@
 		text-align: center;
 		font-size: var(--fs-xs);
 		color: var(--ui-text-inverse);
-		background: linear-gradient(to top, color-mix(in srgb, var(--ui-surface-inverse) 80%, transparent) var(--p), color-mix(in srgb, var(--ui-surface-inverse) 45%, transparent) var(--p));
+		background: linear-gradient(
+			to top,
+			color-mix(in srgb, var(--ui-surface-inverse) 80%, transparent) var(--p),
+			color-mix(in srgb, var(--ui-surface-inverse) 45%, transparent) var(--p)
+		);
 	}
 	.error-tile .progress {
 		background: color-mix(in srgb, var(--ui-danger) 85%, transparent);

@@ -37,7 +37,14 @@ export type Address = {
 	phone?: string;
 };
 export type Gpsr = { manufacturer?: string; address?: string; contact?: string; safetyInfo?: I18n };
-export type ServicePoint = { id: string; name: string; street: string; postalCode: string; city: string; carrier: string };
+export type ServicePoint = {
+	id: string;
+	name: string;
+	street: string;
+	postalCode: string;
+	city: string;
+	carrier: string;
+};
 export type CollectionRule = {
 	category?: string;
 	tag?: string;
@@ -144,7 +151,10 @@ export const products = pgTable(
 		care: i18n('care'),
 		material: i18n('material'), // "18k verguld edelstaal · granaat"
 		stoneColor: text('stone_color'), // filter facet: red | green | white | none …
-		tags: text('tags').array().notNull().default(sql`'{}'::text[]`),
+		tags: text('tags')
+			.array()
+			.notNull()
+			.default(sql`'{}'::text[]`),
 		badge: text('badge'), // limited | bestseller (manual); "new" is computed
 		categoryId: uuid('category_id')
 			.notNull()
@@ -171,7 +181,10 @@ export const products = pgTable(
 		index('products_search_nl_idx').using('gin', t.searchNl),
 		index('products_search_fr_idx').using('gin', t.searchFr),
 		index('products_name_trgm_idx').using('gin', sql`(sk_unaccent(${t.name}->>'nl')) gin_trgm_ops`),
-		index('products_name_fr_trgm_idx').using('gin', sql`(sk_unaccent(coalesce(${t.name}->>'fr', ${t.name}->>'nl'))) gin_trgm_ops`),
+		index('products_name_fr_trgm_idx').using(
+			'gin',
+			sql`(sk_unaccent(coalesce(${t.name}->>'fr', ${t.name}->>'nl'))) gin_trgm_ops`
+		),
 		check('products_price_nonneg', sql`${t.price} >= 0`)
 	]
 );
@@ -226,7 +239,10 @@ export const productImages = pgTable(
 		alt: i18n('alt').notNull(),
 		position: integer('position').notNull().default(0)
 	},
-	(t) => [index('product_images_product_idx').on(t.productId, t.position), index('product_images_media_idx').on(t.mediaId)]
+	(t) => [
+		index('product_images_product_idx').on(t.productId, t.position),
+		index('product_images_media_idx').on(t.mediaId)
+	]
 );
 
 export const collections = pgTable(
@@ -310,7 +326,10 @@ export const stockReservations = pgTable(
 		expiresAt: ts('expires_at').notNull(),
 		createdAt: createdAt()
 	},
-	(t) => [index('stock_reservations_variant_idx').on(t.variantId, t.expiresAt), index('stock_reservations_order_idx').on(t.orderId)]
+	(t) => [
+		index('stock_reservations_variant_idx').on(t.variantId, t.expiresAt),
+		index('stock_reservations_order_idx').on(t.orderId)
+	]
 );
 
 // ── Customers & auth ───────────────────────────────────────────────────────────
@@ -328,7 +347,10 @@ export const customers = pgTable(
 		marketingOptIn: boolean('marketing_opt_in').notNull().default(false),
 		birthday: text('birthday'),
 		notes: text('notes'),
-		tags: text('tags').array().notNull().default(sql`'{}'::text[]`),
+		tags: text('tags')
+			.array()
+			.notNull()
+			.default(sql`'{}'::text[]`),
 		deletedAt: ts('deleted_at'),
 		createdAt: createdAt(),
 		updatedAt: updatedAt()
@@ -676,7 +698,10 @@ export const discountRedemptions = pgTable(
 		amount: integer('amount').notNull().default(0),
 		createdAt: createdAt()
 	},
-	(t) => [uniqueIndex('discount_redemptions_order_uq').on(t.discountId, t.orderId), index('discount_redemptions_email_idx').on(t.email)]
+	(t) => [
+		uniqueIndex('discount_redemptions_order_uq').on(t.discountId, t.orderId),
+		index('discount_redemptions_email_idx').on(t.email)
+	]
 );
 
 export const giftCards = pgTable('gift_cards', {
@@ -720,7 +745,10 @@ export const reviews = pgTable(
 		reply: text('reply'),
 		createdAt: createdAt()
 	},
-	(t) => [index('reviews_product_idx').on(t.productId, t.status), check('reviews_rating_range', sql`${t.rating} between 1 and 5`)]
+	(t) => [
+		index('reviews_product_idx').on(t.productId, t.status),
+		check('reviews_rating_range', sql`${t.rating} between 1 and 5`)
+	]
 );
 
 export const newsletterSubscribers = pgTable('newsletter_subscribers', {

@@ -42,29 +42,33 @@ export const MAX_IMPORT_ROWS = 5000;
 const CSV_OPTS = { delimiter: ';', bom: true, guardFormulas: true } as const;
 
 export function templateCsv(): string {
-	return recordsToCsv(IMPORT_COLUMNS, [
-		{
-			product_slug: 'demo-voorbeeld-ring',
-			name_nl: 'DEMO Voorbeeldring',
-			name_fr: 'DEMO Bague exemple',
-			category: 'rings',
-			status: 'draft',
-			price: '49,95',
-			compare_at_price: '',
-			material_nl: '18k verguld edelstaal',
-			material_fr: 'Acier inoxydable plaqué or 18k',
-			description_nl: '',
-			description_fr: '',
-			tags: 'klaver, rood',
-			featured: 'nee',
-			sku: 'DEMO-VOORBEELD-RING-GO-52',
-			metal: 'gold',
-			size: '52',
-			stock: '5',
-			price_override: '',
-			low_stock_threshold: '2'
-		}
-	], CSV_OPTS);
+	return recordsToCsv(
+		IMPORT_COLUMNS,
+		[
+			{
+				product_slug: 'demo-voorbeeld-ring',
+				name_nl: 'DEMO Voorbeeldring',
+				name_fr: 'DEMO Bague exemple',
+				category: 'rings',
+				status: 'draft',
+				price: '49,95',
+				compare_at_price: '',
+				material_nl: '18k verguld edelstaal',
+				material_fr: 'Acier inoxydable plaqué or 18k',
+				description_nl: '',
+				description_fr: '',
+				tags: 'klaver, rood',
+				featured: 'nee',
+				sku: 'DEMO-VOORBEELD-RING-GO-52',
+				metal: 'gold',
+				size: '52',
+				stock: '5',
+				price_override: '',
+				low_stock_threshold: '2'
+			}
+		],
+		CSV_OPTS
+	);
 }
 
 // ── Parsing (pure) ───────────────────────────────────────────────────────────────
@@ -141,7 +145,14 @@ const METAL_ALIASES: Record<string, MetalValue> = {
 
 export function resolveCategory(value: string, cats: CategoryRef[]): string | undefined {
 	const v = value.trim().toLowerCase();
-	return cats.find((c) => c.key === v || c.slugs.nl === v || c.slugs.fr === v || c.name.nl.toLowerCase() === v || c.name.fr?.toLowerCase() === v)?.key;
+	return cats.find(
+		(c) =>
+			c.key === v ||
+			c.slugs.nl === v ||
+			c.slugs.fr === v ||
+			c.name.nl.toLowerCase() === v ||
+			c.name.fr?.toLowerCase() === v
+	)?.key;
 }
 
 export function parseImportRecord(rec: Partial<Record<string, string>>, line: number, cats: CategoryRef[]): ParsedRow {
@@ -149,7 +160,8 @@ export function parseImportRecord(rec: Partial<Record<string, string>>, line: nu
 	const get = (k: ImportColumn) => (rec[k] ?? '').trim();
 	const slug = get('product_slug').toLowerCase();
 	if (!slug) errors.push('product_slug is verplicht');
-	else if (!slugSchema.safeParse(slug).success) errors.push(`Ongeldige product_slug “${slug}” (kleine letters, cijfers, koppeltekens)`);
+	else if (!slugSchema.safeParse(slug).success)
+		errors.push(`Ongeldige product_slug “${slug}” (kleine letters, cijfers, koppeltekens)`);
 
 	const product: ProductFields = {};
 	if (get('name_nl')) product.nameNl = get('name_nl').slice(0, 160);
@@ -255,7 +267,14 @@ export interface ProductPlan {
 export interface ImportPlan {
 	rows: RowPlan[];
 	products: ProductPlan[];
-	summary: { rows: number; create: number; update: number; errors: number; productsCreate: number; productsUpdate: number };
+	summary: {
+		rows: number;
+		create: number;
+		update: number;
+		errors: number;
+		productsCreate: number;
+		productsUpdate: number;
+	};
 }
 
 export function planImport(parsed: ParsedRow[], lookup: ImportLookup): ImportPlan {
@@ -273,13 +292,15 @@ export function planImport(parsed: ParsedRow[], lookup: ImportLookup): ImportPla
 			groups.set(r.slug, g);
 		}
 		g.rows.push(r);
-		for (const [k, v] of Object.entries(r.product) as [keyof ProductFields, never][]) if (g.fields[k] === undefined) g.fields[k] = v;
+		for (const [k, v] of Object.entries(r.product) as [keyof ProductFields, never][])
+			if (g.fields[k] === undefined) g.fields[k] = v;
 		if (r.variant) {
 			const prevLine = seenSku.get(r.variant.sku);
 			if (prevLine !== undefined) pushErr(r.line, `SKU ${r.variant.sku} komt al voor op regel ${prevLine}`);
 			else seenSku.set(r.variant.sku, r.line);
 			const existing = lookup.variants.get(r.variant.sku);
-			if (existing && existing.productSlug !== r.slug) pushErr(r.line, `SKU ${r.variant.sku} hoort bij product “${existing.productSlug}”`);
+			if (existing && existing.productSlug !== r.slug)
+				pushErr(r.line, `SKU ${r.variant.sku} hoort bij product “${existing.productSlug}”`);
 		}
 	}
 
@@ -311,7 +332,11 @@ export function planImport(parsed: ParsedRow[], lookup: ImportLookup): ImportPla
 		const productAction = !g ? 'none' : g.exists ? (isFirst ? 'update' : 'none') : isFirst ? 'create' : 'none';
 		const variantAction = !r.variant ? 'none' : existingVariant ? 'update' : 'create';
 		const stockDelta = r.variant?.stock !== undefined ? r.variant.stock - (existingVariant?.stock ?? 0) : 0;
-		const action: RowAction = errors.length ? 'error' : variantAction === 'create' || productAction === 'create' ? 'create' : 'update';
+		const action: RowAction = errors.length
+			? 'error'
+			: variantAction === 'create' || productAction === 'create'
+				? 'create'
+				: 'update';
 		return {
 			line: r.line,
 			slug: r.slug,
@@ -356,7 +381,9 @@ export function parseImportCsv(text: string, cats: CategoryRef[]): ParsedRow[] {
 export async function loadLookup(db: Executor, parsed: ParsedRow[]): Promise<ImportLookup> {
 	const slugs = [...new Set(parsed.map((r) => r.slug).filter(Boolean))];
 	const skus = [...new Set(parsed.map((r) => r.variant?.sku).filter((s): s is string => !!s))];
-	const cats = await db.select({ key: categories.key, slugs: categories.slugs, name: categories.name }).from(categories);
+	const cats = await db
+		.select({ key: categories.key, slugs: categories.slugs, name: categories.name })
+		.from(categories);
 	const prods = slugs.length
 		? await db
 				.select({
@@ -378,7 +405,9 @@ export async function loadLookup(db: Executor, parsed: ParsedRow[]): Promise<Imp
 		: [];
 	return {
 		categories: cats,
-		products: new Map(prods.map((p) => [p.slug, { id: p.id, status: p.status, hasImage: p.hasImage, variantCount: p.variantCount }])),
+		products: new Map(
+			prods.map((p) => [p.slug, { id: p.id, status: p.status, hasImage: p.hasImage, variantCount: p.variantCount }])
+		),
 		variants: new Map(vars.map((v) => [v.sku, { id: v.id, productSlug: v.productSlug, stock: v.stock }]))
 	};
 }
@@ -408,7 +437,9 @@ export async function commitImport(db: Executor, actor: Actor, text: string): Pr
 	const lookup = await loadLookup(db, parsed);
 	const plan = planImport(parsed, lookup);
 	const byLine = new Map(plan.rows.map((r) => [r.line, r]));
-	const catIds = new Map((await db.select({ id: categories.id, key: categories.key }).from(categories)).map((c) => [c.key, c.id]));
+	const catIds = new Map(
+		(await db.select({ id: categories.id, key: categories.key }).from(categories)).map((c) => [c.key, c.id])
+	);
 	const actorName = actor.admin?.name ?? null;
 
 	for (const g of plan.products) {
@@ -420,7 +451,9 @@ export async function commitImport(db: Executor, actor: Actor, text: string): Pr
 				let productId: string;
 				const existing = lookup.products.get(g.slug);
 				const i18n = (nl?: string, fr?: string, prev?: I18n | null): I18n | null | undefined =>
-					nl === undefined && fr === undefined ? undefined : { ...(prev ?? { nl: '' }), ...(nl !== undefined ? { nl } : {}), ...(fr !== undefined ? { fr } : {}) };
+					nl === undefined && fr === undefined
+						? undefined
+						: { ...(prev ?? { nl: '' }), ...(nl !== undefined ? { nl } : {}), ...(fr !== undefined ? { fr } : {}) };
 				if (existing) {
 					const [cur] = await sp.select().from(products).where(eq(products.id, existing.id)).for('update');
 					productId = cur.id;
@@ -437,8 +470,13 @@ export async function commitImport(db: Executor, actor: Actor, text: string): Pr
 					if (f.compareAtPrice !== undefined) set.compareAtPrice = f.compareAtPrice;
 					if (f.tags) set.tags = f.tags;
 					if (f.featured !== undefined) set.featured = f.featured;
-					if (Object.keys(set).length) await sp.update(products).set({ ...set, updatedAt: new Date() }).where(eq(products.id, productId));
-					if (f.price !== undefined && f.price !== cur.price) await sp.insert(priceHistory).values({ productId, price: f.price });
+					if (Object.keys(set).length)
+						await sp
+							.update(products)
+							.set({ ...set, updatedAt: new Date() })
+							.where(eq(products.id, productId));
+					if (f.price !== undefined && f.price !== cur.price)
+						await sp.insert(priceHistory).values({ productId, price: f.price });
 				} else {
 					const [row] = await sp
 						.insert(products)
@@ -474,11 +512,25 @@ export async function commitImport(db: Executor, actor: Actor, text: string): Pr
 							if (v.size !== undefined) set.size = v.size;
 							if (v.priceOverride !== undefined) set.priceOverride = v.priceOverride;
 							if (v.lowStockThreshold !== undefined) set.lowStockThreshold = v.lowStockThreshold;
-							if (Object.keys(set).length) await sp.update(variants).set({ ...set, updatedAt: new Date() }).where(eq(variants.id, ex.id));
+							if (Object.keys(set).length)
+								await sp
+									.update(variants)
+									.set({ ...set, updatedAt: new Date() })
+									.where(eq(variants.id, ex.id));
 							if (v.stock !== undefined) {
-								const [{ stock }] = await sp.select({ stock: variants.stock }).from(variants).where(eq(variants.id, ex.id)).for('update');
+								const [{ stock }] = await sp
+									.select({ stock: variants.stock })
+									.from(variants)
+									.where(eq(variants.id, ex.id))
+									.for('update');
 								if (v.stock !== stock)
-									await applyStockDelta(sp, { variantId: ex.id, delta: v.stock - stock, reason: 'import', note: `CSV regel ${r.line}`, actor: actorName });
+									await applyStockDelta(sp, {
+										variantId: ex.id,
+										delta: v.stock - stock,
+										reason: 'import',
+										note: `CSV regel ${r.line}`,
+										actor: actorName
+									});
 							}
 						} else {
 							const [row] = await sp
@@ -495,7 +547,13 @@ export async function commitImport(db: Executor, actor: Actor, text: string): Pr
 								})
 								.returning({ id: variants.id });
 							if (v.stock)
-								await applyStockDelta(sp, { variantId: row.id, delta: v.stock, reason: 'import', note: `CSV regel ${r.line}`, actor: actorName });
+								await applyStockDelta(sp, {
+									variantId: row.id,
+									delta: v.stock,
+									reason: 'import',
+									note: `CSV regel ${r.line}`,
+									actor: actorName
+								});
 						}
 					} catch (e) {
 						if (e instanceof StockError) throw new RowFailure(r.line, e.message);
@@ -508,7 +566,9 @@ export async function commitImport(db: Executor, actor: Actor, text: string): Pr
 			for (const r of okRows) {
 				const plan = byLine.get(r.line)!;
 				plan.action = 'error';
-				plan.errors.push(e instanceof RowFailure && e.line !== r.line ? 'Product overgeslagen door fout op een andere regel' : msg);
+				plan.errors.push(
+					e instanceof RowFailure && e.line !== r.line ? 'Product overgeslagen door fout op een andere regel' : msg
+				);
 			}
 		}
 	}
@@ -537,7 +597,12 @@ function dbMessage(e: unknown): string {
 	const err = e as { code?: string; constraint?: string; cause?: { code?: string; constraint?: string } };
 	const code = err.code ?? err.cause?.code;
 	const constraint = err.constraint ?? err.cause?.constraint;
-	if (code === '23505') return constraint?.includes('sku') ? 'SKU bestaat al' : constraint?.includes('slug') ? 'Slug bestaat al' : 'Dubbele waarde';
+	if (code === '23505')
+		return constraint?.includes('sku')
+			? 'SKU bestaat al'
+			: constraint?.includes('slug')
+				? 'Slug bestaat al'
+				: 'Dubbele waarde';
 	if (code === '23514') return 'Waarde niet toegelaten (bv. negatieve voorraad of prijs)';
 	console.error('import row failed', e);
 	return 'Onverwachte fout bij het opslaan van deze rij';
@@ -594,4 +659,3 @@ export async function exportCsv(db: Executor): Promise<string> {
 		CSV_OPTS
 	);
 }
-

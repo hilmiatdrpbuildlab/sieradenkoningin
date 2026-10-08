@@ -10,11 +10,18 @@
 
 <svelte:head><title>Account activeren — Beheer</title></svelte:head>
 
-<AuthCard title="Welkom, {data.name}" subtitle="Kies een wachtwoord voor {data.email}. Daarna stel je tweestapsverificatie in.">
+<AuthCard
+	title="Welkom, {data.name}"
+	subtitle="Kies een wachtwoord voor {data.email}. Daarna stel je tweestapsverificatie in."
+>
 	<form method="POST" use:enhance>
 		{#if form?.error}<p class="err" role="alert">{form.error}</p>{/if}
-		<Field label="Nieuw wachtwoord" hint="Minstens 10 tekens" required><Input name="password" type="password" autocomplete="new-password" /></Field>
-		<Field label="Herhaal wachtwoord" required><Input name="confirm" type="password" autocomplete="new-password" /></Field>
+		<Field label="Nieuw wachtwoord" hint="Minstens 10 tekens" required
+			><Input name="password" type="password" autocomplete="new-password" /></Field
+		>
+		<Field label="Herhaal wachtwoord" required
+			><Input name="confirm" type="password" autocomplete="new-password" /></Field
+		>
 		<Button type="submit" full>Account activeren</Button>
 	</form>
 </AuthCard>

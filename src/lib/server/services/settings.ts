@@ -95,7 +95,11 @@ export async function setSetting<K extends SettingsKey>(db: Executor, key: K, va
 }
 
 /** True when an announcement/scheduled item is visible at `now`. */
-export function isWithinWindow(from: string | Date | null | undefined, until: string | Date | null | undefined, now = new Date()) {
+export function isWithinWindow(
+	from: string | Date | null | undefined,
+	until: string | Date | null | undefined,
+	now = new Date()
+) {
 	if (from && new Date(from) > now) return false;
 	if (until && new Date(until) <= now) return false;
 	return true;

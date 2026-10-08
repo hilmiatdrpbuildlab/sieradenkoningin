@@ -23,7 +23,8 @@ async function readCsv(fd: FormData): Promise<string | { error: string }> {
 		return file.text();
 	}
 	const text = fd.get('csv');
-	if (typeof text === 'string' && text.trim()) return text.length > MAX_BYTES ? { error: 'Bestand is groter dan 5 MB' } : text;
+	if (typeof text === 'string' && text.trim())
+		return text.length > MAX_BYTES ? { error: 'Bestand is groter dan 5 MB' } : text;
 	return { error: 'Kies een CSV-bestand' };
 }
 
@@ -36,7 +37,13 @@ export const actions: Actions = {
 		if (typeof csv !== 'string') return fail(400, { step: 'preview' as const, message: csv.error });
 		try {
 			const plan = await dryRun(locals.db, csv);
-			return { step: 'preview' as const, csv, fileName: fd.get('file') instanceof File ? (fd.get('file') as File).name : 'import.csv', rows: plan.rows, summary: plan.summary };
+			return {
+				step: 'preview' as const,
+				csv,
+				fileName: fd.get('file') instanceof File ? (fd.get('file') as File).name : 'import.csv',
+				rows: plan.rows,
+				summary: plan.summary
+			};
 		} catch (e) {
 			if (e instanceof ImportError) return fail(400, { step: 'preview' as const, message: e.message });
 			throw e;

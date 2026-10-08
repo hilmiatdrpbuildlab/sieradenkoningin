@@ -40,8 +40,22 @@
 <svelte:window onclick={(e) => open && !root.contains(e.target as Node) && (open = false)} />
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
-<div class="mega" bind:this={root} onmouseenter={() => intent(true)} onmouseleave={() => intent(false)} onkeydown={onKey} onfocusout={onFocusOut}>
-	<button bind:this={trigger} type="button" class="trigger" aria-expanded={open} aria-controls="mega{uid}" onclick={() => (open = !open)}>
+<div
+	class="mega"
+	bind:this={root}
+	onmouseenter={() => intent(true)}
+	onmouseleave={() => intent(false)}
+	onkeydown={onKey}
+	onfocusout={onFocusOut}
+>
+	<button
+		bind:this={trigger}
+		type="button"
+		class="trigger"
+		aria-expanded={open}
+		aria-controls="mega{uid}"
+		onclick={() => (open = !open)}
+	>
 		{label}
 		<Icon name="chevron-down" size={12} />
 	</button>

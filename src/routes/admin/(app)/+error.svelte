@@ -3,7 +3,9 @@
 	import { page } from '$app/state';
 	import EmptyState from '#lib/components/ui/EmptyState.svelte';
 	import Button from '#lib/components/ui/Button.svelte';
-	const title = $derived(page.status === 403 ? 'Geen toegang' : page.status === 404 ? 'Niet gevonden' : 'Er ging iets mis');
+	const title = $derived(
+		page.status === 403 ? 'Geen toegang' : page.status === 404 ? 'Niet gevonden' : 'Er ging iets mis'
+	);
 </script>
 
 <svelte:head><title>{title} — Beheer</title></svelte:head>

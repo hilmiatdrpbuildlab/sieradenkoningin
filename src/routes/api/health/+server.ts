@@ -8,8 +8,14 @@ export const GET: RequestHandler = async ({ locals }) => {
 	const started = Date.now();
 	try {
 		await locals.db.execute(sql`select 1`);
-		return json({ ok: true, db: 'up', dbMs: Date.now() - started, version, time: new Date().toISOString() }, { headers: { 'cache-control': 'no-store' } });
+		return json(
+			{ ok: true, db: 'up', dbMs: Date.now() - started, version, time: new Date().toISOString() },
+			{ headers: { 'cache-control': 'no-store' } }
+		);
 	} catch {
-		return json({ ok: false, db: 'down', version, time: new Date().toISOString() }, { status: 503, headers: { 'cache-control': 'no-store' } });
+		return json(
+			{ ok: false, db: 'down', version, time: new Date().toISOString() },
+			{ status: 503, headers: { 'cache-control': 'no-store' } }
+		);
 	}
 };

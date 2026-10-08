@@ -25,18 +25,45 @@ async function cleanup() {
 beforeAll(async () => {
 	await migrate(db, { migrationsFolder: './drizzle' });
 	await cleanup();
-	const [c] = await db.insert(s.customers).values({ email: EMAIL, firstName: 'Anna', lastName: 'Test', phone: '+32 470 00 00 00', passwordHash: 'x' }).returning();
+	const [c] = await db
+		.insert(s.customers)
+		.values({ email: EMAIL, firstName: 'Anna', lastName: 'Test', phone: '+32 470 00 00 00', passwordHash: 'x' })
+		.returning();
 	customerId = c.id;
-	await db.insert(s.addresses).values({ customerId, name: 'Anna Test', line1: 'Straat 1', postalCode: '1000', city: 'Brussel' });
-	const [cat] = await db.insert(s.categories).values({ key: 'gdpr-test', slugs: { nl: 'gdpr-nl', fr: 'gdpr-fr' }, name: { nl: 'x' }, icon: 'ring' }).returning();
-	const [p] = await db.insert(s.products).values({ slug: 'gdpr-test-product', name: { nl: 'x' }, categoryId: cat.id, price: 1000 }).returning();
+	await db
+		.insert(s.addresses)
+		.values({ customerId, name: 'Anna Test', line1: 'Straat 1', postalCode: '1000', city: 'Brussel' });
+	const [cat] = await db
+		.insert(s.categories)
+		.values({ key: 'gdpr-test', slugs: { nl: 'gdpr-nl', fr: 'gdpr-fr' }, name: { nl: 'x' }, icon: 'ring' })
+		.returning();
+	const [p] = await db
+		.insert(s.products)
+		.values({ slug: 'gdpr-test-product', name: { nl: 'x' }, categoryId: cat.id, price: 1000 })
+		.returning();
 	await db.insert(s.wishlists).values({ customerId, productId: p.id });
 	const addr = { name: 'Anna Test', line1: 'Straat 1', postalCode: '1000', city: 'Brussel', country: 'BE' };
 	const [o] = await db
 		.insert(s.orders)
-		.values({ number: 'GDPR-TEST-1', accessToken: 'secret', customerId, email: EMAIL, subtotal: 1000, vatTotal: 174, total: 1000, shippingAddress: addr, billingAddress: addr, giftMessage: 'Voor mama', invoiceNumber: 'GDPR-INV-1', paymentStatus: 'paid', status: 'paid' })
+		.values({
+			number: 'GDPR-TEST-1',
+			accessToken: 'secret',
+			customerId,
+			email: EMAIL,
+			subtotal: 1000,
+			vatTotal: 174,
+			total: 1000,
+			shippingAddress: addr,
+			billingAddress: addr,
+			giftMessage: 'Voor mama',
+			invoiceNumber: 'GDPR-INV-1',
+			paymentStatus: 'paid',
+			status: 'paid'
+		})
 		.returning();
-	await db.insert(s.orderLines).values({ orderId: o.id, sku: 'X', name: { nl: 'x' }, unitPrice: 1000, qty: 1, vatAmount: 174, lineTotal: 1000 });
+	await db
+		.insert(s.orderLines)
+		.values({ orderId: o.id, sku: 'X', name: { nl: 'x' }, unitPrice: 1000, qty: 1, vatAmount: 174, lineTotal: 1000 });
 });
 
 afterAll(async () => {

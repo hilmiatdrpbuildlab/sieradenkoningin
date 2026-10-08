@@ -2,7 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { isCsrfForbidden } from '#lib/server/csrf.ts';
 
 const url = (p: string) => new URL(`https://shop.example${p}`);
-const req = (method: string, headers: Record<string, string>) => new Request('https://shop.example/x', { method, headers, body: method === 'GET' ? undefined : 'a=1' });
+const req = (method: string, headers: Record<string, string>) =>
+	new Request('https://shop.example/x', { method, headers, body: method === 'GET' ? undefined : 'a=1' });
 const form = { 'content-type': 'application/x-www-form-urlencoded' };
 
 describe('CSRF origin check', () => {

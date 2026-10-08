@@ -29,5 +29,8 @@ export const POST: RequestHandler = async ({ locals, request }) => {
 	const { contentType, folder = 'products' } = parsed.data;
 	const key = mediaKey(contentType, folder);
 	const uploadUrl = await locals.storage.presignPut(key, contentType, 300);
-	return json({ key, uploadUrl, publicUrl: locals.storage.publicUrl(key) }, { headers: { 'cache-control': 'no-store' } });
+	return json(
+		{ key, uploadUrl, publicUrl: locals.storage.publicUrl(key) },
+		{ headers: { 'cache-control': 'no-store' } }
+	);
 };

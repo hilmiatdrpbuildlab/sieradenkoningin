@@ -46,7 +46,10 @@ export default async function globalSetup() {
 		if (existing) await db.update(schema.adminUsers).set(values).where(eq(schema.adminUsers.id, existing.id));
 		else await db.insert(schema.adminUsers).values(values);
 		await db.delete(schema.rateLimits);
-		await db.insert(schema.settings).values({ key: 'maintenance', value: { enabled: false } }).onConflictDoUpdate({ target: schema.settings.key, set: { value: { enabled: false } } });
+		await db
+			.insert(schema.settings)
+			.values({ key: 'maintenance', value: { enabled: false } })
+			.onConflictDoUpdate({ target: schema.settings.key, set: { value: { enabled: false } } });
 	} finally {
 		await pool.end();
 	}

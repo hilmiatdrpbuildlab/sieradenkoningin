@@ -6,7 +6,15 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { addToCartSchema, discountCodeSchema, updateLineSchema } from '#lib/schemas/cart.ts';
-import { addToCart, findCart, getOrCreateCart, loadCart, setDiscountCode, setLineGiftWrap, setLineQty } from '#lib/server/services/cart.ts';
+import {
+	addToCart,
+	findCart,
+	getOrCreateCart,
+	loadCart,
+	setDiscountCode,
+	setLineGiftWrap,
+	setLineQty
+} from '#lib/server/services/cart.ts';
 import { evaluateDiscount, lookupDiscount, normalizeCode } from '#lib/server/services/discounts.ts';
 import { isLang } from '#lib/i18n/paths.ts';
 
@@ -19,7 +27,10 @@ function langOf(url: URL, fallback: 'nl' | 'fr') {
 
 export const GET: RequestHandler = async ({ locals, cookies, url }) => {
 	const cart = await findCart(locals.db, cookies);
-	return json(await loadCart(locals.db, cart?.id ?? null, langOf(url, locals.lang), { email: locals.customer?.email }), { headers: noStore });
+	return json(
+		await loadCart(locals.db, cart?.id ?? null, langOf(url, locals.lang), { email: locals.customer?.email }),
+		{ headers: noStore }
+	);
 };
 
 export const POST: RequestHandler = async ({ locals, cookies, request, url }) => {
@@ -39,8 +50,11 @@ export const PATCH: RequestHandler = async ({ locals, cookies, request, url }) =
 	const cart = await findCart(locals.db, cookies);
 	if (!cart) return json({ error: 'not_found' }, { status: 404 });
 	if (parsed.data.qty !== undefined) await setLineQty(locals.db, cart.id, parsed.data.lineId, parsed.data.qty);
-	if (parsed.data.giftWrap !== undefined) await setLineGiftWrap(locals.db, cart.id, parsed.data.lineId, parsed.data.giftWrap);
-	return json(await loadCart(locals.db, cart.id, langOf(url, locals.lang), { email: locals.customer?.email }), { headers: noStore });
+	if (parsed.data.giftWrap !== undefined)
+		await setLineGiftWrap(locals.db, cart.id, parsed.data.lineId, parsed.data.giftWrap);
+	return json(await loadCart(locals.db, cart.id, langOf(url, locals.lang), { email: locals.customer?.email }), {
+		headers: noStore
+	});
 };
 
 /** Apply a discount code (max one per cart; replaces the previous one). */
@@ -48,12 +62,17 @@ export const PUT: RequestHandler = async ({ locals, cookies, request, url }) => 
 	const parsed = discountCodeSchema.safeParse(await request.json().catch(() => null));
 	const lang = langOf(url, locals.lang);
 	const cart = await getOrCreateCart(locals.db, cookies, lang, locals.customer?.id);
-	if (!parsed.success) return json({ ...(await loadCart(locals.db, cart.id, lang)), codeError: 'not_found' }, { status: 400 });
+	if (!parsed.success)
+		return json({ ...(await loadCart(locals.db, cart.id, lang)), codeError: 'not_found' }, { status: 400 });
 	const code = normalizeCode(parsed.data.code);
 	const before = await loadCart(locals.db, cart.id, lang, { email: locals.customer?.email });
 	const { discount, totalUses, customerUses } = await lookupDiscount(locals.db, code, locals.customer?.email);
 	const r = evaluateDiscount(discount, { subtotal: before.subtotal, totalUses, customerUses });
-	if (!r.ok) return json({ ...before, codeError: r.reason, minSubtotal: r.minSubtotal ?? null }, { status: 422, headers: noStore });
+	if (!r.ok)
+		return json(
+			{ ...before, codeError: r.reason, minSubtotal: r.minSubtotal ?? null },
+			{ status: 422, headers: noStore }
+		);
 	await setDiscountCode(locals.db, cart.id, code);
 	return json(await loadCart(locals.db, cart.id, lang, { email: locals.customer?.email }), { headers: noStore });
 };

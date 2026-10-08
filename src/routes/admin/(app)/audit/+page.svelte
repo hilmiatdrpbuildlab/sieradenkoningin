@@ -25,8 +25,15 @@
 <DataTable rows={data.rows} {columns} total={data.total} pageSize={data.pageSize} density="compact">
 	{#snippet toolbar()}
 		<form method="GET" class="filters">
-			<label><span class="sr-only">Zoeken</span><input name="q" placeholder="Zoek gebruiker, actie of ID" value={data.filters.q} /></label>
-			<label><span class="sr-only">Object</span>
+			<label
+				><span class="sr-only">Zoeken</span><input
+					name="q"
+					placeholder="Zoek gebruiker, actie of ID"
+					value={data.filters.q}
+				/></label
+			>
+			<label
+				><span class="sr-only">Object</span>
 				<select name="entity" value={data.filters.entity}>
 					<option value="">Alle objecten</option>
 					{#each data.entities as e (e)}<option value={e}>{e}</option>{/each}

@@ -15,7 +15,17 @@
 </script>
 
 <section class="banner" data-surface={surface === 'light' ? undefined : surface} aria-labelledby="bn{uid}">
-	<div class="media"><img src={image.src} srcset={image.srcset} sizes="100vw" alt={image.alt} loading="lazy" width={image.width ?? 2400} height={image.height ?? 1200} /></div>
+	<div class="media">
+		<img
+			src={image.src}
+			srcset={image.srcset}
+			sizes="100vw"
+			alt={image.alt}
+			loading="lazy"
+			width={image.width ?? 2400}
+			height={image.height ?? 1200}
+		/>
+	</div>
 	<div class="copy container-lux">
 		{#if eyebrow}<p class="eyebrow">{eyebrow}</p>{/if}
 		<h2 id="bn{uid}">{title}</h2>

@@ -22,7 +22,18 @@
 		onconfirm?: () => void;
 		children?: Snippet;
 	}
-	let { open = $bindable(false), title, message, confirmLabel, cancelLabel, danger = false, formAction, form, onconfirm, children }: Props = $props();
+	let {
+		open = $bindable(false),
+		title,
+		message,
+		confirmLabel,
+		cancelLabel,
+		danger = false,
+		formAction,
+		form,
+		onconfirm,
+		children
+	}: Props = $props();
 </script>
 
 <Dialog bind:open {title} size="sm">

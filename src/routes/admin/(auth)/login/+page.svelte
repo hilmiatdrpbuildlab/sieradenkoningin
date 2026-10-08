@@ -24,7 +24,9 @@
 		}}
 	>
 		{#if form?.error}<p class="err" role="alert">{form.error}</p>{/if}
-		<Field label="E-mailadres" required><Input name="email" type="email" autocomplete="username" value={form?.email ?? ''} autofocus /></Field>
+		<Field label="E-mailadres" required
+			><Input name="email" type="email" autocomplete="username" value={form?.email ?? ''} autofocus /></Field
+		>
 		<Field label="Wachtwoord" required><Input name="password" type="password" autocomplete="current-password" /></Field>
 		<Button type="submit" full loading={busy}>Inloggen</Button>
 	</form>

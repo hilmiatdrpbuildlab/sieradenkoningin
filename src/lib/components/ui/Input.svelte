@@ -9,7 +9,11 @@
 	import Icon from './Icon.svelte';
 	import { m } from '#lib/paraglide/messages.js';
 
-	type Props = Omit<HTMLInputAttributes, 'value'> & { value?: string | number | null; prefix?: string; suffix?: string };
+	type Props = Omit<HTMLInputAttributes, 'value'> & {
+		value?: string | number | null;
+		prefix?: string;
+		suffix?: string;
+	};
 
 	let { value = $bindable(), type = 'text', prefix, suffix, class: className = '', ...rest }: Props = $props();
 
@@ -32,7 +36,13 @@
 	/>
 	{#if suffix}<span class="affix suffix" aria-hidden="true">{suffix}</span>{/if}
 	{#if type === 'password'}
-		<button type="button" class="reveal" aria-pressed={reveal} aria-label={reveal ? m.ui_hide_password() : m.ui_show_password()} onclick={() => (reveal = !reveal)}>
+		<button
+			type="button"
+			class="reveal"
+			aria-pressed={reveal}
+			aria-label={reveal ? m.ui_hide_password() : m.ui_show_password()}
+			onclick={() => (reveal = !reveal)}
+		>
 			<Icon name={reveal ? 'eye-off' : 'eye'} size={18} />
 		</button>
 	{/if}
@@ -55,7 +65,9 @@
 		border: 0;
 		border-bottom: 1px solid var(--ui-border-strong);
 		border-radius: 0;
-		transition: border-color var(--dur-fast) var(--motion-out), box-shadow var(--dur-fast);
+		transition:
+			border-color var(--dur-fast) var(--motion-out),
+			box-shadow var(--dur-fast);
 	}
 	.input::placeholder {
 		color: var(--ui-text-muted);

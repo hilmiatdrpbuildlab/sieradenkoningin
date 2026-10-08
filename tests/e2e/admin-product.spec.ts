@@ -11,7 +11,9 @@ const RUN = `demo-e2e-${Date.now().toString(36)}`;
 
 function dbClient() {
 	if (existsSync('.env')) process.loadEnvFile('.env');
-	return new pg.Client({ connectionString: process.env.DATABASE_URL || 'postgres://sk@localhost:54329/sieradenkoningin' });
+	return new pg.Client({
+		connectionString: process.env.DATABASE_URL || 'postgres://sk@localhost:54329/sieradenkoningin'
+	});
 }
 
 async function query<T = Record<string, unknown>>(sql: string, params: unknown[] = []): Promise<T[]> {
@@ -27,7 +29,11 @@ async function query<T = Record<string, unknown>>(sql: string, params: unknown[]
 /** A browser context that has the admin session but no JavaScript. */
 async function noJsPage(browser: Browser, page: Page) {
 	const state = await page.context().storageState();
-	const ctx = await browser.newContext({ javaScriptEnabled: false, storageState: state, baseURL: test.info().project.use.baseURL });
+	const ctx = await browser.newContext({
+		javaScriptEnabled: false,
+		storageState: state,
+		baseURL: test.info().project.use.baseURL
+	});
 	return ctx.newPage();
 }
 
@@ -89,7 +95,10 @@ test.describe('admin products', () => {
 		await p.getByRole('button', { name: 'Opslaan' }).click();
 		await expect(p.getByText('Wijzigingen opgeslagen.')).toBeVisible();
 		await expect(p.locator('input[name=price]')).toHaveValue('44,95');
-		const history = await query<{ price: number }>(`select price from price_history where product_id = $1 order by valid_from`, [id]);
+		const history = await query<{ price: number }>(
+			`select price from price_history where product_id = $1 order by valid_from`,
+			[id]
+		);
 		expect(history.map((h) => h.price)).toEqual([3995, 4495]);
 
 		// invalid edit without JS shows inline errors and keeps the typed values
@@ -111,7 +120,10 @@ test.describe('admin products', () => {
 		await expect(p).toHaveURL(/saved=archived/);
 		await expect(p.getByText('Gearchiveerd').first()).toBeVisible();
 
-		const audits = await query<{ action: string }>(`select action from audit_log where entity = 'product' and entity_id = $1 order by created_at`, [id]);
+		const audits = await query<{ action: string }>(
+			`select action from audit_log where entity = 'product' and entity_id = $1 order by created_at`,
+			[id]
+		);
 		expect(audits.map((a) => a.action)).toEqual(['create', 'update', 'archive']);
 		await p.context().close();
 	});

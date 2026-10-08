@@ -33,7 +33,11 @@ export class Cart {
 		this.view = view;
 	}
 
-	async #call(method: string, body?: unknown, query = ''): Promise<{ ok: boolean; data: CartView & Record<string, unknown> }> {
+	async #call(
+		method: string,
+		body?: unknown,
+		query = ''
+	): Promise<{ ok: boolean; data: CartView & Record<string, unknown> }> {
 		this.pending = true;
 		try {
 			const res = await fetch(`/api/cart?lang=${this.lang}${query}`, {
@@ -54,7 +58,12 @@ export class Cart {
 	async add(variantId: string, qty = 1, opts: { giftWrap?: boolean; openDrawer?: boolean } = {}) {
 		const r = await this.#call('POST', { variantId, qty, giftWrap: opts.giftWrap });
 		if (r.ok && opts.openDrawer !== false) this.open = true;
-		return { ok: r.ok, error: (r.data.error as CartError) ?? null, capped: !!r.data.capped, line: r.data.lines?.find((l) => l.variantId === variantId) };
+		return {
+			ok: r.ok,
+			error: (r.data.error as CartError) ?? null,
+			capped: !!r.data.capped,
+			line: r.data.lines?.find((l) => l.variantId === variantId)
+		};
 	}
 
 	async setQuantity(lineId: string, quantity: number) {
@@ -63,8 +72,16 @@ export class Cart {
 		if (!line) return;
 		const q = Math.max(0, Math.min(quantity, line.maxQuantity));
 		// optimistic
-		const lines = q === 0 ? before.lines.filter((l) => l.id !== lineId) : before.lines.map((l) => (l.id === lineId ? { ...l, quantity: q } : l));
-		this.view = { ...before, lines, count: lines.reduce((n, l) => n + l.quantity, 0), subtotal: lines.reduce((s, l) => s + l.unitPrice * l.quantity, 0) };
+		const lines =
+			q === 0
+				? before.lines.filter((l) => l.id !== lineId)
+				: before.lines.map((l) => (l.id === lineId ? { ...l, quantity: q } : l));
+		this.view = {
+			...before,
+			lines,
+			count: lines.reduce((n, l) => n + l.quantity, 0),
+			subtotal: lines.reduce((s, l) => s + l.unitPrice * l.quantity, 0)
+		};
 		const r = await this.#call('PATCH', { lineId, qty: q });
 		if (!r.ok) this.view = before; // rollback
 	}
@@ -79,7 +96,11 @@ export class Cart {
 
 	async applyCode(code: string) {
 		const r = await this.#call('PUT', { code });
-		return { ok: r.ok, error: (r.data.codeError as string) ?? null, minSubtotal: (r.data.minSubtotal as number | null) ?? null };
+		return {
+			ok: r.ok,
+			error: (r.data.codeError as string) ?? null,
+			minSubtotal: (r.data.minSubtotal as number | null) ?? null
+		};
 	}
 
 	async removeCode() {

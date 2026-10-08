@@ -15,16 +15,30 @@
 
 <svelte:head><title>E-mails — Beheer</title></svelte:head>
 
-<PageHeader title="E-mails" description="Transactionele e-mails (bevestiging, verzending, terugbetaling) in de taal van de klant.">
-	{#snippet meta()}{#if data.provider === 'mock'}<Badge tone="info">Simulatie: e-mails worden lokaal opgeslagen</Badge>{:else}<Badge tone="success">Postmark actief</Badge>{/if}{/snippet}
+<PageHeader
+	title="E-mails"
+	description="Transactionele e-mails (bevestiging, verzending, terugbetaling) in de taal van de klant."
+>
+	{#snippet meta()}{#if data.provider === 'mock'}<Badge tone="info">Simulatie: e-mails worden lokaal opgeslagen</Badge
+			>{:else}<Badge tone="success">Postmark actief</Badge>{/if}{/snippet}
 </PageHeader>
 
 <div class="grid">
 	<Card title="Afzender">
-		<form method="POST" use:enhance={() => async ({ update }) => update({ reset: false })}>
+		<form
+			method="POST"
+			use:enhance={() =>
+				async ({ update }) =>
+					update({ reset: false })}
+		>
 			{#if form && 'saved' in form}<p class="ok" role="status">Opgeslagen.</p>{/if}
-			<Field label="Antwoordadres (reply-to)" hint="Waar klanten op antwoorden; leeg = afzenderadres." error={errs.replyTo}><Input name="replyTo" type="email" value={data.emails.replyTo} /></Field>
-			<Checkbox name="bccOrders" checked={data.emails.bccOrders}>Stuur mij een kopie van elke orderbevestiging</Checkbox>
+			<Field
+				label="Antwoordadres (reply-to)"
+				hint="Waar klanten op antwoorden; leeg = afzenderadres."
+				error={errs.replyTo}><Input name="replyTo" type="email" value={data.emails.replyTo} /></Field
+			>
+			<Checkbox name="bccOrders" checked={data.emails.bccOrders}>Stuur mij een kopie van elke orderbevestiging</Checkbox
+			>
 			<div><Button type="submit" size="sm">Opslaan</Button></div>
 		</form>
 	</Card>
@@ -33,7 +47,12 @@
 		<!-- svelte-ignore a11y_no_noninteractive_tabindex (scrollable region must be keyboard-focusable, WCAG 2.1.1) -->
 		<div class="scroller" tabindex="0" role="region" aria-label="Verzonden e-mails">
 			<table>
-				<thead><tr><th scope="col">Tijdstip</th><th scope="col">Aan</th><th scope="col">Sjabloon</th><th scope="col">Taal</th><th scope="col">Status</th></tr></thead>
+				<thead
+					><tr
+						><th scope="col">Tijdstip</th><th scope="col">Aan</th><th scope="col">Sjabloon</th><th scope="col">Taal</th
+						><th scope="col">Status</th></tr
+					></thead
+				>
 				<tbody>
 					{#each data.log as l (l.id)}
 						<tr>
@@ -41,7 +60,11 @@
 							<td>{l.to}</td>
 							<td>{l.template}</td>
 							<td>{l.locale.toUpperCase()}</td>
-							<td><Badge tone={l.status === 'sent' ? 'success' : l.status === 'failed' ? 'danger' : 'neutral'}>{l.status === 'sent' ? 'Verzonden' : l.status === 'failed' ? 'Mislukt' : l.status}</Badge></td>
+							<td
+								><Badge tone={l.status === 'sent' ? 'success' : l.status === 'failed' ? 'danger' : 'neutral'}
+									>{l.status === 'sent' ? 'Verzonden' : l.status === 'failed' ? 'Mislukt' : l.status}</Badge
+								></td
+							>
 						</tr>
 					{:else}
 						<tr><td colspan="5" class="empty">Nog geen e-mails verzonden.</td></tr>

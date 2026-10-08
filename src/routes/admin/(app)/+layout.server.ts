@@ -10,10 +10,16 @@ export const load: LayoutServerLoad = async ({ locals, cookies }) => {
 	if (!admin) error(401, 'Niet aangemeld');
 	const db = locals.db;
 	const [toProcess] = can(admin.role, 'orders:read')
-		? await db.select({ n: sql<number>`count(*)::int` }).from(orders).where(inArray(orders.status, ['paid']))
+		? await db
+				.select({ n: sql<number>`count(*)::int` })
+				.from(orders)
+				.where(inArray(orders.status, ['paid']))
 		: [{ n: 0 }];
 	const [low] = can(admin.role, 'inventory:read')
-		? await db.select({ n: sql<number>`count(*)::int` }).from(variants).where(and(lte(variants.stock, variants.lowStockThreshold)))
+		? await db
+				.select({ n: sql<number>`count(*)::int` })
+				.from(variants)
+				.where(and(lte(variants.stock, variants.lowStockThreshold)))
 		: [{ n: 0 }];
 	return {
 		admin: { id: admin.id, name: admin.name, email: admin.email, role: admin.role, roleLabel: ROLE_LABELS[admin.role] },
@@ -21,4 +27,3 @@ export const load: LayoutServerLoad = async ({ locals, cookies }) => {
 		sidebarCollapsed: cookies.get('sk_sidebar') === '1'
 	};
 };
-

@@ -5,7 +5,11 @@
 -->
 <script lang="ts">
 	import type { Snippet } from 'svelte';
-	let { text, placement = 'top', children }: { text: string; placement?: 'top' | 'right' | 'bottom'; children: Snippet<[string]> } = $props();
+	let {
+		text,
+		placement = 'top',
+		children
+	}: { text: string; placement?: 'top' | 'right' | 'bottom'; children: Snippet<[string]> } = $props();
 	const uid = $props.id();
 	let visible = $state(false);
 </script>

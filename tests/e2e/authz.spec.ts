@@ -7,7 +7,10 @@ import { expect, test } from '@playwright/test';
 import pg from 'pg';
 import { can, ROLES, type Permission, type Role } from '../../src/lib/permissions.ts';
 
-test.skip(!!process.env.E2E_BASE_URL && !process.env.E2E_BASE_URL.includes('localhost'), 'creates sessions in the local database');
+test.skip(
+	!!process.env.E2E_BASE_URL && !process.env.E2E_BASE_URL.includes('localhost'),
+	'creates sessions in the local database'
+);
 test.skip(({ browserName }) => browserName !== 'chromium', 'route matrix is browser-independent');
 
 /** Admin routes and the permission that gates their GET (from §7.4). `dashboard` redirects instead of 403. */
@@ -38,7 +41,8 @@ const ROUTES: [string, Permission][] = [
 	['/admin/audit', 'audit']
 ];
 
-const db = () => new pg.Client({ connectionString: process.env.DATABASE_URL || 'postgres://sk@localhost:54329/sieradenkoningin' });
+const db = () =>
+	new pg.Client({ connectionString: process.env.DATABASE_URL || 'postgres://sk@localhost:54329/sieradenkoningin' });
 const tokens = {} as Record<Role, string>;
 
 test.beforeAll(async () => {
@@ -88,7 +92,11 @@ test('mutations are refused for roles without write permission', async ({ reques
 		['support', '/admin/import?/commit', { csv: 'x' }]
 	];
 	for (const [role, path, form] of cases) {
-		const res = await request.post(path, { headers: { cookie: `sk_admin=${tokens[role]}`, origin: new URL(test.info().project.use.baseURL!).origin }, form, maxRedirects: 0 });
+		const res = await request.post(path, {
+			headers: { cookie: `sk_admin=${tokens[role]}`, origin: new URL(test.info().project.use.baseURL!).origin },
+			form,
+			maxRedirects: 0
+		});
 		expect(res.status(), `${role} POST ${path}`).toBe(403);
 	}
 });
