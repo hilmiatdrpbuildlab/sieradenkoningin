@@ -18,6 +18,7 @@ import { emailSendJob } from '../services/email.ts';
 import type { Storage } from '../adapters/storage.ts';
 import { invoiceGenerateJob } from '../services/invoices.ts';
 import { stockAlertJob } from '../services/stock-alerts.ts';
+import { storageDeleteJob } from '../services/maintenance.ts';
 
 export type JobRow = typeof jobs.$inferSelect;
 
@@ -37,7 +38,8 @@ export type JobHandler = (job: JobRow, deps: JobDeps) => Promise<void>;
 export const HANDLERS: Record<string, JobHandler> = {
 	'email.send': emailSendJob,
 	'invoice.generate': invoiceGenerateJob,
-	'stock.alert': stockAlertJob
+	'stock.alert': stockAlertJob,
+	'storage.delete': storageDeleteJob
 };
 
 export const MAX_ATTEMPTS = 5;
