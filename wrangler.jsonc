@@ -4,7 +4,7 @@
 	//  BREVO_*, TURNSTILE_SECRET, CRON_SECRET, SENTRY_DSN). See docs/RUNBOOK.md.
 	"$schema": "./node_modules/wrangler/config-schema.json",
 	"name": "sieradenkoningin",
-	"main": ".svelte-kit/cloudflare/_worker.js",
+	"main": "cloudflare/worker.js",
 	"compatibility_date": "2026-10-07",
 	"compatibility_flags": ["nodejs_compat"],
 	"assets": {
@@ -12,7 +12,7 @@
 		"directory": ".svelte-kit/cloudflare"
 	},
 	"observability": { "enabled": true },
-	// Cron triggers call the jobs endpoint (src/routes/api/jobs/+server.ts) via scripts/cron-worker (P5-04):
+	// Cron triggers: cloudflare/worker.js `scheduled()` POSTs /api/jobs with CRON_SECRET (P5-04):
 	// every 5 min → release expired stock reservations + process queued jobs; daily → report + cleanup.
 	"triggers": { "crons": ["*/5 * * * *", "0 5 * * *"] },
 	"vars": {
