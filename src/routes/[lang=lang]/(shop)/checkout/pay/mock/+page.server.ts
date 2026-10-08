@@ -53,7 +53,7 @@ export const actions: Actions = {
 				.where(eq(payments.id, row.payment.id));
 		}
 		await syncPayment(
-			{ db: locals.db, payments: locals.payments, email: locals.email, siteUrl: PUBLIC_SITE_URL },
+			{ db: locals.db, payments: locals.payments, email: locals.email, storage: locals.storage, siteUrl: PUBLIC_SITE_URL },
 			row.payment.providerRef
 		);
 		redirect(303, raw.redirectUrl ?? thanksPath(row));

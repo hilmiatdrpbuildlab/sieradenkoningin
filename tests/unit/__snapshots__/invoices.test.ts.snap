@@ -1,0 +1,75 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`invoice layout (text layer) > FR snapshot 1`] = `
+"--- page 1 ---
+Sieradenkoningin | FACTURE
+VENDEUR | Numéro de facture | SK-INV-2026-000042
+DEMO Sieradenkoningin BV
+Date de facture | 08/10/2026
+Demostraat 1
+Numéro de commande | SK-2026-000123
+9000 Gent
+Paiement | Payée - Bancontact
+BE
+N° d'entreprise 0123.456.789
+N° TVA BE0123456789
+hallo@example.invalid
+ADRESSE DE FACTURATION
+Ann DEMO
+Kerkstraat 5
+1000 Brussel
+BE
+ann@example.invalid
+Description | Qté | Prix unitaire | Remise | TVA | Total
+DEMO Klaverring | 1 | 49,95 € | -4,55 € | 21% | 45,40 €
+Goud · 52 - DEMO-KR-52
+DEMO Armband | 2 | 29,95 € | -5,45 € | 21% | 54,45 €
+Zilver - DEMO-AB
+Sous-total | 109,85 €
+Remise (DEMO10) | -10,00 €
+Livraison | 4,95 €
+Total (TVA comprise) | 104,80 €
+RÉCAPITULATIF TVA
+Taux | Base imposable | TVA | Total
+21% | 86,61 € | 18,19 € | 104,80 €
+Montants en euros, TVA comprise. Cette facture a été intégralement payée.
+SK-INV-2026-000042 - Page 1/1"
+`;
+
+exports[`invoice layout (text layer) > NL snapshot: seller, numbers, buyer + VAT number, lines, discount, shipping, VAT breakdown, totals 1`] = `
+"--- page 1 ---
+Sieradenkoningin | FACTUUR
+VERKOPER | Factuurnummer | SK-INV-2026-000042
+DEMO Sieradenkoningin BV
+Factuurdatum | 08/10/2026
+Demostraat 1
+Bestelnummer | SK-2026-000123
+9000 Gent
+Betaling | Betaald - Bancontact
+BE
+Ondernemingsnr. 0123.456.789
+Btw-nr. BE0123456789
+hallo@example.invalid
+FACTUURADRES
+DEMO Bedrijf BV
+Ann DEMO
+Kerkstraat 5
+1000 Brussel
+BE
+ann@example.invalid
+Btw-nr. klant BE0987654321
+Omschrijving | Aantal | Eenheidsprijs | Korting | Btw | Totaal
+DEMO Klaverring | 1 | € 49,95 | -€ 4,55 | 21% | € 45,40
+Goud · 52 - DEMO-KR-52
+DEMO Armband | 2 | € 29,95 | -€ 5,45 | 21% | € 54,45
+Zilver - DEMO-AB
+Subtotaal | € 109,85
+Korting (DEMO10) | -€ 10,00
+Verzending | € 4,95
+Totaal (incl. btw) | € 104,80
+BTW-OVERZICHT
+Tarief | Maatstaf van heffing | Btw | Totaal
+21% | € 86,61 | € 18,19 | € 104,80
+Alle bedragen in euro, inclusief btw. Deze factuur werd volledig betaald.
+SK-INV-2026-000042 - Pagina 1/1"
+`;

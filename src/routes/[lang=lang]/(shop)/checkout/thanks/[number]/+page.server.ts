@@ -35,7 +35,7 @@ export const load: PageServerLoad = async ({ locals, params, url, setHeaders }) 
 	if (found.order.status === 'pending' && found.payment && found.payment.status === 'open') {
 		try {
 			const r = await syncPayment(
-				{ db: locals.db, payments: locals.payments, email: locals.email, siteUrl: PUBLIC_SITE_URL },
+				{ db: locals.db, payments: locals.payments, email: locals.email, storage: locals.storage, siteUrl: PUBLIC_SITE_URL },
 				found.payment.providerRef
 			);
 			if (r.outcome !== 'noop' && r.outcome !== 'unknown') found = await access(locals, params.number, token);

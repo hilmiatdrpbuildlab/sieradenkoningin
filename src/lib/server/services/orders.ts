@@ -16,6 +16,7 @@ import {
 	cartLines,
 	discountRedemptions,
 	discounts,
+	jobs,
 	orderEvents,
 	orderLines,
 	orders,
@@ -222,14 +223,12 @@ export async function createPaymentForOrder(
 			raw: p.raw as object
 		})
 		.returning();
-	await deps.db
-		.insert(orderEvents)
-		.values({
-			orderId: order.id,
-			type: 'payment_created',
-			actor: 'system',
-			data: { provider: deps.payments.provider, ref: p.id, method: payment.method }
-		});
+	await deps.db.insert(orderEvents).values({
+		orderId: order.id,
+		type: 'payment_created',
+		actor: 'system',
+		data: { provider: deps.payments.provider, ref: p.id, method: payment.method }
+	});
 	return { payment, checkoutUrl: p.checkoutUrl ?? thanksPath(order) };
 }
 
@@ -263,11 +262,13 @@ export async function applyPaymentStatus(
 		const target = toTarget(input.status);
 		const base = { orderId: order.id, orderNumber: order.number };
 
-		if (pay.status !== target || (input.method && input.method !== pay.method)) {
+		// A refunded payment stays (partially_)refunded: Mollie calls the webhook again after a refund and still reports "paid".
+		const keep = target === 'paid' && isPaidLike(pay.status);
+		if ((pay.status !== target && !keep) || (input.method && input.method !== pay.method)) {
 			await tx
 				.update(payments)
 				.set({
-					status: target,
+					status: keep ? pay.status : target,
 					method: input.method ?? pay.method,
 					raw: (input.raw as object) ?? pay.raw,
 					updatedAt: new Date()
@@ -388,7 +389,14 @@ async function markPaid(tx: Tx, order: OrderRow, pay: PaymentRow): Promise<strin
 		{ template: 'order_confirmation', orderId: order.id, to: order.email, locale: order.locale, refId: order.number },
 		{ dedupeKey: `email:order_confirmation:${order.id}` }
 	);
-	return job ? [job] : [];
+	// Invoice PDF (P3-03): the number was assigned above, the PDF is rendered by the queued job.
+	const invoiceJob = await enqueueJob(
+		tx,
+		'invoice.generate',
+		{ orderId: order.id },
+		{ dedupeKey: `invoice:${order.id}` }
+	);
+	return [job, invoiceJob].filter((id): id is string => !!id);
 }
 
 async function markFailed(
@@ -435,9 +443,15 @@ export async function syncPayment(
 	});
 	if (r.jobIds.length && deps.email && deps.siteUrl) {
 		try {
+			// Jobs that need storage (invoice PDF) are left to the cron when the caller has none.
+			const ids = deps.storage
+				? r.jobIds
+				: (await deps.db.select({ id: jobs.id, type: jobs.type }).from(jobs).where(inArray(jobs.id, r.jobIds)))
+						.filter((j) => j.type !== 'invoice.generate')
+						.map((j) => j.id);
 			await runJobs(
-				{ db: deps.db, email: deps.email, siteUrl: deps.siteUrl, payments: deps.payments },
-				{ ids: r.jobIds }
+				{ db: deps.db, email: deps.email, siteUrl: deps.siteUrl, payments: deps.payments, storage: deps.storage },
+				{ ids }
 			);
 		} catch (err) {
 			console.error('[jobs] inline run failed', err);

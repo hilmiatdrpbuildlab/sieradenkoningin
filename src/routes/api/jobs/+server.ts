@@ -23,7 +23,8 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 		db: locals.db,
 		email: locals.email,
 		siteUrl: PUBLIC_SITE_URL,
-		payments: locals.payments
+		payments: locals.payments,
+		storage: locals.storage
 	});
 	return json({ released, orders, jobs }, { headers: { 'cache-control': 'no-store' } });
 };

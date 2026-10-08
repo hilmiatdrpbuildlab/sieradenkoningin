@@ -29,6 +29,10 @@ export interface OrderEmailData {
 	storeName: string;
 	storeEmail: string | null;
 	returnDays: number;
+	/** order_shipped (P3-05). */
+	tracking?: { number: string | null; url: string | null; carrier: string } | null;
+	/** refund_issued (P3-06). */
+	refund?: { amountFormatted: string; full: boolean } | null;
 }
 
 /**

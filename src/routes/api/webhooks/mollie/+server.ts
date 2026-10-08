@@ -13,7 +13,7 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 	const id = form?.get('id');
 	if (typeof id !== 'string' || !id || id.length > 64) return text('ok');
 	try {
-		await syncPayment({ db: locals.db, payments: locals.payments, email: locals.email, siteUrl: PUBLIC_SITE_URL }, id);
+		await syncPayment({ db: locals.db, payments: locals.payments, email: locals.email, storage: locals.storage, siteUrl: PUBLIC_SITE_URL }, id);
 	} catch (err) {
 		console.error('[webhook mollie]', err);
 		return text('retry', { status: 500 });
