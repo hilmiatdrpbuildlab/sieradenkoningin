@@ -18,7 +18,8 @@ import { paraglideMiddleware } from '#lib/paraglide/server.js';
 import { defineCustomServerStrategy } from '#lib/paraglide/runtime.js';
 import type { Role } from '#lib/permissions.ts';
 import { isCsrfForbidden } from '#lib/server/csrf.ts';
-import { dev } from '$app/env';
+import { dev, version } from '$app/env';
+import { reportError } from '#lib/server/monitoring.ts';
 
 // Locale = first path segment. Registered once at module load (stateless, no per-request data).
 defineCustomServerStrategy('custom-path', {
@@ -177,8 +178,12 @@ const securityHeaders: Handle = async ({ event, resolve }) => {
 export const handle = sequence(csrf, services, i18n, securityHeaders, auth, adminGuard, maintenance, redirectsHook);
 
 export const handleError: HandleServerError = ({ error: err, event, kind }) => {
-	if (kind === 'unknown') console.error(`[${event.request.method} ${event.url.pathname}]`, err);
-	if (isHttpError(err)) return;
+	if (kind !== 'unknown' || isHttpError(err)) return;
+	console.error(`[${event.request.method} ${event.url.pathname}]`, err);
+	// Unexpected errors go to Sentry (P5-04) with PII scrubbed; never blocks the response.
+	const e = err instanceof Error ? err : new Error(String(err));
+	const task = reportError(env.SENTRY_DSN, { message: e.message, stack: e.stack, path: event.url.pathname, method: event.request.method, userAgent: event.request.headers.get('user-agent'), source: 'server', tags: { route: event.route.id ?? 'unknown' } }, version);
+	if (event.platform?.ctx) event.platform.ctx.waitUntil(task);
 };
 
 function maintenanceHtml(lang: 'nl' | 'fr', message?: string) {
