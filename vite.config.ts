@@ -25,7 +25,8 @@ export default defineConfig({
 			emitTsDeclarations: true
 		}),
 		sveltekit({
-			adapter: adapter(),
+			// Build-time wrangler config: keeps the generated worker away from the deploy entry (cloudflare/worker.js).
+			adapter: adapter({ config: 'wrangler.build.jsonc' }),
 			// Built-in origin check off: it rejects Mollie webhooks (no Origin header). The same rule is
 			// re-applied in hooks.server.ts (src/lib/server/csrf.ts) with /api/webhooks/* exempted.
 			csrf: { trustedOrigins: ['*'] },

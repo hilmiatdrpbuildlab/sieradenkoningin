@@ -65,3 +65,11 @@ were established while building, which the plan does not spell out.
 
 - Integer cents everywhere. Totals via `computeTotals()` in `services/pricing.ts` (per-line VAT, discount
   allocated with `allocate()`, reconciles to the cent). Discounts: `services/discounts.ts`.
+
+## Cloudflare build vs deploy
+- `vite.config.ts` → `adapter({ config: 'wrangler.build.jsonc' })`: the adapter writes the generated worker to
+  `.svelte-kit/cloudflare/_worker.js` (it overwrites whatever file `main` points to).
+- `wrangler.jsonc` (deploy) has `main: cloudflare/worker.js`, a hand-written wrapper that imports the generated
+  worker and adds the Cron `scheduled()` handler (POST `/api/jobs` with `CRON_SECRET`). Never point the adapter
+  at `cloudflare/worker.js`.
+- Verify a deployable bundle with `npx wrangler deploy --dry-run --outdir .data/wrangler-dry`.
