@@ -20,9 +20,11 @@ export default defineConfig({
 		launchOptions: chromiumPath ? { executablePath: chromiumPath } : {}
 	},
 	projects: [
-		{ name: 'chromium-desktop', use: { ...devices['Desktop Chrome'], viewport: { width: 1440, height: 900 } } },
-		{ name: 'webkit-mobile', use: { ...devices['iPhone 13'], viewport: { width: 390, height: 844 } } },
-		{ name: 'chromium-tablet', use: { ...devices['Desktop Chrome'], viewport: { width: 768, height: 1024 } } }
+		// Logs the e2e owner in once and stores the session (avoids the 2FA rate limit).
+		{ name: 'setup', testMatch: /auth.setup.ts/ },
+		{ name: 'chromium-desktop', dependencies: ['setup'], use: { ...devices['Desktop Chrome'], viewport: { width: 1440, height: 900 } } },
+		{ name: 'webkit-mobile', dependencies: ['setup'], use: { ...devices['iPhone 13'], viewport: { width: 390, height: 844 } } },
+		{ name: 'chromium-tablet', dependencies: ['setup'], use: { ...devices['Desktop Chrome'], viewport: { width: 768, height: 1024 } } }
 	],
 	webServer: process.env.E2E_BASE_URL
 		? undefined
