@@ -17,6 +17,8 @@ import { htmlLang, langFromPath, negotiateLang, isLang } from '#lib/i18n/paths.t
 import { paraglideMiddleware } from '#lib/paraglide/server.js';
 import { defineCustomServerStrategy } from '#lib/paraglide/runtime.js';
 import type { Role } from '#lib/permissions.ts';
+import { isCsrfForbidden } from '#lib/server/csrf.ts';
+import { dev } from '$app/env';
 
 // Locale = first path segment. Registered once at module load (stateless, no per-request data).
 defineCustomServerStrategy('custom-path', {
@@ -28,6 +30,14 @@ export const LANG_COOKIE = 'sk_lang';
 const isAdminPath = (p: string) => p === '/admin' || p.startsWith('/admin/');
 const ADMIN_PUBLIC = ['/admin/login', '/admin/invite', '/admin/logout'];
 const isAdminPublic = (p: string) => ADMIN_PUBLIC.some((x) => p === x || p.startsWith(x + '/'));
+
+/** 0. CSRF (see #lib/server/csrf.ts). Like SvelteKit, only enforced outside dev. */
+const csrf: Handle = async ({ event, resolve }) => {
+	if (!dev && isCsrfForbidden(event.request, event.url)) {
+		return new Response(`Cross-site ${event.request.method} form submissions are forbidden`, { status: 403 });
+	}
+	return resolve(event);
+};
 
 /** 1. Per-request services (Workers: no shared mutable module state between requests). */
 const services: Handle = async ({ event, resolve }) => {
@@ -164,7 +174,7 @@ const securityHeaders: Handle = async ({ event, resolve }) => {
 	return response;
 };
 
-export const handle = sequence(services, i18n, securityHeaders, auth, adminGuard, maintenance, redirectsHook);
+export const handle = sequence(csrf, services, i18n, securityHeaders, auth, adminGuard, maintenance, redirectsHook);
 
 export const handleError: HandleServerError = ({ error: err, event, kind }) => {
 	if (kind === 'unknown') console.error(`[${event.request.method} ${event.url.pathname}]`, err);

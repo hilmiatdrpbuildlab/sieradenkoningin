@@ -12,5 +12,23 @@
 		"moduleResolution": "bundler",
 		"allowImportingTsExtensions": true,
 		"noUncheckedIndexedAccess": false
-	}
+	},
+	"include": [
+		"src/**/*.ts",
+		"src/**/*.js",
+		"src/**/*.svelte",
+		"tests/**/*.ts",
+		"scripts/**/*.ts",
+		"*.ts",
+		".svelte-kit/types/**/*.ts",
+		".svelte-kit/ambient.d.ts",
+		".svelte-kit/non-ambient.d.ts"
+	],
+	"exclude": [
+		"node_modules",
+		".svelte-kit/output",
+		".svelte-kit/cloudflare",
+		".data",
+		"build"
+	]
 }

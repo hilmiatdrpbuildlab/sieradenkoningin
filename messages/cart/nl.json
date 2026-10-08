@@ -45,5 +45,6 @@
 	"cart_payment_marks": "Betaalmethoden",
 	"cart_secure": "Veilig betalen · 14 dagen bedenktijd",
 	"cart_items": "{count} artikelen",
-	"cart_item_price": "Stukprijs {price}"
+	"cart_item_price": "Stukprijs {price}",
+	"cart_update": "Bijwerken"
 }

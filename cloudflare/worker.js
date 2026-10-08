@@ -13,7 +13,8 @@ export default {
 		const base = env.PUBLIC_SITE_URL || 'https://localhost';
 		const request = new Request(`${base}/api/jobs?cron=${encodeURIComponent(event.cron)}`, {
 			method: 'POST',
-			headers: { authorization: `Bearer ${env.CRON_SECRET}`, 'x-cron': event.cron }
+			headers: { authorization: `Bearer ${env.CRON_SECRET}`, 'x-cron': event.cron, 'content-type': 'application/json' },
+			body: '{}'
 		});
 		ctx.waitUntil(
 			app.fetch(request, env, ctx).then(async (res) => {

@@ -22,6 +22,9 @@ export default defineConfig({
 		}),
 		sveltekit({
 			adapter: adapter(),
+			// Built-in origin check off: it rejects Mollie webhooks (no Origin header). The same rule is
+			// re-applied in hooks.server.ts (src/lib/server/csrf.ts) with /api/webhooks/* exempted.
+			csrf: { trustedOrigins: ['*'] },
 			csp: {
 				// Hashes (not nonces) so CDN-cached HTML stays valid (§4.6).
 				mode: 'hash',

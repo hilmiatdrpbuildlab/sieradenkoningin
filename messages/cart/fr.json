@@ -45,5 +45,6 @@
 	"cart_payment_marks": "Moyens de paiement",
 	"cart_secure": "Paiement sécurisé · 14 jours de rétractation",
 	"cart_items": "{count} articles",
-	"cart_item_price": "Prix unitaire {price}"
+	"cart_item_price": "Prix unitaire {price}",
+	"cart_update": "Mettre à jour"
 }
