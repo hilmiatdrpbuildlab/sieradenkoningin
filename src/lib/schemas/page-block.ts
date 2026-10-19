@@ -87,7 +87,15 @@ export const blockSchemas = {
 		cta: link.optional(),
 		reverse: z.boolean().default(false)
 	}),
-	rich_text: z.object({ title: i18nSchema.optional(), body: i18nSchema }),
+	rich_text: z.object({
+		eyebrow: i18nSchema.optional(),
+		title: i18nSchema.optional(),
+		body: i18nSchema,
+		/** Handwritten (Allura) sign-off under the text, e.g. "Zahra". */
+		signature: i18nSchema.optional(),
+		signatureNote: i18nSchema.optional(),
+		cta: link.optional()
+	}),
 	faq_list: z.object({ title: i18nSchema.optional(), group: z.string().optional() }),
 	newsletter: z.object({ title: i18nSchema, text: i18nSchema.optional() }),
 	size_table: z.object({ title: i18nSchema.optional(), kind: z.enum(['ring', 'bracelet']).default('ring') }),

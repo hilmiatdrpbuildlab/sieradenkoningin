@@ -300,6 +300,7 @@
 			<Checkbox bind:checked={block.data.reverse}>Beeld rechts (spiegelen)</Checkbox>
 			{@render linkFields('cta', 'Link')}
 		{:else if block.type === 'rich_text'}
+			<I18nInput label="Bovenregel" bind:value={block.data.eyebrow} />
 			<I18nInput label="Titel" bind:value={block.data.title} />
 			<I18nInput
 				label="Tekst"
@@ -309,6 +310,13 @@
 				required
 				hint="Markdown: ## kop, ### subkop, **vet**, *cursief*, [link](/nl/…), lijstjes met - of 1."
 			/>
+			<I18nInput
+				label="Handtekening (Allura)"
+				bind:value={block.data.signature}
+				hint="Bv. Zahra — leeg laten voor geen handtekening."
+			/>
+			<I18nInput label="Onder de handtekening" bind:value={block.data.signatureNote} />
+			{@render linkFields('cta', 'Knop')}
 		{:else if block.type === 'faq_list'}
 			<I18nInput label="Titel" bind:value={block.data.title} />
 			<Field label="Groep" hint="Beheer de vragen in Content → FAQ.">

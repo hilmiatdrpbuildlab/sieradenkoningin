@@ -157,7 +157,7 @@ SvelteKit 3 op **Cloudflare Workers**, database **Neon Postgres** (EU), afbeeldi
 | `DATABASE_URL` | Neon → reset wachtwoord → secret bijwerken | korte onderbreking |
 
 ### 2.4 Deploy en terugdraaien
-- Elke push naar `main` doorloopt CI (lint, typecheck, unit tests, build). Deploy: `npm run build && npx wrangler deploy`.
+- Elke push naar `main` doorloopt CI (lint, typecheck, unit tests, build). Deploy: `npx wrangler deploy` (bouwt eerst zelf via `build.command` in wrangler.jsonc). Cloudflare Workers Builds: build command leeg, deploy command `npx wrangler deploy`.
 - **Terugdraaien:** Cloudflare dashboard → Workers → *sieradenkoningin* → *Deployments* → vorige versie → **Rollback**; of `npx wrangler rollback`.
 - Databasemigraties zijn vooruit-compatibel; draai `npm run db:migrate` vóór de deploy. Een migratie terugdraaien = herstellen naar een Neon-branch van vóór de migratie (§2.7).
 

@@ -5,6 +5,9 @@
 	"$schema": "./node_modules/wrangler/config-schema.json",
 	"name": "sieradenkoningin",
 	"main": "cloudflare/worker.js",
+	// `wrangler deploy` / `wrangler dev` build the app first, so Workers Builds (Git integration) works with an
+	// empty build command and deploy command `npx wrangler deploy`. .svelte-kit/ is not committed.
+	"build": { "command": "npm run build" },
 	"compatibility_date": "2026-10-07",
 	"compatibility_flags": ["nodejs_compat"],
 	"assets": {

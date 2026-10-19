@@ -14,7 +14,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import pg from 'pg';
 import sharp from 'sharp';
 import { drizzle } from 'drizzle-orm/node-postgres';
-import { and, eq, isNull, sql } from 'drizzle-orm';
+import { and, eq, isNull, or, sql } from 'drizzle-orm';
 import { DATABASE_URL } from './env.ts';
 import * as s from '../src/lib/server/db/schema.ts';
 import { createStorage } from '../src/lib/server/adapters/storage.ts';
@@ -35,7 +35,7 @@ const manifest = JSON.parse(readFileSync('scripts/demo-photos.json', 'utf8')) as
 };
 /** Mood photos for hero / editorial blocks (Unsplash License, DEMO until the shop's own photography). */
 const brand = JSON.parse(readFileSync('scripts/brand-photos.json', 'utf8')) as Record<
-	'hero' | 'editorial' | 'story',
+	'hero' | 'editorial' | 'story' | 'story2',
 	Photo
 >;
 
@@ -131,37 +131,53 @@ try {
 			    where data::text like ${'%' + oldKey + '%'}
 			    ${pageKey ? sql`and page_id = (select id from pages where key = ${pageKey})` : sql``}`
 		);
-	const heroKey = 'demo/photos/brand-hero.jpg';
+	// Keys are versioned (-2): media rows are reused by key, so a new photo needs a new key.
+	const heroKey = 'demo/photos/brand-hero-2.jpg';
 	const editorialKey = 'demo/photos/brand-editorial.jpg';
-	const storyKey = 'demo/photos/brand-story.jpg';
-	const heroId = await photo(heroKey, brand.hero, 1920, 1280, {
-		nl: 'DEMO sfeerbeeld — gouden ketting, oorbellen en ring in warm zonlicht',
-		fr: 'DEMO image d’ambiance — collier, boucles d’oreilles et bague dorés au soleil'
+	const storyKey = 'demo/photos/brand-story-2.jpg';
+	const story2Key = 'demo/photos/brand-story2.jpg';
+	await photo(heroKey, brand.hero, 1920, 1280, {
+		nl: 'DEMO sfeerbeeld — gouden collier op een zwarte blazer',
+		fr: 'DEMO image d’ambiance — collier doré sur un blazer noir'
 	});
 	const editorialId = await photo(editorialKey, brand.editorial, 1200, 1500, {
 		nl: 'DEMO sfeerbeeld — gelaagde gouden kettingen',
 		fr: 'DEMO image d’ambiance — colliers dorés superposés'
 	});
 	await photo(storyKey, brand.story, 1200, 1500, {
-		nl: 'DEMO sfeerbeeld — gouden collier op een zwarte blazer',
-		fr: 'DEMO image d’ambiance — collier doré sur un blazer noir'
+		nl: 'DEMO sfeerbeeld — vrouw met gouden oorbellen',
+		fr: 'DEMO image d’ambiance — femme aux boucles d’oreilles dorées'
 	});
-	for (const old of ['demo/editorial-split.svg', 'demo/photos/editorial-split.jpg'])
-		await replaceKey(old, storyKey, 'story');
-	for (const old of ['demo/editorial-hero.svg', 'demo/photos/editorial-hero.jpg']) await replaceKey(old, heroKey);
+	const story2Id = await photo(story2Key, brand.story2, 1200, 1500, {
+		nl: 'DEMO sfeerbeeld — gouden ketting, oorbellen en ring in warm zonlicht',
+		fr: 'DEMO image d’ambiance — collier, boucles d’oreilles et bague dorés au soleil'
+	});
+	// Story page (seeded with its own placeholder keys) first, then the remaining placeholders site-wide.
+	// The opening slot sits next to "Zahra, oprichtster", so it gets the photo WITHOUT a face — a stock model
+	// there would read as Zahra. The portrait goes to the "Waarom juwelen?" chapter.
+	await replaceKey('demo/editorial-story.svg', story2Key, 'story');
+	await replaceKey('demo/editorial-story-2.svg', storyKey, 'story');
+	for (const old of ['demo/editorial-hero.svg', 'demo/photos/editorial-hero.jpg', 'demo/photos/brand-hero.jpg'])
+		await replaceKey(old, heroKey);
 	for (const old of ['demo/editorial-split.svg', 'demo/photos/editorial-split.jpg'])
 		await replaceKey(old, editorialKey);
 	console.log('✓ hero + editorial mood photos');
 
-	// Shop-menu tiles show the hero image of these collections (only where the owner has not set one).
+	// Shop-menu tiles show the hero image of these collections — unless the owner has chosen her own image.
+	const demoMedia = sql`(select id from media where storage_key like 'demo/%')`;
 	for (const [slug, mediaId] of [
-		['nieuw', heroId],
+		['nieuw', story2Id],
 		['onze-favorieten', editorialId]
 	] as const)
 		await db
 			.update(s.collections)
 			.set({ heroMediaId: mediaId })
-			.where(and(sql`${s.collections.slugs}->>'nl' = ${slug}`, isNull(s.collections.heroMediaId)));
+			.where(
+				and(
+					sql`${s.collections.slugs}->>'nl' = ${slug}`,
+					or(isNull(s.collections.heroMediaId), sql`${s.collections.heroMediaId} in ${demoMedia}`)
+				)
+			);
 	console.log('✓ collection hero images');
 } finally {
 	await pool.end();

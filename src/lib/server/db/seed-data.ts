@@ -282,83 +282,120 @@ const placeholderBody = (what: string) =>
 const md = (...paragraphs: string[]) => paragraphs.join('\n\n');
 
 // ── Ons verhaal (brandbook §05) ──────────────────────────────────────────────────────────────────
+// Brandbook text, edited into chapters for a calmer reading rhythm (no new facts or events added — §05).
 // Redactionele noot: Zahra leest deze tekst persoonlijk na vóór livegang en voegt alleen details toe
 // die ze zelf openbaar wil delen.
+type Chapter = { eyebrow: I18n; title: I18n; body: I18n };
+
 const STORY = {
 	intro: both(
 		md(
-			'Mijn naam is Zahra, en achter De Sieradenkoningin zit een vrouw die heeft geleerd dat een nieuw begin soms ontstaat op een moment waarop je het leven helemaal anders had voorgesteld.',
-			'Ik ben mama, ondernemer en een vrouw met dromen. Maar ik ben ook iemand die heeft ervaren dat het leven je soms op de proef stelt en dat je op bepaalde momenten opnieuw moet ontdekken wie je bent, wat je waard bent en welke toekomst je voor jezelf wilt opbouwen.',
-			'Als alleenstaande mama heb ik geleerd om veel rollen tegelijk te dragen. Er zijn dagen waarop je sterk moet zijn, ook wanneer je moe bent. Dagen waarop je blijft doorgaan voor je kind, terwijl je zelf misschien even nood hebt aan iemand die tegen jou zegt dat het goed komt.',
-			'En er zijn momenten waarop je beseft dat je niet alleen voor anderen wilt blijven zorgen, maar ook opnieuw voor jezelf moet kiezen.'
+			'Mijn naam is Zahra. Achter De Sieradenkoningin staat een vrouw die heeft geleerd dat een nieuw begin soms ontstaat op het moment waarop je het leven helemaal anders had voorgesteld.',
+			'Ik ben mama, ondernemer en een vrouw met dromen. Ik ben ook iemand die heeft ervaren dat het leven je soms op de proef stelt — en dat je op bepaalde momenten opnieuw moet ontdekken wie je bent, wat je waard bent en welke toekomst je voor jezelf wilt opbouwen.'
 		),
 		md(
-			'Je m’appelle Zahra. Derrière De Sieradenkoningin se cache une femme qui a appris qu’un nouveau départ naît parfois au moment même où l’on avait imaginé sa vie tout autrement.',
-			'Je suis maman, entrepreneuse et une femme qui a des rêves. Mais je suis aussi quelqu’un qui a vécu que la vie nous met parfois à l’épreuve, et qu’à certains moments, il faut redécouvrir qui l’on est, ce que l’on vaut et quel avenir on veut se construire.',
-			'En tant que maman solo, j’ai appris à porter plusieurs rôles à la fois. Il y a des jours où l’on doit être forte, même quand on est fatiguée. Des jours où l’on continue pour son enfant, alors qu’on aurait soi-même besoin que quelqu’un nous dise que tout ira bien.',
-			'Et il y a des moments où l’on réalise qu’on ne veut pas seulement prendre soin des autres, mais qu’il faut aussi recommencer à se choisir soi-même.'
+			'Je m’appelle Zahra. Derrière De Sieradenkoningin se trouve une femme qui a appris qu’un nouveau départ naît parfois au moment même où l’on avait imaginé sa vie tout autrement.',
+			'Je suis maman, entrepreneuse et une femme qui a des rêves. Je suis aussi quelqu’un qui a vécu que la vie nous met parfois à l’épreuve — et qu’à certains moments, il faut redécouvrir qui l’on est, ce que l’on vaut et quel avenir on veut se construire.'
 		)
 	),
-	part2: both(
-		md(
-			'## Van een moeilijke periode naar een nieuwe droom',
-			'Soms brengt een negatieve ervaring je op een punt waarop je gedwongen wordt om anders naar het leven te kijken. Naar liefde, zelfstandigheid, dromen en de toekomst die je wilt creëren.',
-			'Ik heb geleerd dat wat je meemaakt niet hoeft te bepalen wie je voor altijd bent. Je mag groeien uit moeilijke ervaringen. Je mag opnieuw dromen. Je mag jezelf opnieuw uitvinden en iets opbouwen waar je trots op bent.',
-			'Voor mij betekent dat ook investeren in mijn eigen dromen, mijn ondernemerschap en mijn financiële zelfstandigheid. Ik wil niet alleen dromen over een mooie toekomst. Ik wil er zelf aan bouwen.',
-			'De Sieradenkoningin is een stukje van die nieuwe start. Een merk dat is ontstaan uit mijn liefde voor juwelen, mijn creativiteit en mijn verlangen om iets op te bouwen dat groter is dan alleen een product.',
-			'## Waarom juwelen?',
-			'Een juweel lijkt misschien een klein detail. Maar soms is het precies dat kleine detail dat je outfit afmaakt, je zelfvertrouwen een boost geeft of je herinnert aan een bijzonder moment.',
-			'Ik wilde een merk creëren waarin vrouwelijkheid en kracht samenkomen. Waar elegantie niet betekent dat je kwetsbaar moet zijn en waar kracht niet betekent dat je altijd hard moet zijn.',
-			'Een merk waar een vrouw zichzelf iets mag gunnen. Niet omdat ze iets moet bewijzen. Niet omdat ze eerst aan alle verwachtingen van anderen moet voldoen. Maar gewoon omdat ook zij het verdient om zichzelf te vieren.',
-			'## Iedere vrouw verdient haar eigen kroon',
-			'De kroon in ons logo staat voor zoveel meer dan koninklijke elegantie. Ze staat voor eigenwaarde. Voor opnieuw beginnen. Voor opstaan na moeilijke momenten. Voor je eigen keuzes durven maken. Voor de vrouw die je vandaag bent en de vrouw die je nog wilt worden.',
-			'Ik wil dat iedere vrouw die onze webshop bezoekt, zich herkent in dat gevoel. De mama die iedere dag alles geeft voor haar kinderen. De jonge vrouw die haar eigen weg zoekt. De vrouw die opnieuw begint na een moeilijke relatie. De ondernemer die haar dromen achternagaat. De vrouw die eindelijk leert om zichzelf niet langer op de laatste plaats te zetten.',
-			'Je hoeft niet perfect te zijn om trots op jezelf te zijn. Je hoeft niet alles op orde te hebben om jezelf iets moois te gunnen. En je hoeft niet te wachten tot iemand anders jou als een koningin behandelt om te beseffen wat je waard bent.'
-		),
-		md(
-			'## D’une période difficile à un nouveau rêve',
-			'Parfois, une expérience négative nous amène à un point où l’on est obligée de regarder la vie autrement. L’amour, l’indépendance, les rêves et l’avenir que l’on veut créer.',
-			'J’ai appris que ce que l’on traverse ne détermine pas qui l’on est pour toujours. On peut grandir à travers les épreuves. On peut rêver à nouveau. On peut se réinventer et construire quelque chose dont on est fière.',
-			'Pour moi, cela signifie aussi investir dans mes propres rêves, dans mon entrepreneuriat et dans mon indépendance financière. Je ne veux pas seulement rêver d’un bel avenir. Je veux le construire moi-même.',
-			'De Sieradenkoningin est une part de ce nouveau départ. Une marque née de mon amour pour les bijoux, de ma créativité et de mon envie de bâtir quelque chose de plus grand qu’un simple produit.',
-			'## Pourquoi des bijoux ?',
-			'Un bijou peut sembler n’être qu’un petit détail. Mais c’est parfois justement ce petit détail qui complète une tenue, donne un coup de pouce à la confiance en soi ou rappelle un moment particulier.',
-			'Je voulais créer une marque où la féminité et la force se rencontrent. Où l’élégance ne signifie pas qu’il faut être vulnérable, et où la force ne signifie pas qu’il faut toujours être dure.',
-			'Une marque où une femme peut s’offrir quelque chose. Pas parce qu’elle doit prouver quoi que ce soit. Pas parce qu’elle doit d’abord répondre à toutes les attentes des autres. Mais simplement parce qu’elle aussi mérite de se célébrer.',
-			'## Chaque femme mérite sa propre couronne',
-			'La couronne de notre logo représente bien plus qu’une élégance royale. Elle représente l’estime de soi. Le fait de recommencer. De se relever après des moments difficiles. D’oser faire ses propres choix. Elle représente la femme que vous êtes aujourd’hui et celle que vous voulez encore devenir.',
-			'Je veux que chaque femme qui visite notre boutique en ligne se reconnaisse dans ce sentiment. La maman qui donne tout chaque jour pour ses enfants. La jeune femme qui cherche sa propre voie. La femme qui recommence après une relation difficile. L’entrepreneuse qui poursuit ses rêves. La femme qui apprend enfin à ne plus se mettre à la dernière place.',
-			'Vous n’avez pas besoin d’être parfaite pour être fière de vous. Vous n’avez pas besoin que tout soit en ordre pour vous offrir quelque chose de beau. Et vous n’avez pas à attendre que quelqu’un d’autre vous traite comme une reine pour réaliser ce que vous valez.'
+	strength: {
+		eyebrow: both('I · Veel rollen tegelijk', 'I · Plusieurs rôles à la fois'),
+		title: both('Sterk zijn, ook wanneer je moe bent', 'Être forte, même quand on est fatiguée'),
+		body: both(
+			md(
+				'Als alleenstaande mama heb ik geleerd om veel rollen tegelijk te dragen. Er zijn dagen waarop je sterk moet zijn, ook wanneer je moe bent. Dagen waarop je blijft doorgaan voor je kind, terwijl je zelf misschien even nood hebt aan iemand die tegen jou zegt dat het goed komt.',
+				'En dan komt er een moment waarop je beseft dat je niet alleen voor anderen wilt blijven zorgen. Dat je ook opnieuw voor jezelf mag kiezen.'
+			),
+			md(
+				'En tant que maman solo, j’ai appris à porter plusieurs rôles à la fois. Il y a des jours où l’on doit être forte, même quand on est fatiguée. Des jours où l’on continue pour son enfant, alors qu’on aurait soi-même besoin que quelqu’un nous dise que tout ira bien.',
+				'Et puis vient un moment où l’on réalise qu’on ne veut pas seulement prendre soin des autres. Qu’on a aussi le droit de recommencer à se choisir soi-même.'
+			)
 		)
-	),
-	part3: both(
-		md(
-			'## Meer dan een juwelenmerk',
-			'Mijn droom gaat verder dan het verkopen van ringen, armbanden, kettingen en oorbellen. Ik wil met De Sieradenkoningin ook een boodschap uitdragen over ambitie en zelfstandigheid. Ik wil jonge meisjes inspireren om in hun talenten te geloven, hun eigen dromen na te jagen en te leren hoe belangrijk het is om financieel zelfstandig te kunnen zijn.',
-			'Ik geloof dat vrouwen elkaar mogen inspireren om groter te dromen. Dat we elkaar mogen aanmoedigen om te ondernemen, te groeien en kansen te grijpen. Want wanneer een vrouw in zichzelf begint te geloven, kan dat het begin zijn van iets heel moois.',
-			'De Sieradenkoningin is mijn manier om die overtuiging een plek te geven. Een merk dat voortkomt uit mijn eigen verhaal, maar waarin ook ruimte is voor dat van jou.',
-			'## Dit is jouw herinnering',
-			'Wanneer je een juweel van De Sieradenkoningin draagt, hoop ik dat je er meer in ziet dan alleen een mooi accessoire. Misschien is het een cadeau voor jezelf na een moeilijke periode. Een beloning voor een doel dat je hebt bereikt. Een herinnering aan een nieuwe start. Of gewoon een klein moment waarop je jezelf eraan herinnert dat jij er ook toe doet.',
-			'Wat jouw verhaal ook is, je bent welkom. Want iedere vrouw draagt haar eigen verhaal. Iedere vrouw heeft haar eigen strijd, haar eigen dromen en haar eigen momenten waarop ze opnieuw moet beginnen.',
-			'En iedere vrouw verdient het om zich mooi, krachtig en waardevol te voelen.',
-			'## Welkom bij De Sieradenkoningin.',
-			'Jouw verhaal. Jouw kracht. Jouw kroon.',
-			'*Liefs, Zahra — Oprichtster van De Sieradenkoningin*'
-		),
-		md(
-			'## Plus qu’une marque de bijoux',
-			'Mon rêve va au-delà de la vente de bagues, de bracelets, de colliers et de boucles d’oreilles. Avec De Sieradenkoningin, je veux aussi porter un message d’ambition et d’indépendance. Je veux inspirer les jeunes filles à croire en leurs talents, à poursuivre leurs propres rêves et à comprendre à quel point il est important de pouvoir être financièrement indépendante.',
-			'Je crois que les femmes peuvent s’inspirer mutuellement à rêver plus grand. Que nous pouvons nous encourager à entreprendre, à grandir et à saisir les opportunités. Car lorsqu’une femme commence à croire en elle, cela peut être le début de quelque chose de très beau.',
-			'De Sieradenkoningin est ma façon de donner une place à cette conviction. Une marque issue de ma propre histoire, mais qui laisse aussi de la place à la vôtre.',
-			'## Ceci est votre rappel',
-			'Lorsque vous portez un bijou De Sieradenkoningin, j’espère que vous y verrez plus qu’un joli accessoire. Peut-être est-ce un cadeau pour vous-même après une période difficile. Une récompense pour un objectif atteint. Le souvenir d’un nouveau départ. Ou simplement un petit moment pour vous rappeler que vous aussi, vous comptez.',
-			'Quelle que soit votre histoire, vous êtes la bienvenue. Car chaque femme porte sa propre histoire. Chaque femme a ses propres combats, ses propres rêves et ses propres moments où elle doit recommencer.',
-			'Et chaque femme mérite de se sentir belle, forte et précieuse.',
-			'## Bienvenue chez De Sieradenkoningin.',
-			'Votre histoire. Votre force. Votre couronne.',
-			'*Avec amour, Zahra — fondatrice de De Sieradenkoningin*'
+	} satisfies Chapter,
+	dream: {
+		eyebrow: both('II · Een nieuwe start', 'II · Un nouveau départ'),
+		title: both('Van een moeilijke periode naar een nieuwe droom', 'D’une période difficile à un nouveau rêve'),
+		body: both(
+			md(
+				'Soms brengt een moeilijke ervaring je op een punt waarop je anders naar het leven gaat kijken. Naar liefde, naar zelfstandigheid, naar je dromen en naar de toekomst die je wilt creëren.',
+				'Ik heb geleerd dat wat je meemaakt niet hoeft te bepalen wie je voor altijd bent. Je mag groeien uit moeilijke ervaringen. Je mag opnieuw dromen. Je mag jezelf opnieuw uitvinden en iets opbouwen waar je trots op bent.',
+				'Voor mij betekent dat: investeren in mijn eigen dromen, mijn ondernemerschap en mijn financiële zelfstandigheid. Ik wil niet alleen dromen over een mooie toekomst. Ik wil er zelf aan bouwen.',
+				'De Sieradenkoningin is een stukje van die nieuwe start. Een merk dat is ontstaan uit mijn liefde voor juwelen, mijn creativiteit en mijn verlangen om iets op te bouwen dat groter is dan alleen een product.'
+			),
+			md(
+				'Parfois, une expérience difficile nous amène à regarder la vie autrement. L’amour, l’indépendance, les rêves et l’avenir que l’on veut créer.',
+				'J’ai appris que ce que l’on traverse ne détermine pas qui l’on est pour toujours. On peut grandir à travers les épreuves. On peut rêver à nouveau. On peut se réinventer et construire quelque chose dont on est fière.',
+				'Pour moi, cela signifie : investir dans mes propres rêves, dans mon entrepreneuriat et dans mon indépendance financière. Je ne veux pas seulement rêver d’un bel avenir. Je veux le construire moi-même.',
+				'De Sieradenkoningin est une part de ce nouveau départ. Une marque née de mon amour pour les bijoux, de ma créativité et de mon envie de bâtir quelque chose de plus grand qu’un simple produit.'
+			)
 		)
-	)
+	} satisfies Chapter,
+	jewelry: {
+		eyebrow: both('III · Waarom juwelen?', 'III · Pourquoi des bijoux ?'),
+		title: both('Een klein detail kan veel betekenen', 'Un petit détail peut compter beaucoup'),
+		body: both(
+			md(
+				'Een juweel lijkt misschien een klein detail. Maar soms is het precies dat detail dat je outfit afmaakt, je zelfvertrouwen een boost geeft of je herinnert aan een bijzonder moment.',
+				'Ik wilde een merk creëren waarin vrouwelijkheid en kracht samenkomen. Waar elegantie niet betekent dat je kwetsbaar moet zijn, en kracht niet dat je altijd hard moet zijn.',
+				'Een merk waar een vrouw zichzelf iets mag gunnen. Niet omdat ze iets moet bewijzen. Niet omdat ze eerst aan alle verwachtingen van anderen moet voldoen. Maar gewoon omdat ook zij het verdient om zichzelf te vieren.'
+			),
+			md(
+				'Un bijou peut sembler n’être qu’un petit détail. Mais c’est parfois justement ce détail qui complète une tenue, donne un coup de pouce à la confiance en soi ou rappelle un moment particulier.',
+				'Je voulais créer une marque où la féminité et la force se rencontrent. Où l’élégance ne signifie pas qu’il faut être vulnérable, et la force pas qu’il faut toujours être dure.',
+				'Une marque où une femme peut s’offrir quelque chose. Pas pour prouver quoi que ce soit. Pas parce qu’elle doit d’abord répondre aux attentes des autres. Mais simplement parce qu’elle aussi mérite de se célébrer.'
+			)
+		)
+	} satisfies Chapter,
+	crown: {
+		eyebrow: both('IV · De kroon', 'IV · La couronne'),
+		title: both('Iedere vrouw verdient haar eigen kroon', 'Chaque femme mérite sa propre couronne'),
+		body: both(
+			md(
+				'De kroon in ons logo staat voor zoveel meer dan koninklijke elegantie. Ze staat voor eigenwaarde. Voor opnieuw beginnen en opstaan na moeilijke momenten. Voor je eigen keuzes durven maken. Voor de vrouw die je vandaag bent — en de vrouw die je nog wilt worden.',
+				'Ik hoop dat iedere vrouw die hier binnenkomt zich herkent in dat gevoel. De mama die iedere dag alles geeft voor haar kinderen. De jonge vrouw die haar eigen weg zoekt. De vrouw die opnieuw begint na een moeilijke relatie. De ondernemer die haar dromen achternagaat. De vrouw die eindelijk leert om zichzelf niet langer op de laatste plaats te zetten.',
+				'Je hoeft niet perfect te zijn om trots op jezelf te zijn. Je hoeft niet alles op orde te hebben om jezelf iets moois te gunnen. En je hoeft niet te wachten tot iemand anders jou als een koningin behandelt om te beseffen wat je waard bent.'
+			),
+			md(
+				'La couronne de notre logo représente bien plus qu’une élégance royale. Elle représente l’estime de soi. Le fait de recommencer et de se relever après des moments difficiles. D’oser faire ses propres choix. Elle représente la femme que vous êtes aujourd’hui — et celle que vous voulez encore devenir.',
+				'J’espère que chaque femme qui entre ici se reconnaîtra dans ce sentiment. La maman qui donne tout chaque jour pour ses enfants. La jeune femme qui cherche sa propre voie. La femme qui recommence après une relation difficile. L’entrepreneuse qui poursuit ses rêves. La femme qui apprend enfin à ne plus se mettre à la dernière place.',
+				'Vous n’avez pas besoin d’être parfaite pour être fière de vous. Vous n’avez pas besoin que tout soit en ordre pour vous offrir quelque chose de beau. Et vous n’avez pas à attendre que quelqu’un vous traite comme une reine pour réaliser ce que vous valez.'
+			)
+		)
+	} satisfies Chapter,
+	more: {
+		eyebrow: both('V · Mijn droom', 'V · Mon rêve'),
+		title: both('Meer dan een juwelenmerk', 'Plus qu’une marque de bijoux'),
+		body: both(
+			md(
+				'Mijn droom gaat verder dan het verkopen van ringen, armbanden, kettingen en oorbellen. Met De Sieradenkoningin wil ik ook een boodschap uitdragen over ambitie en zelfstandigheid. Ik wil jonge meisjes inspireren om in hun talenten te geloven, hun eigen dromen na te jagen en te ontdekken hoe belangrijk het is om financieel op eigen benen te kunnen staan.',
+				'Ik geloof dat vrouwen elkaar mogen inspireren om groter te dromen. Dat we elkaar mogen aanmoedigen om te ondernemen, te groeien en kansen te grijpen. Want wanneer een vrouw in zichzelf begint te geloven, kan dat het begin zijn van iets heel moois.',
+				'De Sieradenkoningin is mijn manier om die overtuiging een plek te geven. Een merk dat voortkomt uit mijn eigen verhaal, maar waarin ook ruimte is voor het jouwe.'
+			),
+			md(
+				'Mon rêve va au-delà de la vente de bagues, de bracelets, de colliers et de boucles d’oreilles. Avec De Sieradenkoningin, je veux aussi porter un message d’ambition et d’indépendance. Je veux inspirer les jeunes filles à croire en leurs talents, à poursuivre leurs rêves et à découvrir à quel point il est important de pouvoir être financièrement indépendante.',
+				'Je crois que les femmes peuvent s’inspirer mutuellement à rêver plus grand. Que nous pouvons nous encourager à entreprendre, à grandir et à saisir les opportunités. Car lorsqu’une femme commence à croire en elle, cela peut être le début de quelque chose de très beau.',
+				'De Sieradenkoningin est ma façon de donner une place à cette conviction. Une marque issue de ma propre histoire, mais qui laisse aussi de la place à la vôtre.'
+			)
+		)
+	} satisfies Chapter,
+	reminder: {
+		eyebrow: both('VI · Tot slot', 'VI · Pour finir'),
+		title: both('Dit is jouw herinnering', 'Ceci est votre rappel'),
+		body: both(
+			md(
+				'Wanneer je een juweel van De Sieradenkoningin draagt, hoop ik dat je er meer in ziet dan alleen een mooi accessoire. Misschien is het een cadeau voor jezelf na een moeilijke periode. Een beloning voor een doel dat je hebt bereikt. Een herinnering aan een nieuwe start. Of gewoon een klein moment waarop je jezelf eraan herinnert dat jij er ook toe doet.',
+				'Wat jouw verhaal ook is: je bent welkom. Iedere vrouw draagt haar eigen verhaal, haar eigen strijd, haar eigen dromen — en haar eigen momenten waarop ze opnieuw moet beginnen. En iedere vrouw verdient het om zich mooi, krachtig en waardevol te voelen.',
+				'**Welkom bij De Sieradenkoningin.** Jouw verhaal. Jouw kracht. Jouw kroon.',
+				'Liefs,'
+			),
+			md(
+				'Lorsque vous portez un bijou De Sieradenkoningin, j’espère que vous y verrez plus qu’un joli accessoire. Peut-être un cadeau pour vous-même après une période difficile. Une récompense pour un objectif atteint. Le souvenir d’un nouveau départ. Ou simplement un petit moment pour vous rappeler que vous aussi, vous comptez.',
+				'Quelle que soit votre histoire : vous êtes la bienvenue. Chaque femme porte sa propre histoire, ses propres combats, ses propres rêves — et ses propres moments où elle doit recommencer. Et chaque femme mérite de se sentir belle, forte et précieuse.',
+				'**Bienvenue chez De Sieradenkoningin.** Votre histoire. Votre force. Votre couronne.',
+				'Avec amour,'
+			)
+		)
+	} satisfies Chapter
 };
 
 // ── Onze missie (brandbook §06) + merkwaarden (§01) ──────────────────────────────────────────────
@@ -544,7 +581,11 @@ const RETURNS = both(
 	)
 );
 
-export function pageSeeds(heroKey: string, editorialKey: string): PageSeed[] {
+export function pageSeeds(
+	heroKey: string,
+	editorialKey: string,
+	storyKeys: readonly [string, string] = [editorialKey, editorialKey]
+): PageSeed[] {
 	return [
 		{
 			key: 'home',
@@ -710,7 +751,7 @@ export function pageSeeds(heroKey: string, editorialKey: string): PageSeed[] {
 						),
 						body: STORY.intro,
 						image: {
-							key: editorialKey,
+							key: storyKeys[0],
 							alt: both('DEMO sfeerbeeld', 'DEMO image d’ambiance'),
 							width: 1600,
 							height: 2000
@@ -718,6 +759,7 @@ export function pageSeeds(heroKey: string, editorialKey: string): PageSeed[] {
 						reverse: false
 					}
 				},
+				{ type: 'rich_text', data: STORY.strength },
 				{
 					type: 'quote_band',
 					data: {
@@ -728,7 +770,21 @@ export function pageSeeds(heroKey: string, editorialKey: string): PageSeed[] {
 						surface: 'inverse'
 					}
 				},
-				{ type: 'rich_text', data: { body: STORY.part2 } },
+				{ type: 'rich_text', data: STORY.dream },
+				{
+					type: 'editorial_split',
+					data: {
+						...STORY.jewelry,
+						image: {
+							key: storyKeys[1],
+							alt: both('DEMO sfeerbeeld', 'DEMO image d’ambiance'),
+							width: 1600,
+							height: 2000
+						},
+						reverse: true
+					}
+				},
+				{ type: 'rich_text', data: STORY.crown },
 				{
 					type: 'quote_band',
 					data: {
@@ -736,7 +792,19 @@ export function pageSeeds(heroKey: string, editorialKey: string): PageSeed[] {
 						surface: 'espresso'
 					}
 				},
-				{ type: 'rich_text', data: { body: STORY.part3 } }
+				{
+					type: 'rich_text',
+					data: { ...STORY.more, cta: { label: both('Lees onze missie', 'Lire notre mission'), href: LINKS.mission } }
+				},
+				{
+					type: 'rich_text',
+					data: {
+						...STORY.reminder,
+						signature: both('Zahra', 'Zahra'),
+						signatureNote: both('Oprichtster van De Sieradenkoningin', 'Fondatrice de De Sieradenkoningin'),
+						cta: { label: both('Ontdek de collectie', 'Découvrir la collection'), href: LINKS.all }
+					}
+				}
 			]
 		},
 		{

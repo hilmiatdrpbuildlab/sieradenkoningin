@@ -140,9 +140,16 @@ export async function seed(db: Executor, storage: Storage, opts: SeedOptions = {
 		nl: 'DEMO editoriaal beeld',
 		fr: 'DEMO image éditoriale'
 	});
+	// "Ons verhaal" has its own two image slots, so the story and the home page can show different photos.
+	const storyKeys = ['demo/editorial-story.svg', 'demo/editorial-story-2.svg'] as const;
+	for (const key of storyKeys)
+		await ensureMedia(db, storage, key, editorialSvg(crown, false), 1600, 2000, {
+			nl: 'DEMO editoriaal beeld',
+			fr: 'DEMO image éditoriale'
+		});
 
 	// Pages + blocks
-	for (const p of pageSeeds(heroKey, editorialKey)) {
+	for (const p of pageSeeds(heroKey, editorialKey, storyKeys)) {
 		const [existing] = await db.select().from(s.pages).where(eq(s.pages.key, p.key));
 		if (existing && !refresh) continue;
 		const slugs = p.key === 'home' ? { nl: '__home', fr: '__home_fr' } : p.slugs;

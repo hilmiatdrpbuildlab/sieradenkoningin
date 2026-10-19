@@ -134,7 +134,17 @@
 		content: '';
 		position: absolute;
 		inset: 0;
-		background: linear-gradient(to top, rgb(36 13 14 / 0.92) 0%, rgb(57 22 23 / 0.45) 45%, rgb(57 22 23 / 0.15) 100%);
+		/* Burgundy scrim: a soft pool behind the centred copy (crown, overline, title) + darker top and bottom, so
+		   ivory/gold text keeps its contrast on any owner-uploaded photo. */
+		background:
+			radial-gradient(ellipse 70% 60% at 50% 55%, rgb(46 8 16 / 0.55) 0%, rgb(46 8 16 / 0) 100%),
+			linear-gradient(
+				to top,
+				rgb(46 8 16 / 0.9) 0%,
+				rgb(75 14 25 / 0.5) 45%,
+				rgb(75 14 25 / 0.35) 80%,
+				rgb(46 8 16 / 0.6) 100%
+			);
 	}
 	.hero--overlay .copy {
 		padding: calc(var(--header-h) + var(--announce-h) + var(--space-16)) var(--gutter) var(--section-y-sm);

@@ -108,7 +108,14 @@ export async function resolveBlocks(db: Executor, blocks: Block[], lang: Lang): 
 				};
 				break;
 			case 'rich_text':
-				view = { title: tr(b.data.title, lang), body: tr(b.data.body, lang) };
+				view = {
+					eyebrow: tr(b.data.eyebrow, lang),
+					title: tr(b.data.title, lang),
+					body: tr(b.data.body, lang),
+					signature: tr(b.data.signature, lang),
+					signatureNote: tr(b.data.signatureNote, lang),
+					cta: link(b.data.cta, lang)
+				};
 				break;
 			case 'faq_list': {
 				const faqs = await getFaqs(db, b.data.group);

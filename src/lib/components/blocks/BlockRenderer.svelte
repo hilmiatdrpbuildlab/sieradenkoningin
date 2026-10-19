@@ -65,7 +65,14 @@
 		{:else if b.type === 'banner'}
 			<Banner image={v.image} eyebrow={v.eyebrow} title={v.title} text={v.text} cta={v.cta} surface={v.surface} />
 		{:else if b.type === 'rich_text'}
-			<RichText title={v.title} body={v.body} />
+			<RichText
+				eyebrow={v.eyebrow}
+				title={v.title}
+				body={v.body}
+				signature={v.signature}
+				signatureNote={v.signatureNote}
+				cta={v.cta}
+			/>
 		{:else if b.type === 'faq_list'}
 			<FaqList title={v.title} items={v.items} />
 		{:else if b.type === 'size_table'}

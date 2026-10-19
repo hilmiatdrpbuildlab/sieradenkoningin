@@ -45,7 +45,8 @@ staging notice), DEMO products, simulated payments/e-mails/labels. Neon project 
    `neon env pull -s object-storage`: AWS_ENDPOINT_URL_S3 → STORAGE_ENDPOINT, AWS_* keys, bucket name) and the
    provider keys from `.env.example`.
 2. `npm run db:migrate` against the Neon _direct_ URL, then `npm run db:seed` (`-- --no-demo` for production).
-3. `npm run build && npx wrangler deploy` — `wrangler.jsonc` deploys `cloudflare/worker.js`, which wraps the
+3. `npx wrangler deploy` (runs `npm run build` first via `build.command`; Cloudflare Workers Builds: build command
+   empty, deploy command `npx wrangler deploy`, root `/`) — `wrangler.jsonc` deploys `cloudflare/worker.js`, which wraps the
    SvelteKit worker and runs the Cron Trigger (`/api/jobs` every 5 min; the 05:00 UTC tick also runs the daily jobs).
    Public vars (`PUBLIC_SITE_URL`, `PUBLIC_STAGING`) live in `wrangler.jsonc` → `vars`.
 
