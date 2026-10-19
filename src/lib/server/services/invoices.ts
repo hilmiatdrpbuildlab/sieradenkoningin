@@ -260,7 +260,7 @@ export function layoutInvoice(d: InvoiceData, measure: Measure): InvoicePage[] {
 
 	// Header: store name + title + meta
 	let y = height - margin - 6;
-	text(d.seller.name || 'Sieradenkoningin', margin, y, 20, { accent: true });
+	text(d.seller.name || 'De Sieradenkoningin', margin, y, 20, { accent: true });
 	rtext(L.title.toUpperCase(), right, y, 16, { bold: true, accent: true });
 	y -= 34;
 
@@ -423,9 +423,9 @@ export function invoiceText(pages: InvoicePage[]): string {
 // ── PDF ────────────────────────────────────────────────────────────────────────
 
 /** Brand burgundy (--sk-burgundy) as PDF rgb fractions. */
-const ACCENT = rgb(57 / 255, 22 / 255, 23 / 255);
-const INK = rgb(73 / 255, 37 / 255, 32 / 255);
-const LINE = rgb(217 / 255, 203 / 255, 191 / 255);
+const ACCENT = rgb(75 / 255, 14 / 255, 25 / 255);
+const INK = rgb(33 / 255, 22 / 255, 19 / 255);
+const LINE = rgb(232 / 255, 213 / 255, 188 / 255);
 
 /** Standard PDF fonts only encode WinAnsi: map typographic spaces, replace anything else with "?". */
 function winAnsi(font: PDFFont, text: string) {
@@ -438,7 +438,7 @@ function winAnsi(font: PDFFont, text: string) {
 export async function renderInvoicePdf(d: InvoiceData): Promise<Uint8Array> {
 	const doc = await PDFDocument.create();
 	doc.setTitle(`${LABELS[d.locale].title} ${d.invoiceNumber}`);
-	doc.setAuthor(d.seller.legalName || d.seller.name || 'Sieradenkoningin');
+	doc.setAuthor(d.seller.legalName || d.seller.name || 'De Sieradenkoningin');
 	doc.setCreationDate(d.invoiceDate);
 	const regular = await doc.embedFont(StandardFonts.Helvetica);
 	const bold = await doc.embedFont(StandardFonts.HelveticaBold);

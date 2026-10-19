@@ -23,7 +23,7 @@
 		{m.email_order_confirmation_title({}, { locale })}
 	</h1>
 	<p style="margin:0 0 12px;">{m.email_order_confirmation_intro({ name: data.firstName }, { locale })}</p>
-	<p style="margin:0 0 4px;font-size:12px;letter-spacing:0.18em;text-transform:uppercase;color:{c.cognac};">
+	<p style="margin:0 0 4px;font-size:12px;letter-spacing:0.18em;text-transform:uppercase;color:{c.mocha};">
 		{m.email_order_number({}, { locale })}
 	</p>
 	<p style="margin:0 0 16px;font-size:18px;font-weight:600;">{data.number}</p>
@@ -41,7 +41,7 @@
 		<tbody>
 			<tr>
 				<td style="vertical-align:top;padding:12px 12px 12px 0;width:50%;">
-					<p style="margin:0 0 4px;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:{c.cognac};">
+					<p style="margin:0 0 4px;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:{c.mocha};">
 						{data.shippingMethod === 'pickup'
 							? m.email_pickup_point({}, { locale })
 							: m.email_delivery_address({}, { locale })}
@@ -56,7 +56,7 @@
 					{/if}
 				</td>
 				<td style="vertical-align:top;padding:12px 0;width:50%;">
-					<p style="margin:0 0 4px;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:{c.cognac};">
+					<p style="margin:0 0 4px;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:{c.mocha};">
 						{m.email_delivery_estimate({}, { locale })}
 					</p>
 					{data.deliveryEstimate}
@@ -66,7 +66,7 @@
 	</table>
 
 	{#if data.giftWrap || data.giftMessage}
-		<p style="margin:0 0 20px;padding:12px 16px;border-left:2px solid {c.gold};background:{c.cream};font-size:14px;">
+		<p style="margin:0 0 20px;padding:12px 16px;border-left:2px solid {c.gold};background:{c.ivory};font-size:14px;">
 			{m.email_gift_wrapped({}, { locale })}{#if data.giftMessage}<br /><em>“{data.giftMessage}”</em>{/if}
 		</p>
 	{/if}
@@ -74,9 +74,9 @@
 	<p style="margin:0 0 24px;text-align:center;">
 		<a
 			href={data.orderUrl}
-			style="display:inline-block;padding:14px 28px;background:{c.burgundy};color:{c.cream};text-decoration:none;font-size:12px;letter-spacing:0.18em;text-transform:uppercase;"
+			style="display:inline-block;padding:14px 28px;background:{c.burgundy};color:{c.ivory};text-decoration:none;font-size:12px;letter-spacing:0.18em;text-transform:uppercase;"
 			>{m.email_view_order({}, { locale })}</a
 		>
 	</p>
-	<p style="margin:0;font-size:13px;color:{c.cognac};">{m.email_returns_note({ days: data.returnDays }, { locale })}</p>
+	<p style="margin:0;font-size:13px;color:{c.mocha};">{m.email_returns_note({ days: data.returnDays }, { locale })}</p>
 </EmailLayout>

@@ -11,7 +11,7 @@
 </script>
 
 <svelte:head>
-	<title>{notFound ? m.error_404_title() : m.error_500_title()} — Sieradenkoningin</title>
+	<title>{notFound ? m.error_404_title() : m.error_500_title()} — De Sieradenkoningin</title>
 	<meta name="robots" content="noindex" />
 </svelte:head>
 

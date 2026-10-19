@@ -21,11 +21,11 @@
 
 	/* brand primitives */
 	--color-burgundy: var(--sk-burgundy);
-	--color-espresso: var(--sk-espresso);
-	--color-cognac: var(--sk-cognac);
-	--color-camel: var(--sk-camel);
-	--color-cream: var(--sk-cream);
+	--color-chocolate: var(--sk-chocolate);
+	--color-champagne: var(--sk-champagne);
 	--color-gold: var(--sk-gold);
+	--color-ivory: var(--sk-ivory);
+	--color-espresso: var(--sk-espresso);
 	--color-ruby: var(--sk-ruby);
 	--color-white: var(--sk-white);
 	--color-transparent: transparent;
@@ -169,7 +169,7 @@
 	}
 	::selection {
 		background: var(--sk-burgundy);
-		color: var(--sk-cream);
+		color: var(--sk-ivory);
 	}
 	:focus-visible {
 		outline: 2px solid var(--ui-border-focus);
@@ -205,7 +205,7 @@
 	font-family: var(--ff-script);
 	font-size: var(--fs-script);
 	line-height: 1;
-	color: var(--ui-ornament);
+	color: var(--ui-ornament-text); /* gold on dark surfaces, deep gold (≥ 3:1) on ivory */
 	font-weight: 400;
 	text-transform: none;
 	letter-spacing: 0;

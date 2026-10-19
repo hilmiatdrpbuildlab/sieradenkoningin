@@ -1,6 +1,7 @@
 /**
  * `npm run demo:photos` — replaces the SVG placeholders of the DEMO catalogue with the real photos listed in
- * scripts/demo-photos.json (CC0 / public domain, see demo-photos-fetch.ts). Run after `npm run db:seed`.
+ * scripts/demo-photos.json (CC0 / public domain, see demo-photos-fetch.ts) and the mood photos of
+ * scripts/brand-photos.json (Unsplash License). Run after `npm run db:seed`.
  *
  * - Downloads each photo once (Commons thumbnail service, cached in .data/demo-photos), crops it with sharp to
  *   the shop's ratios (product 4:5 → 1200×1500, hero 3:2 → 1920×1280) and uploads it as JPEG to the
@@ -13,14 +14,17 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import pg from 'pg';
 import sharp from 'sharp';
 import { drizzle } from 'drizzle-orm/node-postgres';
-import { and, eq, sql } from 'drizzle-orm';
+import { and, eq, isNull, sql } from 'drizzle-orm';
 import { DATABASE_URL } from './env.ts';
 import * as s from '../src/lib/server/db/schema.ts';
 import { createStorage } from '../src/lib/server/adapters/storage.ts';
 import { demoProducts } from '../src/lib/server/db/seed-data.ts';
 
 interface Photo {
-	file: string;
+	/** Commons file name (demo-photos.json) … */
+	file?: string;
+	/** … or a direct image URL (brand-photos.json). */
+	url?: string;
 	license: string;
 	source: string;
 }
@@ -29,15 +33,21 @@ const manifest = JSON.parse(readFileSync('scripts/demo-photos.json', 'utf8')) as
 	hero: Photo;
 	editorial: Photo;
 };
+/** Mood photos for hero / editorial blocks (Unsplash License, DEMO until the shop's own photography). */
+const brand = JSON.parse(readFileSync('scripts/brand-photos.json', 'utf8')) as Record<
+	'hero' | 'editorial' | 'story',
+	Photo
+>;
 
 const UA = 'SieradenkoninginDemoSeed/1.0 (demo catalogue; contact via repository owner)';
 const CACHE = '.data/demo-photos';
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-async function download(file: string): Promise<Buffer> {
+async function download(p: Photo): Promise<Buffer> {
+	const file = p.file ?? `${new URL(p.url!).pathname.slice(1)}.jpg`;
 	const cached = `${CACHE}/${file.replace(/[^a-z0-9._-]/gi, '_')}`;
 	if (existsSync(cached)) return readFileSync(cached);
-	const url = `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(file)}?width=2000`;
+	const url = p.url ?? `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(file)}?width=2000`;
 	for (let attempt = 0; ; attempt++) {
 		await sleep(1000);
 		const res = await fetch(url, { headers: { 'user-agent': UA } });
@@ -71,7 +81,7 @@ const storage = createStorage({
 async function photo(key: string, p: Photo, width: number, height: number, alt: s.I18n) {
 	const [existing] = await db.select({ id: s.media.id }).from(s.media).where(eq(s.media.storageKey, key));
 	if (existing) return existing.id;
-	const jpeg = await sharp(await download(p.file))
+	const jpeg = await sharp(await download(p))
 		.rotate()
 		.resize(width, height, { fit: 'cover', position: sharp.strategy.attention })
 		.jpeg({ quality: 82, mozjpeg: true })
@@ -113,32 +123,46 @@ try {
 	}
 	console.log(`✓ photos linked to ${linked} DEMO products`);
 
-	// Home hero + editorial blocks reference media by storage key inside their JSON data.
-	const blocks: [string, string, Photo, number, number, s.I18n][] = [
-		[
-			'demo/editorial-hero.svg',
-			'demo/photos/editorial-hero.jpg',
-			manifest.hero,
-			1920,
-			1280,
-			{ nl: 'DEMO sfeerbeeld', fr: 'DEMO image d’ambiance' }
-		],
-		[
-			'demo/editorial-split.svg',
-			'demo/photos/editorial-split.jpg',
-			manifest.editorial,
-			1200,
-			1500,
-			{ nl: 'DEMO editoriaal beeld', fr: 'DEMO image éditoriale' }
-		]
-	];
-	for (const [oldKey, newKey, ph, w, h, alt] of blocks) {
-		await photo(newKey, ph, w, h, alt);
-		await db.execute(
-			sql`update page_blocks set data = replace(data::text, ${oldKey}, ${newKey})::jsonb where data::text like ${'%' + oldKey + '%'}`
+	// Hero + editorial blocks reference media by storage key inside their JSON data. The seed writes the SVG
+	// placeholder keys; earlier runs of this script used museum photos (demo/photos/editorial-*.jpg).
+	const replaceKey = (oldKey: string, newKey: string, pageKey?: string) =>
+		db.execute(
+			sql`update page_blocks set data = replace(data::text, ${oldKey}, ${newKey})::jsonb
+			    where data::text like ${'%' + oldKey + '%'}
+			    ${pageKey ? sql`and page_id = (select id from pages where key = ${pageKey})` : sql``}`
 		);
-	}
-	console.log('✓ home hero + editorial photos');
+	const heroKey = 'demo/photos/brand-hero.jpg';
+	const editorialKey = 'demo/photos/brand-editorial.jpg';
+	const storyKey = 'demo/photos/brand-story.jpg';
+	const heroId = await photo(heroKey, brand.hero, 1920, 1280, {
+		nl: 'DEMO sfeerbeeld — gouden ketting, oorbellen en ring in warm zonlicht',
+		fr: 'DEMO image d’ambiance — collier, boucles d’oreilles et bague dorés au soleil'
+	});
+	const editorialId = await photo(editorialKey, brand.editorial, 1200, 1500, {
+		nl: 'DEMO sfeerbeeld — gelaagde gouden kettingen',
+		fr: 'DEMO image d’ambiance — colliers dorés superposés'
+	});
+	await photo(storyKey, brand.story, 1200, 1500, {
+		nl: 'DEMO sfeerbeeld — gouden collier op een zwarte blazer',
+		fr: 'DEMO image d’ambiance — collier doré sur un blazer noir'
+	});
+	for (const old of ['demo/editorial-split.svg', 'demo/photos/editorial-split.jpg'])
+		await replaceKey(old, storyKey, 'story');
+	for (const old of ['demo/editorial-hero.svg', 'demo/photos/editorial-hero.jpg']) await replaceKey(old, heroKey);
+	for (const old of ['demo/editorial-split.svg', 'demo/photos/editorial-split.jpg'])
+		await replaceKey(old, editorialKey);
+	console.log('✓ hero + editorial mood photos');
+
+	// Shop-menu tiles show the hero image of these collections (only where the owner has not set one).
+	for (const [slug, mediaId] of [
+		['nieuw', heroId],
+		['onze-favorieten', editorialId]
+	] as const)
+		await db
+			.update(s.collections)
+			.set({ heroMediaId: mediaId })
+			.where(and(sql`${s.collections.slugs}->>'nl' = ${slug}`, isNull(s.collections.heroMediaId)));
+	console.log('✓ collection hero images');
 } finally {
 	await pool.end();
 }

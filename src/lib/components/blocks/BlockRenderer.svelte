@@ -5,6 +5,7 @@
 <script lang="ts">
 	import Hero from '#lib/components/storefront/Hero.svelte';
 	import UspBar from '#lib/components/storefront/UspBar.svelte';
+	import FeatureGrid from '#lib/components/storefront/FeatureGrid.svelte';
 	import CategoryStrip from '#lib/components/storefront/CategoryStrip.svelte';
 	import ProductRail from '#lib/components/storefront/ProductRail.svelte';
 	import QuoteBand from '#lib/components/storefront/QuoteBand.svelte';
@@ -43,6 +44,8 @@
 			/>
 		{:else if b.type === 'usp_bar'}
 			<UspBar items={v.items} />
+		{:else if b.type === 'feature_grid'}
+			<FeatureGrid eyebrow={v.eyebrow} title={v.title} intro={v.intro} items={v.items} />
 		{:else if b.type === 'category_strip'}
 			<CategoryStrip title={v.title} eyebrow={v.eyebrow} categories={v.categories} />
 		{:else if b.type === 'product_rail'}

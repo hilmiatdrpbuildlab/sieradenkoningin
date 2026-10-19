@@ -10,7 +10,7 @@
 	const serif = "'Playfair Display', Georgia, 'Times New Roman', serif";
 	const a = $derived(data.shippingAddress);
 	const t = $derived(data.tracking ?? null);
-	const label = `margin:0 0 4px;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:${c.cognac};`;
+	const label = `margin:0 0 4px;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:${c.mocha};`;
 </script>
 
 <EmailLayout
@@ -70,11 +70,11 @@
 		<p style="margin:8px 0 24px;text-align:center;">
 			<a
 				href={t.url}
-				style="display:inline-block;padding:14px 28px;background:{c.burgundy};color:{c.cream};text-decoration:none;font-size:12px;letter-spacing:0.18em;text-transform:uppercase;"
+				style="display:inline-block;padding:14px 28px;background:{c.burgundy};color:{c.ivory};text-decoration:none;font-size:12px;letter-spacing:0.18em;text-transform:uppercase;"
 				>{m.email_track_parcel({}, { locale })}</a
 			>
 		</p>
-		<p style="margin:0 0 16px;font-size:13px;color:{c.cognac};">{m.email_shipped_note({}, { locale })}</p>
+		<p style="margin:0 0 16px;font-size:13px;color:{c.mocha};">{m.email_shipped_note({}, { locale })}</p>
 	{/if}
 
 	<p style="margin:0;font-size:13px;">

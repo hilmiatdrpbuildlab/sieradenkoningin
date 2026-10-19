@@ -14,7 +14,7 @@
 			'@context': 'https://schema.org',
 			'@type': 'Organization',
 			'@id': `${site}/#organization`,
-			name: 'Sieradenkoningin',
+			name: 'De Sieradenkoningin',
 			url: `${site}/${data.lang}`,
 			logo: `${site}/favicon.svg`
 		},
@@ -22,7 +22,7 @@
 			'@context': 'https://schema.org',
 			'@type': 'WebSite',
 			'@id': `${site}/${data.lang}#website`,
-			name: 'Sieradenkoningin',
+			name: 'De Sieradenkoningin',
 			url: `${site}/${data.lang}`,
 			inLanguage: data.lang === 'fr' ? 'fr-BE' : 'nl-BE',
 			publisher: { '@id': `${site}/#organization` },

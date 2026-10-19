@@ -298,7 +298,7 @@ export async function sendAccountEmail(
 				url: input.url,
 				secondaryUrl: input.secondaryUrl ?? null,
 				shopUrl: `${input.siteUrl.replace(/\/$/, '')}/${input.lang}`,
-				storeName: store.name || 'Sieradenkoningin',
+				storeName: store.name || 'De Sieradenkoningin',
 				storeEmail: store.email || null
 			},
 			replyTo: emails.replyTo

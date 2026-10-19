@@ -19,7 +19,7 @@
 <article class="slip">
 	<header>
 		<div>
-			<p class="brand">{data.store.name || 'Sieradenkoningin'}</p>
+			<p class="brand">{data.store.name || 'De Sieradenkoningin'}</p>
 			<p class="small">
 				{[data.store.street, [data.store.postalCode, data.store.city].filter(Boolean).join(' ')]
 					.filter(Boolean)

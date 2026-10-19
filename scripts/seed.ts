@@ -1,6 +1,7 @@
 /**
  * `npm run db:seed` — idempotent seed. Flags: `--no-demo` (structure only, for production),
- * `--url <postgres url>` (target another database).
+ * `--url <postgres url>` (target another database), `--refresh-content` (overwrite the seeded menus,
+ * pages, FAQs, announcement and collection texts with the current brand copy — discards admin edits).
  */
 import pg from 'pg';
 import { drizzle } from 'drizzle-orm/node-postgres';
@@ -28,6 +29,7 @@ try {
 	});
 	const { adminPassword } = await seed(db, storage, {
 		demo: !args.includes('--no-demo'),
+		refreshContent: args.includes('--refresh-content'),
 		adminEmail: e.SEED_ADMIN_EMAIL || 'owner@example.invalid',
 		adminPassword: e.SEED_ADMIN_PASSWORD || undefined,
 		log: (m) => console.log(m)

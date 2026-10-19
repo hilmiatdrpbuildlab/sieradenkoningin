@@ -5,7 +5,7 @@
  */
 import type { LayoutServerLoad } from './$types';
 import { getSettings, isWithinWindow } from '#lib/server/services/settings.ts';
-import { getMenus, menuLinks } from '#lib/server/services/content.ts';
+import { collectionTiles, getMenus, menuLinks } from '#lib/server/services/content.ts';
 import { categoryNav } from '#lib/server/services/catalog.ts';
 import { tr } from '#lib/i18n/index.ts';
 import { emptyCart } from '#lib/server/services/cart.ts';
@@ -15,10 +15,11 @@ export const load: LayoutServerLoad = async ({ params, locals }) => {
 	const db = locals.db;
 	const [s, menus, nav] = await Promise.all([
 		getSettings(db, ['announcement', 'shipping', 'payments', 'analytics']),
-		getMenus(db, ['main', 'footer_shop', 'footer_help', 'footer_about', 'footer_legal']),
+		getMenus(db, ['main', 'shop', 'footer_shop', 'footer_help', 'footer_about', 'footer_legal']),
 		categoryNav(db, lang)
 	]);
 	const a = s.announcement;
+	const shopMenu = menuLinks(menus.shop, lang);
 	return {
 		lang,
 		announcement:
@@ -27,6 +28,8 @@ export const load: LayoutServerLoad = async ({ params, locals }) => {
 				: null,
 		categories: nav.map(({ key, label, href, icon }) => ({ key, label, href, icon })),
 		mainMenu: menuLinks(menus.main, lang),
+		shopMenu,
+		megaTiles: await collectionTiles(db, shopMenu, lang),
 		footer: {
 			shop: menuLinks(menus.footer_shop, lang),
 			help: menuLinks(menus.footer_help, lang),

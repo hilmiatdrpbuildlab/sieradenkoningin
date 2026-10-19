@@ -123,6 +123,6 @@
 		margin-left: auto;
 		width: 5rem;
 		height: 1.75rem;
-		color: var(--sk-cognac);
+		color: var(--sk-mocha);
 	}
 </style>

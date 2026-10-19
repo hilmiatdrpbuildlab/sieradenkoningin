@@ -26,7 +26,7 @@ export const variables = defineEnvVars({
 	SENDCLOUD_PUBLIC_KEY: { schema: optional },
 	SENDCLOUD_SECRET_KEY: { description: 'Sendcloud secret; also verifies webhook signatures', schema: optional },
 	POSTMARK_TOKEN: { description: 'Postmark server token. Empty → mock email writer', schema: optional },
-	EMAIL_FROM: { schema: (v) => v || 'Sieradenkoningin <hallo@example.invalid>' },
+	EMAIL_FROM: { schema: (v) => v || 'De Sieradenkoningin <hallo@example.invalid>' },
 	SHOP_INBOX: { schema: (v) => v || 'shop@example.invalid' },
 	BREVO_API_KEY: { schema: optional },
 	BREVO_LIST_ID: { schema: optional },

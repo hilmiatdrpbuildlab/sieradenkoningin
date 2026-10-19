@@ -51,7 +51,7 @@ export async function sendDailyReport(
 		['Te verwerken', String(queue)],
 		['Varianten met lage voorraad', String(low)]
 	];
-	const html = `<div style="font-family:Arial,sans-serif;color:#492520;max-width:520px"><h1 style="font-family:Georgia,serif;font-weight:400;color:#391617">Dagrapport — ${day}</h1><table style="border-collapse:collapse;width:100%">${rows.map(([k, v]) => `<tr><td style="padding:8px 0;border-bottom:1px solid #e4d9cf">${k}</td><td style="padding:8px 0;border-bottom:1px solid #e4d9cf;text-align:right"><strong>${v}</strong></td></tr>`).join('')}</table><p><a href="${deps.siteUrl.replace(/\/$/, '')}/admin" style="color:#875543">Open het beheer</a></p></div>`;
+	const html = `<div style="font-family:Arial,sans-serif;color:#211613;max-width:520px"><h1 style="font-family:Georgia,serif;font-weight:400;color:#4B0E19">Dagrapport — ${day}</h1><table style="border-collapse:collapse;width:100%">${rows.map(([k, v]) => `<tr><td style="padding:8px 0;border-bottom:1px solid #e4d9cf">${k}</td><td style="padding:8px 0;border-bottom:1px solid #e4d9cf;text-align:right"><strong>${v}</strong></td></tr>`).join('')}</table><p><a href="${deps.siteUrl.replace(/\/$/, '')}/admin" style="color:#875543">Open het beheer</a></p></div>`;
 	const text = rows.map(([k, v]) => `${k}: ${v}`).join('\n');
 	let status = 'sent';
 	let providerId: string | null = null;

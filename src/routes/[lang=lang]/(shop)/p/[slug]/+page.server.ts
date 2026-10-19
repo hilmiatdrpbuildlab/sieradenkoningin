@@ -84,7 +84,7 @@ export const load: PageServerLoad = async ({ params, locals, url, setHeaders }) 
 			description: plain || undefined,
 			image: gallery.map((g) => (g.src.startsWith('http') ? g.src : `${site}${g.src}`)),
 			sku: initial?.sku,
-			brand: { '@type': 'Brand', name: 'Sieradenkoningin' },
+			brand: { '@type': 'Brand', name: 'De Sieradenkoningin' },
 			category: category ? tr(category.name, lang) : undefined,
 			offers: variants.map((v) => ({
 				'@type': 'Offer',
@@ -100,7 +100,7 @@ export const load: PageServerLoad = async ({ params, locals, url, setHeaders }) 
 			'@context': 'https://schema.org',
 			'@type': 'BreadcrumbList',
 			itemListElement: [
-				{ '@type': 'ListItem', position: 1, name: 'Sieradenkoningin', item: `${site}/${lang}` },
+				{ '@type': 'ListItem', position: 1, name: 'De Sieradenkoningin', item: `${site}/${lang}` },
 				...(category && categoryHref
 					? [
 							{

@@ -23,7 +23,7 @@
 			<tr>
 				<td style={cell}>
 					<strong style="font-weight:600;">{line.name}</strong><br />
-					<span style="color:{c.cognac};font-size:12px;"
+					<span style="color:{c.mocha};font-size:12px;"
 						>{line.variantLabel} · {m.email_qty({ qty: line.qty }, { locale })}</span
 					>
 				</td>
@@ -57,7 +57,7 @@
 			>
 		</tr>
 		<tr
-			><td colspan="2" style="padding:2px 0 0;font-size:12px;color:{c.cognac};"
+			><td colspan="2" style="padding:2px 0 0;font-size:12px;color:{c.mocha};"
 				>{m.email_vat_included({ amount: data.vatFormatted }, { locale })}</td
 			></tr
 		>

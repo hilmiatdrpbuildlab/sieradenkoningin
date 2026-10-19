@@ -36,15 +36,20 @@ The payoff is that a component written once (Button, ProductCard) renders correc
 
 ### 1.2 Colour
 
+> Updated 2026-10-19 to the brandbook “De Sieradenkoningin” (§02). Target mix: 45% burgundy · 25% ivory · 15% chocolate · 10% champagne · 5% gold. Source of truth: `src/lib/styles/tokens.css` — the audit below predates this palette; current ratios are noted in tokens.css.
+
 | Primitive | Hex | Role |
 |---|---|---|
-| Royal Burgundy | `#391617` | Primary brand, hero/footer surfaces, primary CTA |
-| Dark Espresso | `#492520` | Body and heading text on light backgrounds, CTA hover |
-| Warm Cognac | `#875543` | Links, icons, muted text, focus ring |
-| Soft Camel | `#B89985` | Borders, muted text **on dark only** |
-| Luxurious Cream | `#EBE1D8` | Page background, text on dark |
-| *Gold (derived)* | `#C9A46A` | Ornaments: crown, sparkle, dividers, progress bars |
-| *Ruby (derived)* | `#7A1F2B` | Sale price, sale badge, active wishlist (from the stone inspiration) |
+| Burgundy | `#4B0E19` | Primary brand: hero, dark sections, footer, primary CTA, links (13.7:1 on ivory) |
+| Chocolate | `#38251F` | Warm depth: quote bands (`data-surface="espresso"`), CTA hover |
+| Champagne | `#E8D5BC` | Hairlines, soft panels, muted text on dark (10.7:1 on burgundy) |
+| Antique Gold | `#C5A16C` | Ornaments, icons, small accents — decorative on ivory (2.2:1), 6.3:1 on burgundy |
+| Ivory | `#F8F2EA` | Page background, text on dark |
+| Espresso | `#211613` | Body text on light backgrounds (15.9:1) |
+| *Mocha (derived)* | `#6E5A50` | Muted text on ivory (5.8:1) |
+| *Taupe (derived)* | `#8C7362` | Input borders (4.0:1) |
+| *Deep gold (derived)* | `#94703E` | Allura accents on ivory (4.1:1, large text only) |
+| *Ruby (derived)* | `#8E2333` | Sale price, sale badge, active wishlist |
 
 **Contrast audit (WCAG 2.2; ratios computed, not estimated):**
 

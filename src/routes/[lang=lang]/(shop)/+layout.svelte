@@ -52,18 +52,8 @@
 			fr: localizeHref(page.url.pathname, 'fr')
 		}
 	);
-	const megaTiles = $derived([
-		{
-			label: m.badge_new(),
-			href: localizeHref('/collections/nieuw', data.lang),
-			image: img('demo/editorial-split.svg')
-		},
-		{
-			label: m.badge_bestseller(),
-			href: localizeHref('/search?sort=bestsellers', data.lang),
-			image: img('demo/editorial-hero.svg')
-		}
-	]);
+	// Editorial tiles in the Shop disclosure: Shop-menu collections that have a hero image.
+	const megaTiles = $derived(data.megaTiles.map((t) => ({ label: t.label, href: t.href, image: img(t.key, 600) })));
 </script>
 
 <svelte:head>
@@ -83,6 +73,7 @@
 	announcement={data.announcement}
 	categories={data.categories}
 	menu={data.mainMenu}
+	shopMenu={data.shopMenu}
 	{megaTiles}
 	onsearch={() => (searchOpen = true)}
 />

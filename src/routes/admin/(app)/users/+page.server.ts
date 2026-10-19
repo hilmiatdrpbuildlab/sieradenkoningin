@@ -61,14 +61,14 @@ export const actions: Actions = {
 				values: raw
 			});
 		const link = `${PUBLIC_SITE_URL.replace(/\/$/, '')}/admin/invite/${r.token}`;
-		const html = `<div style="font-family:Arial,sans-serif;color:#492520;max-width:560px"><h1 style="font-family:Georgia,serif;font-weight:400;color:#391617">Welkom bij Sieradenkoningin Beheer</h1><p>${locals.admin!.name} heeft je uitgenodigd als <strong>${ROLE_LABELS[parsed.data.role]}</strong>.</p><p><a href="${link}" style="display:inline-block;background:#391617;color:#ebe1d8;padding:12px 20px;text-decoration:none">Account activeren</a></p><p style="font-size:12px;color:#875543">Deze link is 7 dagen geldig. Je stelt een wachtwoord en tweestapsverificatie in.</p></div>`;
+		const html = `<div style="font-family:Arial,sans-serif;color:#211613;max-width:560px"><h1 style="font-family:Georgia,serif;font-weight:400;color:#4B0E19">Welkom bij De Sieradenkoningin Beheer</h1><p>${locals.admin!.name} heeft je uitgenodigd als <strong>${ROLE_LABELS[parsed.data.role]}</strong>.</p><p><a href="${link}" style="display:inline-block;background:#4B0E19;color:#ebe1d8;padding:12px 20px;text-decoration:none">Account activeren</a></p><p style="font-size:12px;color:#875543">Deze link is 7 dagen geldig. Je stelt een wachtwoord en tweestapsverificatie in.</p></div>`;
 		let status = 'sent';
 		let providerId: string | null = null;
 		try {
 			providerId = (
 				await locals.email.send({
 					to: parsed.data.email,
-					subject: 'Uitnodiging — Sieradenkoningin Beheer',
+					subject: 'Uitnodiging — De Sieradenkoningin Beheer',
 					html,
 					text: `Activeer je account: ${link}`,
 					template: 'admin-invite'

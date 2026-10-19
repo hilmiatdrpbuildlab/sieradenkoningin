@@ -40,12 +40,12 @@ export interface OrderEmailData {
  * values of src/lib/styles/tokens.css are repeated here as hex (the one place hex is allowed).
  */
 export const EMAIL_COLORS = {
-	cream: '#ebe1d8', // --sk-cream
-	surface: '#f6f1ec', // --sk-cream-50
-	burgundy: '#391617', // --sk-burgundy
-	espresso: '#492520', // --sk-espresso
-	cognac: '#875543', // --sk-cognac
-	border: '#d9cbbf', // --sk-camel-300
-	gold: '#c9a46a', // --sk-gold
+	ivory: '#f8f2ea', // --sk-ivory
+	surface: '#fcf9f5', // --sk-ivory-50
+	burgundy: '#4b0e19', // --sk-burgundy
+	espresso: '#211613', // --sk-espresso
+	mocha: '#6e5a50', // --sk-mocha
+	border: '#e8d5bc', // --sk-champagne
+	gold: '#c5a16c', // --sk-gold
 	danger: '#9b2c2c' // --sk-danger
 } as const;

@@ -4,12 +4,19 @@
  *
  * `opts.demo = false` seeds only structure (categories, settings, zones, menus, pages) — used for the
  * production cutover (P5-07: "categories/settings only; no DEMO products").
+ *
+ * `opts.refreshContent = true` (CLI: `--refresh-content`) OVERWRITES the seeded brand content in an
+ * existing database: menus, the announcement, seeded pages (title, SEO, all blocks), FAQs and the
+ * seeded collections' texts. Use it once to roll out a new content brief; it discards admin edits to
+ * those rows.
  */
-import { eq, sql } from 'drizzle-orm';
+import { eq, inArray, sql } from 'drizzle-orm';
 import type { Executor } from './index.ts';
 import * as s from './schema.ts';
 import {
+	ANNOUNCEMENT_SEED,
 	CATEGORY_SEED,
+	COLLECTION_SEED,
 	BRACELET_SIZES,
 	FAQ_SEED,
 	MENUS,
@@ -30,12 +37,15 @@ export interface SeedOptions {
 	adminEmail?: string;
 	/** Fixed password (tests); otherwise a random one is generated and returned once. */
 	adminPassword?: string;
+	/** Overwrite seeded menus, pages, FAQs, announcement and collection texts (see file header). */
+	refreshContent?: boolean;
 	log?: (msg: string) => void;
 }
 
 export async function seed(db: Executor, storage: Storage, opts: SeedOptions = {}) {
 	const log = opts.log ?? (() => {});
 	const demo = opts.demo ?? true;
+	const refresh = opts.refreshContent ?? false;
 
 	// Categories
 	for (const [position, c] of CATEGORY_SEED.entries()) {
@@ -55,6 +65,23 @@ export async function seed(db: Executor, storage: Storage, opts: SeedOptions = {
 			.insert(s.settings)
 			.values({ key, value: value as object })
 			.onConflictDoNothing();
+	}
+	const announcement = { text: ANNOUNCEMENT_SEED.text, from: null, until: null };
+	if (refresh)
+		await db
+			.insert(s.settings)
+			.values({ key: 'announcement', value: announcement })
+			.onConflictDoUpdate({ target: s.settings.key, set: { value: announcement, updatedAt: new Date() } });
+	else await db.insert(s.settings).values({ key: 'announcement', value: announcement }).onConflictDoNothing();
+	if (refresh) {
+		// Brand name is now "De Sieradenkoningin" (brandbook) — only replace the untouched old default.
+		const [store] = await db.select().from(s.settings).where(eq(s.settings.key, 'store'));
+		const value = store?.value as Record<string, unknown> | undefined;
+		if (value?.name === 'Sieradenkoningin')
+			await db
+				.update(s.settings)
+				.set({ value: { ...value, name: DEFAULT_SETTINGS.store.name }, updatedAt: new Date() })
+				.where(eq(s.settings.key, 'store'));
 	}
 	log('✓ settings defaults');
 
@@ -93,7 +120,12 @@ export async function seed(db: Executor, storage: Storage, opts: SeedOptions = {
 
 	// Menus
 	for (const [key, items] of Object.entries(MENUS)) {
-		await db.insert(s.menus).values({ key, items }).onConflictDoNothing();
+		if (refresh)
+			await db
+				.insert(s.menus)
+				.values({ key, items })
+				.onConflictDoUpdate({ target: s.menus.key, set: { items, updatedAt: new Date() } });
+		else await db.insert(s.menus).values({ key, items }).onConflictDoNothing();
 	}
 
 	// Editorial placeholder media (hero + editorial)
@@ -112,40 +144,66 @@ export async function seed(db: Executor, storage: Storage, opts: SeedOptions = {
 	// Pages + blocks
 	for (const p of pageSeeds(heroKey, editorialKey)) {
 		const [existing] = await db.select().from(s.pages).where(eq(s.pages.key, p.key));
-		if (existing) continue;
+		if (existing && !refresh) continue;
 		const slugs = p.key === 'home' ? { nl: '__home', fr: '__home_fr' } : p.slugs;
-		const [page] = await db
-			.insert(s.pages)
-			.values({ key: p.key, type: p.type, slugs, title: p.title, status: 'published' })
-			.returning();
+		const seo = p.seo ?? null;
+		let pageId: string;
+		if (existing) {
+			pageId = existing.id;
+			await db.update(s.pages).set({ title: p.title, seo, updatedAt: new Date() }).where(eq(s.pages.id, pageId));
+			await db.delete(s.pageBlocks).where(eq(s.pageBlocks.pageId, pageId));
+		} else {
+			const [page] = await db
+				.insert(s.pages)
+				.values({ key: p.key, type: p.type, slugs, title: p.title, seo, status: 'published' })
+				.returning();
+			pageId = page.id;
+		}
 		if (p.blocks.length) {
 			await db.insert(s.pageBlocks).values(
 				p.blocks.map((b, position) => ({
-					pageId: page.id,
+					pageId,
 					type: b.type,
 					data: b.data as Record<string, unknown>,
+					hidden: b.hidden ?? false,
 					position
 				}))
 			);
 		}
 	}
-	log('✓ content pages');
+	log(refresh ? '✓ content pages (refreshed)' : '✓ content pages');
 
 	const faqCount = await db.select({ n: sql<number>`count(*)::int` }).from(s.faqs);
-	if (faqCount[0].n === 0) {
+	if (refresh && faqCount[0].n > 0) await db.delete(s.faqs);
+	if (refresh || faqCount[0].n === 0) {
 		await db.insert(s.faqs).values(FAQ_SEED.map((f, position) => ({ ...f, position })));
 	}
 
-	// "Nieuw" rule collection
-	await db
-		.insert(s.collections)
-		.values({
-			slugs: { nl: 'nieuw', fr: 'nouveautes' },
-			name: { nl: 'Nieuw', fr: 'Nouveautés' },
-			type: 'rule',
-			rule: { newWithinDays: 30 }
-		})
-		.onConflictDoNothing();
+	// Collections: all jewellery + new in (rules) · favourites + gifts (manual, curated in the admin)
+	for (const c of COLLECTION_SEED) {
+		const [existing] = await db
+			.select({ id: s.collections.id })
+			.from(s.collections)
+			.where(sql`${s.collections.slugs}->>'nl' = ${c.slugs.nl}`);
+		if (!existing)
+			await db
+				.insert(s.collections)
+				.values({
+					slugs: c.slugs,
+					name: c.name,
+					description: c.description,
+					seo: c.seo,
+					type: c.type,
+					rule: c.type === 'rule' ? (c.rule ?? {}) : null
+				})
+				.onConflictDoNothing();
+		else if (refresh)
+			await db
+				.update(s.collections)
+				.set({ name: c.name, description: c.description, seo: c.seo, updatedAt: new Date() })
+				.where(eq(s.collections.id, existing.id));
+	}
+	log('✓ collections');
 
 	if (!demo) return { adminPassword };
 
@@ -221,6 +279,24 @@ export async function seed(db: Executor, storage: Storage, opts: SeedOptions = {
 		created++;
 	}
 	log(`✓ ${created} DEMO products created`);
+
+	// DEMO members of the curated (manual) collections
+	const demoList = demoProducts();
+	for (const c of COLLECTION_SEED) {
+		if (c.type !== 'manual' || !c.demoPick) continue;
+		const wanted = demoList.filter(c.demoPick).map((p) => p.slug);
+		const [col] = await db
+			.select({ id: s.collections.id })
+			.from(s.collections)
+			.where(sql`${s.collections.slugs}->>'nl' = ${c.slugs.nl}`);
+		if (!col || !wanted.length) continue;
+		const rows = await db.select({ id: s.products.id }).from(s.products).where(inArray(s.products.slug, wanted));
+		if (rows.length)
+			await db
+				.insert(s.collectionProducts)
+				.values(rows.map((r, position) => ({ collectionId: col.id, productId: r.id, position })))
+				.onConflictDoNothing();
+	}
 	return { adminPassword };
 }
 

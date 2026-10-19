@@ -12,9 +12,10 @@
 	);
 </script>
 
-<Seo title={m.contact_title()} description={m.contact_meta_description()} />
+<Seo title={m.contact_page_title()} description={m.contact_meta_description()} />
 
 <header class="head container-lux">
+	<p class="eyebrow">{m.contact_page_title()}</p>
 	<h1>{m.contact_title()}</h1>
 	<p>{m.contact_intro()}</p>
 </header>

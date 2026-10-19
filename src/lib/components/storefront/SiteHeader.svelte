@@ -1,6 +1,7 @@
 <!--
   @component SiteHeader — announcement bar + sticky 3-zone header (DESIGN_SYSTEM §2.1).
-  Layout:  [menu | collections mega menu + nav]   [ crown + SIERADENKONINGIN ]   [lang · search · account · wishlist · bag]
+  Layout:  [menu | Shop mega menu + main menu]   [ crown + DE SIERADENKONINGIN ]   [lang · search · account · wishlist · bag]
+  Brandbook §04 navigation: Home (wordmark) · Shop · Ons verhaal · Onze missie · Contact.
   • `overlay` = transparent over the home hero, turns into cream glass after 40px of scrolling.
   • < lg: hamburger opens a native <dialog> drawer with category icons and the language switch.
   • Search is a real link (works without JS); with JS, `onsearch` opens the SearchOverlay instead.
@@ -24,11 +25,22 @@
 		announcement?: { text: string; href: string | null } | null;
 		categories: CategoryNav[];
 		menu: NavLink[];
+		/** Links at the top of the Shop disclosure (all jewellery, new in, favourites, gifts). */
+		shopMenu?: NavLink[];
 		megaTiles?: { label: string; href: string; image: string }[];
 		onsearch?: () => void;
 	}
 
-	let { lang, overlay = false, announcement, categories, menu, megaTiles = [], onsearch }: Props = $props();
+	let {
+		lang,
+		overlay = false,
+		announcement,
+		categories,
+		menu,
+		shopMenu = [],
+		megaTiles = [],
+		onsearch
+	}: Props = $props();
 
 	const cart = getCart();
 	const wishlist = getWishlist();
@@ -37,7 +49,7 @@
 	const solid = $derived(!overlay || scrollY > 40);
 	const L = (p: string) => localizeHref(p, lang);
 	const categoryHrefs = $derived(new Set(categories.map((c) => c.href)));
-	const extraLinks = $derived(menu.filter((l) => !categoryHrefs.has(l.href)).slice(0, 2));
+	const extraLinks = $derived(menu.filter((l) => !categoryHrefs.has(l.href)).slice(0, 4));
 
 	// Close the mobile menu on navigation
 	$effect(() => {
@@ -74,7 +86,7 @@
 				<Icon name="menu" size={22} />
 			</button>
 			<nav aria-label={m.nav_main()} class="desktop-nav">
-				<MegaMenu label={m.nav_collections()} {categories} tiles={megaTiles} />
+				<MegaMenu label={m.nav_collections()} links={shopMenu} {categories} tiles={megaTiles} />
 				{#each extraLinks as item (item.href)}
 					<a href={item.href} aria-current={page.url.pathname.startsWith(item.href) ? 'page' : undefined}
 						>{item.label}</a
@@ -116,8 +128,12 @@
 <Drawer bind:open={menuOpen} side="left" title={m.nav_menu()}>
 	<!-- Contents render only while open (JS-only menu; keeps the initial DOM small, P4-07). -->
 	{#if menuOpen}
-		<nav aria-label={m.nav_categories()}>
-			<ul class="mm-list">
+		<nav aria-label={m.nav_main()}>
+			<ul class="mm-links mm-links--top">
+				<li><a href="/{lang}">{m.nav_home()}</a></li>
+				{#each shopMenu as item (item.href)}<li><a href={item.href}>{item.label}</a></li>{/each}
+			</ul>
+			<ul class="mm-list" aria-label={m.nav_categories()}>
 				{#each categories as item (item.key)}
 					<li>
 						<a href={item.href}>
@@ -210,7 +226,13 @@
 	.desktop-nav {
 		display: none;
 		align-items: center;
-		gap: var(--space-8);
+		gap: var(--space-6);
+	}
+	/* 64–80rem: the left zone is narrow — keep Shop + the first two links, the rest live in the drawer/footer. */
+	@media (max-width: 79.99rem) {
+		.desktop-nav > a:nth-of-type(n + 3) {
+			display: none;
+		}
 	}
 	@media (min-width: 64rem) {
 		.desktop-nav {
@@ -333,6 +355,9 @@
 	}
 	.mm-list :global(.mm-ico) {
 		color: var(--ui-accent);
+	}
+	.mm-links--top {
+		margin: 0 0 var(--space-4);
 	}
 	.mm-links {
 		margin-top: var(--space-6);

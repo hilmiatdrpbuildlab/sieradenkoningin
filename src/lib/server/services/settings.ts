@@ -37,7 +37,7 @@ export interface Settings {
 
 export const DEFAULT_SETTINGS: Settings = {
 	store: {
-		name: 'Sieradenkoningin',
+		name: 'De Sieradenkoningin',
 		legalName: '',
 		street: '',
 		postalCode: '',

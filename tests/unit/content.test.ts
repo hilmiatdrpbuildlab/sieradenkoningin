@@ -160,7 +160,7 @@ describe('block validation round-trip', () => {
 	});
 
 	it('every block type has a schema the editor can validate', () => {
-		expect(BLOCK_TYPES.length).toBe(13);
+		expect(BLOCK_TYPES.length).toBe(14);
 	});
 
 	it('cleanBlockData trims, drops empty fr and keeps untouched values', () => {

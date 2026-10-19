@@ -13,6 +13,21 @@ const imageRef = z.object({
 	height: z.number().optional()
 });
 const link = z.object({ label: i18nSchema, href: i18nSchema });
+/** Line icons allowed in the values / features grid (subset of components/ui/icons.ts). */
+export const FEATURE_ICONS = [
+	'crown',
+	'sparkle',
+	'heart',
+	'star',
+	'clover',
+	'gift',
+	'users',
+	'check',
+	'shield',
+	'layers',
+	'return',
+	'truck'
+] as const;
 
 export const blockSchemas = {
 	hero: z.object({
@@ -30,6 +45,15 @@ export const blockSchemas = {
 			.array(z.object({ icon: z.enum(['truck', 'gift', 'sparkle', 'crown', 'clover', 'check']), text: i18nSchema }))
 			.min(1)
 			.max(4)
+	}),
+	feature_grid: z.object({
+		eyebrow: i18nSchema.optional(),
+		title: i18nSchema,
+		intro: i18nSchema.optional(),
+		items: z
+			.array(z.object({ icon: z.enum(FEATURE_ICONS), title: i18nSchema, text: i18nSchema.optional() }))
+			.min(2)
+			.max(6)
 	}),
 	category_strip: z.object({ title: i18nSchema.optional(), eyebrow: i18nSchema.optional() }),
 	product_rail: z.object({
@@ -89,6 +113,7 @@ export type Block = {
 export const BLOCK_LABELS: Record<BlockType, string> = {
 	hero: 'Hero',
 	usp_bar: 'USP-balk',
+	feature_grid: 'Waarden-raster',
 	category_strip: 'Categorieën',
 	product_rail: 'Productrij',
 	banner: 'Banner',

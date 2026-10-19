@@ -27,7 +27,7 @@
 </script>
 
 <svelte:head>
-	<title>Preview — Sieradenkoningin</title>
+	<title>Preview — De Sieradenkoningin</title>
 	<meta name="robots" content="noindex, nofollow" />
 </svelte:head>
 

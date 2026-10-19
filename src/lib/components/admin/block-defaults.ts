@@ -14,6 +14,7 @@ export interface EditorBlock {
 export const BLOCK_DESCRIPTIONS: Record<BlockType, string> = {
 	hero: 'Groot openingsbeeld met titel, Allura-woord en knoppen',
 	usp_bar: 'Tot 4 korte voordelen met icoon',
+	feature_grid: '2–6 waarden of voordelen met icoon, titel en korte tekst (bv. “Waarom De Sieradenkoningin”)',
 	category_strip: 'De zes categorieën met iconen',
 	product_rail: 'Rij producten: nieuw, bestsellers, uitgelicht, collectie of handmatig',
 	banner: 'Beeld met tekst en knop',
@@ -38,6 +39,14 @@ export function defaultBlockData(type: BlockType): Record<string, any> {
 			return { variant: 'overlay', title: empty() };
 		case 'usp_bar':
 			return { items: [{ icon: 'truck', text: empty() }] };
+		case 'feature_grid':
+			return {
+				title: empty(),
+				items: [
+					{ icon: 'crown', title: empty() },
+					{ icon: 'sparkle', title: empty() }
+				]
+			};
 		case 'product_rail':
 			return { title: empty(), source: 'new', limit: 8 };
 		case 'banner':

@@ -5,7 +5,7 @@
  */
 import { and, asc, eq, inArray, sql } from 'drizzle-orm';
 import type { DB, Executor } from '../db/index.ts';
-import { categories, faqs, menus, pageBlocks, pages } from '../db/schema.ts';
+import { categories, collections, faqs, media, menus, pageBlocks, pages } from '../db/schema.ts';
 import type { I18n, MenuItem, Seo } from '../db/schema.ts';
 import {
 	BLOCK_LABELS,
@@ -29,6 +29,29 @@ export async function getMenus(db: Executor, keys: string[]) {
 
 export function menuLinks(items: MenuItem[], lang: Lang): NavLink[] {
 	return items.map((i) => ({ label: tr(i.label, lang), href: typeof i.href === 'string' ? i.href : tr(i.href, lang) }));
+}
+
+/**
+ * Editorial tiles for the Shop disclosure: the menu links that point to a collection with a hero image
+ * (Beheer → Collecties → beeld), in menu order. Returns storage keys; the caller builds the image URL.
+ */
+export async function collectionTiles(db: Executor, links: NavLink[], lang: Lang, limit = 2) {
+	const segment = SEGMENTS.find(([internal]) => internal === 'collections')![lang === 'fr' ? 2 : 1];
+	const prefix = `/${lang}/${segment}/`;
+	const bySlug = new Map(
+		links.filter((l) => l.href.startsWith(prefix)).map((l) => [l.href.slice(prefix.length).split(/[?#/]/)[0], l])
+	);
+	if (!bySlug.size) return [];
+	const rows = await db
+		.select({ slug: sql<string>`${collections.slugs}->>${lang}`, key: media.storageKey })
+		.from(collections)
+		.innerJoin(media, eq(media.id, collections.heroMediaId))
+		.where(and(eq(collections.active, true), inArray(sql<string>`${collections.slugs}->>${lang}`, [...bySlug.keys()])));
+	const keyBySlug = new Map(rows.map((r) => [r.slug, r.key]));
+	return [...bySlug]
+		.filter(([slug]) => keyBySlug.has(slug))
+		.slice(0, limit)
+		.map(([slug, l]) => ({ label: l.label, href: l.href, key: keyBySlug.get(slug)! }));
 }
 
 /** Published (and publish_at reached) page by stable key, e.g. 'home'. */
@@ -85,10 +108,11 @@ export async function getFaqs(db: Executor, group?: string) {
 
 // ── Admin (P4-01 / P4-02) ──────────────────────────────────────────────────────────────────────
 
-export const MENU_KEYS = ['main', 'footer_shop', 'footer_help', 'footer_about', 'footer_legal'] as const;
+export const MENU_KEYS = ['main', 'shop', 'footer_shop', 'footer_help', 'footer_about', 'footer_legal'] as const;
 export type MenuKey = (typeof MENU_KEYS)[number];
 export const MENU_LABELS: Record<MenuKey, string> = {
-	main: 'Hoofdmenu',
+	main: 'Hoofdmenu (naast Shop)',
+	shop: 'Hoofdmenu — Shop-uitklapmenu',
 	footer_shop: 'Footer — Shop',
 	footer_help: 'Footer — Hulp',
 	footer_about: 'Footer — Over ons',

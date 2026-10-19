@@ -21,14 +21,14 @@
 	const serif = "'Playfair Display', Georgia, 'Times New Roman', serif";
 </script>
 
-<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:{c.cream};">{preheader}</div>
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;color:{c.ivory};">{preheader}</div>
 <table
 	role="presentation"
 	width="100%"
 	cellpadding="0"
 	cellspacing="0"
 	border="0"
-	style="background:{c.cream};font-family:{font};color:{c.espresso};"
+	style="background:{c.ivory};font-family:{font};color:{c.espresso};"
 >
 	<tbody>
 		<tr>
@@ -47,7 +47,7 @@
 								<div style="font-size:28px;line-height:1;color:{c.gold};" aria-hidden="true">&#9819;</div>
 								<a
 									href={shopUrl}
-									style="display:block;margin-top:10px;font-family:{serif};font-size:26px;letter-spacing:0.02em;color:{c.cream};text-decoration:none;"
+									style="display:block;margin-top:10px;font-family:{serif};font-size:26px;letter-spacing:0.02em;color:{c.ivory};text-decoration:none;"
 									>{storeName}</a
 								>
 								<div
@@ -63,11 +63,11 @@
 							</td>
 						</tr>
 						<tr>
-							<td align="center" style="padding:24px 16px;font-size:12px;line-height:1.6;color:{c.cognac};">
+							<td align="center" style="padding:24px 16px;font-size:12px;line-height:1.6;color:{c.mocha};">
 								<p style="margin:0 0 6px;">
 									{m.email_footer_help({}, { locale })}{#if storeEmail}&nbsp;<a
 											href="mailto:{storeEmail}"
-											style="color:{c.cognac};">{storeEmail}</a
+											style="color:{c.mocha};">{storeEmail}</a
 										>{/if}
 								</p>
 								<p style="margin:0;">&copy; {storeName}</p>

@@ -1,12 +1,13 @@
 <!--
-  @component MegaMenu (≥ lg) — "Collecties" disclosure: category links left, two editorial tiles right.
+  @component MegaMenu (≥ lg) — "Shop" disclosure: shop links (all, new, favourites …), category links and
+  two editorial tiles.
   Opens on hover after a 150 ms intent delay, or on click/Enter; closes on Esc (focus returns to the
   trigger), on outside click and when focus leaves the panel.
 -->
 <script lang="ts">
 	import Icon from '#lib/components/ui/Icon.svelte';
 	import type { IconName } from '#lib/components/ui/icons.ts';
-	import type { CategoryNav } from '#lib/types.ts';
+	import type { CategoryNav, NavLink } from '#lib/types.ts';
 	import { m } from '#lib/paraglide/messages.js';
 
 	interface Tile {
@@ -14,7 +15,12 @@
 		href: string;
 		image: string;
 	}
-	let { label, categories, tiles = [] }: { label: string; categories: CategoryNav[]; tiles?: Tile[] } = $props();
+	let {
+		label,
+		links = [],
+		categories,
+		tiles = []
+	}: { label: string; links?: NavLink[]; categories: CategoryNav[]; tiles?: Tile[] } = $props();
 
 	let open = $state(false);
 	let timer: ReturnType<typeof setTimeout> | undefined;
@@ -61,7 +67,14 @@
 	</button>
 	<div id="mega{uid}" class="panel" class:open hidden={!open}>
 		{#if open}
-			<div class="inner container-lux">
+			<div class="inner container-lux" class:with-links={links.length > 0}>
+				{#if links.length}
+					<ul class="links">
+						{#each links as l (l.href)}
+							<li><a href={l.href} onclick={() => (open = false)}>{l.label}</a></li>
+						{/each}
+					</ul>
+				{/if}
 				<ul class="cats">
 					{#each categories as c (c.key)}
 						<li>
@@ -131,6 +144,34 @@
 		grid-template-columns: 1fr 1fr;
 		gap: var(--space-12);
 		padding-block: var(--space-10);
+	}
+	.inner.with-links {
+		grid-template-columns: minmax(11rem, 0.55fr) 1fr 1fr;
+		gap: var(--space-10);
+	}
+	.links {
+		list-style: none;
+		margin: 0;
+		padding: 0 var(--space-10) 0 0;
+		display: grid;
+		gap: var(--space-1);
+		align-content: start;
+		border-right: 1px solid var(--ui-border);
+	}
+	.links a {
+		display: flex;
+		align-items: center;
+		min-height: 2.75rem;
+		font-size: var(--fs-xs);
+		font-weight: var(--fw-medium);
+		letter-spacing: var(--ls-wider);
+		text-transform: uppercase;
+		text-decoration: none;
+	}
+	.links a:hover {
+		color: var(--ui-accent);
+		text-decoration: underline;
+		text-underline-offset: 0.3em;
 	}
 	.cats {
 		list-style: none;

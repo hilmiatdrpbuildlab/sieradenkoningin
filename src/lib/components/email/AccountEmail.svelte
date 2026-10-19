@@ -60,20 +60,20 @@
 	<p style="margin:0 0 24px;text-align:center;">
 		<a
 			href={data.url}
-			style="display:inline-block;padding:14px 28px;background:{c.burgundy};color:{c.cream};text-decoration:none;font-size:12px;letter-spacing:0.18em;text-transform:uppercase;"
+			style="display:inline-block;padding:14px 28px;background:{c.burgundy};color:{c.ivory};text-decoration:none;font-size:12px;letter-spacing:0.18em;text-transform:uppercase;"
 			>{copy.button}</a
 		>
 	</p>
 	{#if data.kind === 'exists' && data.secondaryUrl}
 		<p style="margin:0 0 16px;text-align:center;">
-			<a href={data.secondaryUrl} style="color:{c.cognac};">{m.email_acct_exists_forgot({}, o)}</a>
+			<a href={data.secondaryUrl} style="color:{c.mocha};">{m.email_acct_exists_forgot({}, o)}</a>
 		</p>
 	{/if}
 	{#if data.kind !== 'exists'}
-		<p style="margin:0 0 8px;font-size:13px;color:{c.cognac};">{m.email_acct_link_note({}, o)}</p>
-		<p style="margin:0;font-size:12px;line-height:1.5;color:{c.cognac};word-break:break-all;">
-			{m.email_acct_link_fallback({}, o)}<br /><a href={data.url} style="color:{c.cognac};">{data.url}</a>
+		<p style="margin:0 0 8px;font-size:13px;color:{c.mocha};">{m.email_acct_link_note({}, o)}</p>
+		<p style="margin:0;font-size:12px;line-height:1.5;color:{c.mocha};word-break:break-all;">
+			{m.email_acct_link_fallback({}, o)}<br /><a href={data.url} style="color:{c.mocha};">{data.url}</a>
 		</p>
 	{/if}
-	<p style="margin:16px 0 0;font-size:13px;color:{c.cognac};">{m.email_acct_ignore({}, o)}</p>
+	<p style="margin:16px 0 0;font-size:13px;color:{c.mocha};">{m.email_acct_ignore({}, o)}</p>
 </EmailLayout>

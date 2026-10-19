@@ -9,7 +9,7 @@
 	let { locale, data }: { locale: 'nl' | 'fr'; data: OrderEmailData } = $props();
 	const serif = "'Playfair Display', Georgia, 'Times New Roman', serif";
 	const amount = $derived(data.refund?.amountFormatted ?? '');
-	const label = `margin:0 0 4px;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:${c.cognac};`;
+	const label = `margin:0 0 4px;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:${c.mocha};`;
 </script>
 
 <EmailLayout
@@ -49,7 +49,7 @@
 		</tbody>
 	</table>
 
-	<p style="margin:0 0 16px;font-size:13px;color:{c.cognac};">{m.email_refund_timing({}, { locale })}</p>
+	<p style="margin:0 0 16px;font-size:13px;color:{c.mocha};">{m.email_refund_timing({}, { locale })}</p>
 	<p style="margin:0;font-size:13px;">
 		<a href={data.orderUrl} style="color:{c.burgundy};">{m.email_view_order({}, { locale })}</a>
 	</p>

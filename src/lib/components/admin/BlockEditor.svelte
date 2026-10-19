@@ -17,7 +17,7 @@
 	import ProductPicker from './ProductPicker.svelte';
 	import { BLOCK_LABELS, blockSummary, type EditorBlock } from './block-defaults.ts';
 	import { fromBrusselsInput, toBrusselsInput, formatBrussels } from '#lib/utils/brussels-time.ts';
-	import { isBlockVisible } from '#lib/schemas/page-block.ts';
+	import { FEATURE_ICONS, isBlockVisible } from '#lib/schemas/page-block.ts';
 
 	interface Props {
 		block: EditorBlock;
@@ -54,6 +54,7 @@
 	const liveNow = $derived(isBlockVisible(block));
 
 	const ICONS = ['truck', 'gift', 'sparkle', 'crown', 'clover', 'check'].map((v) => ({ value: v, label: v }));
+	const FEATURE_ICON_OPTIONS = FEATURE_ICONS.map((v) => ({ value: v, label: v }));
 	const SOURCES = [
 		{ value: 'new', label: 'Nieuw binnen' },
 		{ value: 'bestsellers', label: 'Bestsellers' },
@@ -193,6 +194,35 @@
 						variant="ghost"
 						icon="plus"
 						onclick={() => block.data.items.push({ icon: 'sparkle', text: { nl: '' } })}>Voordeel toevoegen</Button
+					>
+				</div>
+			{/if}
+		{:else if block.type === 'feature_grid'}
+			<I18nInput label="Bovenregel" bind:value={block.data.eyebrow} />
+			<I18nInput label="Titel" bind:value={block.data.title} required />
+			<I18nInput label="Inleiding" bind:value={block.data.intro} multiline rows={2} />
+			{#each d.items as _item, i (i)}
+				<fieldset class="sub">
+					<legend>Item {i + 1}</legend>
+					<Field label="Icoon"><Select bind:value={block.data.items[i].icon} options={FEATURE_ICON_OPTIONS} /></Field>
+					<I18nInput label="Titel" bind:value={block.data.items[i].title} required />
+					<I18nInput label="Tekst" bind:value={block.data.items[i].text} multiline rows={2} />
+					{#if d.items.length > 2}
+						<div>
+							<Button size="sm" variant="ghost" icon="trash" onclick={() => block.data.items.splice(i, 1)}
+								>Verwijderen</Button
+							>
+						</div>
+					{/if}
+				</fieldset>
+			{/each}
+			{#if d.items.length < 6}
+				<div>
+					<Button
+						size="sm"
+						variant="ghost"
+						icon="plus"
+						onclick={() => block.data.items.push({ icon: 'sparkle', title: { nl: '' } })}>Item toevoegen</Button
 					>
 				</div>
 			{/if}

@@ -225,5 +225,5 @@ function maintenanceHtml(lang: 'nl' | 'fr', message?: string) {
 		(lang === 'fr'
 			? 'Notre boutique fait peau neuve. Revenez dans quelques instants.'
 			: 'Onze winkel krijgt een nieuwe glans. Kom zo dadelijk terug.');
-	return `<!doctype html><html lang="${htmlLang(lang)}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>${title} — Sieradenkoningin</title><link rel="stylesheet" href="/maintenance.css"></head><body><main><p class="crown" aria-hidden="true">♛</p><h1>${title}</h1><p>${body}</p><p class="mark">Sieradenkoningin</p></main></body></html>`;
+	return `<!doctype html><html lang="${htmlLang(lang)}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>${title} — De Sieradenkoningin</title><link rel="stylesheet" href="/maintenance.css"></head><body><main><p class="crown" aria-hidden="true">♛</p><h1>${title}</h1><p>${body}</p><p class="mark">De Sieradenkoningin</p></main></body></html>`;
 }

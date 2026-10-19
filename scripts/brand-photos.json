@@ -1,0 +1,21 @@
+{
+	"_note": "DEMO mood photography (Unsplash License: free for commercial use, no attribution required; not to be resold as-is). Replace with De Sieradenkoningin's own photography before launch — these do not show the shop's products. Used by scripts/demo-photos-seed.ts.",
+	"hero": {
+		"url": "https://images.unsplash.com/photo-1585960622850-ed33c41d6418?fm=jpg&q=85&w=2400",
+		"source": "https://unsplash.com/photos/-GhLgB-oXNw",
+		"author": "Saeed Anahid",
+		"license": "Unsplash License"
+	},
+	"editorial": {
+		"url": "https://images.unsplash.com/photo-1601821765780-754fa98637c1?fm=jpg&q=85&w=2400",
+		"source": "https://unsplash.com/photos/6uv43p1ePrk",
+		"author": "Max Ducourneau",
+		"license": "Unsplash License"
+	},
+	"story": {
+		"url": "https://images.unsplash.com/photo-1616837874254-8d5aaa63e273?fm=jpg&q=85&w=2400",
+		"source": "https://unsplash.com/photos/Ks6wd1Zyf1o",
+		"author": "Cat Han",
+		"license": "Unsplash License"
+	}
+}

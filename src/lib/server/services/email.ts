@@ -143,7 +143,7 @@ export function renderEmail<T extends TemplateName>(template: T, locale: Lang, d
 	const def = TEMPLATES[template] as unknown as TemplateDef<TemplateData<T>>;
 	const subject = def.subject(data, locale);
 	const { body } = render(def.component, { props: { locale, data } });
-	const html = `<!doctype html><html lang="${locale === 'fr' ? 'fr-BE' : 'nl-BE'}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><meta name="supported-color-schemes" content="light"><title>${escapeHtml(subject)}</title></head><body style="margin:0;padding:0;background:#ebe1d8;">${clean(body)}</body></html>`;
+	const html = `<!doctype html><html lang="${locale === 'fr' ? 'fr-BE' : 'nl-BE'}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><meta name="supported-color-schemes" content="light"><title>${escapeHtml(subject)}</title></head><body style="margin:0;padding:0;background:#f8f2ea;">${clean(body)}</body></html>`;
 	return { subject, html, text: def.text(data, locale) };
 }
 
@@ -256,7 +256,7 @@ export async function orderEmailData(
 			}).format(delivery),
 			orderUrl: `${site}${thanksPath(order)}`,
 			shopUrl: `${site}/${locale}`,
-			storeName: s.store.name || 'Sieradenkoningin',
+			storeName: s.store.name || 'De Sieradenkoningin',
 			storeEmail: s.store.email || null,
 			returnDays: s.return_days
 		}

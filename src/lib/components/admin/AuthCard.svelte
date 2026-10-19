@@ -9,7 +9,7 @@
 	<div class="card">
 		<div class="brand" data-surface="inverse">
 			<Icon name="crown" size={28} stroke={1} class="orn" />
-			<span class="wm">Sieradenkoningin<small>Beheer</small></span>
+			<span class="wm">De Sieradenkoningin<small>Beheer</small></span>
 		</div>
 		<div class="body">
 			<h1>{title}</h1>

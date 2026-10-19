@@ -803,7 +803,7 @@ export const pageBlocks = pgTable(
 );
 
 export const menus = pgTable('menus', {
-	key: text('key').primaryKey(), // main | footer_shop | footer_help | footer_about | footer_legal
+	key: text('key').primaryKey(), // main | shop | footer_shop | footer_help | footer_about | footer_legal
 	items: jsonb('items').$type<MenuItem[]>().notNull().default([]),
 	updatedAt: updatedAt()
 });

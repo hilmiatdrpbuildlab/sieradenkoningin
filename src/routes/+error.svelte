@@ -10,7 +10,7 @@
 	const notFound = $derived(page.status === 404);
 </script>
 
-<svelte:head><title>{page.status} — Sieradenkoningin</title><meta name="robots" content="noindex" /></svelte:head>
+<svelte:head><title>{page.status} — De Sieradenkoningin</title><meta name="robots" content="noindex" /></svelte:head>
 
 <main class="err" data-surface="inverse" data-theme={isAdmin ? 'admin' : undefined}>
 	<Icon name="crown" size={44} stroke={1} class="orn" />

@@ -35,7 +35,7 @@
 			<tr>
 				<td style="padding:16px 0;">
 					<div style="font-family:{serif};font-size:20px;color:{c.espresso};">{data.productName}</div>
-					{#if data.variantLabel}<div style="margin-top:4px;font-size:13px;color:{c.cognac};">
+					{#if data.variantLabel}<div style="margin-top:4px;font-size:13px;color:{c.mocha};">
 							{data.variantLabel}
 						</div>{/if}
 				</td>
@@ -45,9 +45,9 @@
 	<p style="margin:0 0 24px;text-align:center;">
 		<a
 			href={data.productUrl}
-			style="display:inline-block;padding:14px 28px;background:{c.burgundy};color:{c.cream};text-decoration:none;font-size:12px;letter-spacing:0.18em;text-transform:uppercase;"
+			style="display:inline-block;padding:14px 28px;background:{c.burgundy};color:{c.ivory};text-decoration:none;font-size:12px;letter-spacing:0.18em;text-transform:uppercase;"
 			>{m.email_bis_button({}, o)}</a
 		>
 	</p>
-	<p style="margin:0;font-size:13px;color:{c.cognac};">{m.email_bis_note({}, o)}</p>
+	<p style="margin:0;font-size:13px;color:{c.mocha};">{m.email_bis_note({}, o)}</p>
 </EmailLayout>

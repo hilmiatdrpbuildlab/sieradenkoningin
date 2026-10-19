@@ -20,6 +20,9 @@
 	.prose {
 		line-height: var(--lh-relaxed);
 	}
+	.prose :global(p) {
+		margin: 0 0 var(--space-4);
+	}
 	.prose :global(h2) {
 		font-size: var(--fs-2xl);
 		margin: var(--space-10) 0 var(--space-4);

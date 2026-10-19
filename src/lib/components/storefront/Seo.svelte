@@ -20,7 +20,7 @@
 	const site = PUBLIC_SITE_URL.replace(/\/$/, '');
 	const abs = (u: string) => (/^https?:/.test(u) ? u : `${site}${u}`);
 	const canonicalUrl = $derived(abs(canonical ?? page.url.pathname));
-	const fullTitle = $derived(title.includes('Sieradenkoningin') ? title : `${title} — Sieradenkoningin`);
+	const fullTitle = $derived(title.includes('De Sieradenkoningin') ? title : `${title} | De Sieradenkoningin`);
 	// JSON-LD is serialised with "<" escaped so content can never close the script element.
 	const ld = $derived(jsonLd.map((j) => JSON.stringify(j).replace(/</g, '\\u003c')));
 </script>
@@ -30,7 +30,7 @@
 	{#if description}<meta name="description" content={description} />{/if}
 	<link rel="canonical" href={canonicalUrl} />
 	{#if noindex}<meta name="robots" content="noindex, follow" />{/if}
-	<meta property="og:site_name" content="Sieradenkoningin" />
+	<meta property="og:site_name" content="De Sieradenkoningin" />
 	<meta property="og:type" content={type === 'product' ? 'product' : type} />
 	<meta property="og:title" content={fullTitle} />
 	{#if description}<meta property="og:description" content={description} />{/if}

@@ -65,7 +65,7 @@
 		color: var(--sk-info);
 	}
 	.badge--neutral {
-		background: var(--sk-cream-100);
+		background: var(--sk-ivory-100);
 		color: var(--sk-espresso);
 	}
 </style>

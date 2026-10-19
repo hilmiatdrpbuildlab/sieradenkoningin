@@ -23,7 +23,7 @@
 	</h1>
 	<p style="margin:0 0 12px;">{m.email_payment_failed_intro({ name: data.firstName }, { locale })}</p>
 	<p style="margin:0 0 16px;">{m.email_payment_failed_text({}, { locale })}</p>
-	<p style="margin:0 0 4px;font-size:12px;letter-spacing:0.18em;text-transform:uppercase;color:{c.cognac};">
+	<p style="margin:0 0 4px;font-size:12px;letter-spacing:0.18em;text-transform:uppercase;color:{c.mocha};">
 		{m.email_order_number({}, { locale })}
 	</p>
 	<p style="margin:0 0 8px;font-size:18px;font-weight:600;">{data.number}</p>
@@ -33,9 +33,9 @@
 	<p style="margin:8px 0 24px;text-align:center;">
 		<a
 			href={data.orderUrl}
-			style="display:inline-block;padding:14px 28px;background:{c.burgundy};color:{c.cream};text-decoration:none;font-size:12px;letter-spacing:0.18em;text-transform:uppercase;"
+			style="display:inline-block;padding:14px 28px;background:{c.burgundy};color:{c.ivory};text-decoration:none;font-size:12px;letter-spacing:0.18em;text-transform:uppercase;"
 			>{m.email_retry_payment({}, { locale })}</a
 		>
 	</p>
-	<p style="margin:0;font-size:13px;color:{c.cognac};">{m.email_payment_failed_note({}, { locale })}</p>
+	<p style="margin:0;font-size:13px;color:{c.mocha};">{m.email_payment_failed_note({}, { locale })}</p>
 </EmailLayout>

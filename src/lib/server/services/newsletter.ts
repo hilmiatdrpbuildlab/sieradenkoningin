@@ -29,14 +29,14 @@ export function confirmUrl(siteUrl: string, lang: Lang, token: string) {
 export function confirmationEmail(url: string, lang: Lang) {
 	const o = { locale: lang };
 	const subject = m.nlmail_subject({}, o);
-	const html = `<!doctype html><html lang="${lang === 'fr' ? 'fr-BE' : 'nl-BE'}"><body style="margin:0;background:#EBE1D8;font-family:Arial,Helvetica,sans-serif;color:#492520">
+	const html = `<!doctype html><html lang="${lang === 'fr' ? 'fr-BE' : 'nl-BE'}"><body style="margin:0;background:#F8F2EA;font-family:Arial,Helvetica,sans-serif;color:#211613">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:32px 16px">
 <table role="presentation" width="100%" style="max-width:560px;background:#ffffff" cellpadding="0" cellspacing="0">
-<tr><td style="background:#391617;color:#EBE1D8;text-align:center;padding:24px;font-family:Georgia,serif;letter-spacing:4px;font-size:18px">SIERADENKONINGIN</td></tr>
-<tr><td style="padding:32px 32px 8px;font-family:Georgia,serif;font-size:26px;color:#391617">${escapeHtml(m.nlmail_heading({}, o))}</td></tr>
+<tr><td style="background:#4B0E19;color:#F8F2EA;text-align:center;padding:24px;font-family:Georgia,serif;letter-spacing:4px;font-size:18px">DE SIERADENKONINGIN</td></tr>
+<tr><td style="padding:32px 32px 8px;font-family:Georgia,serif;font-size:26px;color:#4B0E19">${escapeHtml(m.nlmail_heading({}, o))}</td></tr>
 <tr><td style="padding:8px 32px 24px;font-size:15px;line-height:1.6">${escapeHtml(m.nlmail_text({}, o))}</td></tr>
-<tr><td style="padding:0 32px 32px"><a href="${escapeHtml(url)}" style="display:inline-block;background:#391617;color:#EBE1D8;text-decoration:none;padding:14px 28px;font-size:12px;letter-spacing:2px;text-transform:uppercase">${escapeHtml(m.nlmail_button({}, o))}</a></td></tr>
-<tr><td style="padding:0 32px 32px;font-size:12px;color:#875543;line-height:1.5">${escapeHtml(m.nlmail_ignore({}, o))}</td></tr>
+<tr><td style="padding:0 32px 32px"><a href="${escapeHtml(url)}" style="display:inline-block;background:#4B0E19;color:#F8F2EA;text-decoration:none;padding:14px 28px;font-size:12px;letter-spacing:2px;text-transform:uppercase">${escapeHtml(m.nlmail_button({}, o))}</a></td></tr>
+<tr><td style="padding:0 32px 32px;font-size:12px;color:#6E5A50;line-height:1.5">${escapeHtml(m.nlmail_ignore({}, o))}</td></tr>
 </table></td></tr></table></body></html>`;
 	const text = `${m.nlmail_heading({}, o)}\n\n${m.nlmail_text({}, o)}\n\n${url}\n\n${m.nlmail_ignore({}, o)}\n`;
 	return { subject, html, text };

@@ -54,6 +54,14 @@ export async function resolveBlocks(db: Executor, blocks: Block[], lang: Lang): 
 			case 'usp_bar':
 				view = { items: b.data.items.map((i) => ({ icon: i.icon, text: tr(i.text, lang) })) };
 				break;
+			case 'feature_grid':
+				view = {
+					eyebrow: tr(b.data.eyebrow, lang),
+					title: tr(b.data.title, lang),
+					intro: tr(b.data.intro, lang),
+					items: b.data.items.map((i) => ({ icon: i.icon, title: tr(i.title, lang), text: tr(i.text, lang) }))
+				};
+				break;
 			case 'category_strip':
 				view = {
 					title: tr(b.data.title, lang),

@@ -40,7 +40,7 @@
 <aside class="sidebar" class:collapsed class:open={mobileOpen} data-surface="inverse" aria-label="Beheer">
 	<div class="brand">
 		<Icon name="crown" size={24} class="text-ornament" />
-		<span class="label wordmark">Sieradenkoningin<small>Beheer</small></span>
+		<span class="label wordmark">De Sieradenkoningin<small>Beheer</small></span>
 	</div>
 
 	<nav>

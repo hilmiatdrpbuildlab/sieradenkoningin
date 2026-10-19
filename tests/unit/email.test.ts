@@ -51,8 +51,8 @@ describe('email templates', () => {
 	}
 
 	it('uses the requested locale regardless of the ambient one', () => {
-		expect(renderEmail('order_confirmation', 'fr', data).subject).toBe('Merci pour votre commande SK-2026-000042');
-		expect(renderEmail('order_confirmation', 'nl', data).subject).toBe('Bedankt voor je bestelling SK-2026-000042');
+		expect(renderEmail('order_confirmation', 'fr', data).subject).toBe('Votre commande SK-2026-000042 est confirmée');
+		expect(renderEmail('order_confirmation', 'nl', data).subject).toBe('Jouw bestelling SK-2026-000042 is bevestigd');
 		expect(renderEmail('payment_failed', 'fr', data).html).toContain('Réessayer le paiement');
 	});
 
@@ -82,7 +82,7 @@ describe('sendEmail', () => {
 		expect(email.sent[0]).toMatchObject({
 			to: 'ann@example.com',
 			template: 'order_confirmation',
-			subject: 'Merci pour votre commande SK-2026-000042'
+			subject: 'Votre commande SK-2026-000042 est confirmée'
 		});
 		const [log] = await db.select().from(emailLog).where(eq(emailLog.refId, refId));
 		expect(log).toMatchObject({ status: 'sent', locale: 'fr', template: 'order_confirmation', providerId: 'mem-1' });

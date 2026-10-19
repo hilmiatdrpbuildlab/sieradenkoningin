@@ -148,7 +148,7 @@ export async function sendRestockAlerts(deps: AlertDeps, variantIds?: string[]) 
 					variantLabel: variantLabel(a.metal, a.size, locale),
 					productUrl: `${site}${localizeHref(`/p/${a.slug}`, locale)}?variant=${a.variantId}`,
 					shopUrl: `${site}/${locale}`,
-					storeName: store.name || 'Sieradenkoningin',
+					storeName: store.name || 'De Sieradenkoningin',
 					storeEmail: store.email || null
 				},
 				refId: a.id

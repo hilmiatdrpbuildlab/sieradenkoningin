@@ -96,7 +96,7 @@
 
 	<div class="preview" role="group" aria-label="Voorbeeld in zoekresultaten">
 		<span class="url">{urlPrefix}{slug || '…'}</span>
-		<span class="title">{previewTitle} | Sieradenkoningin</span>
+		<span class="title">{previewTitle} | De Sieradenkoningin</span>
 		<span class="desc">{previewDesc}</span>
 	</div>
 </div>
