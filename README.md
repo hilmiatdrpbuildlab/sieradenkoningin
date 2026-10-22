@@ -47,7 +47,7 @@ staging notice), DEMO products, simulated payments/e-mails/labels. Neon project 
 2. `npm run db:migrate` against the Neon _direct_ URL, then `npm run db:seed` (`-- --no-demo` for production).
 3. `npx wrangler deploy` (runs `npm run build` first via `build.command`; Cloudflare Workers Builds: build command
    empty, deploy command `npx wrangler deploy`, root `/`) — `wrangler.jsonc` deploys `cloudflare/worker.js`, which wraps the
-   SvelteKit worker and runs the Cron Trigger (`/api/jobs` every 5 min; the 05:00 UTC tick also runs the daily jobs).
+   SvelteKit worker and runs the Cron Trigger (`/api/jobs` hourly — each tick wakes the Neon compute; the 05:00 UTC tick also runs the daily jobs).
    Public vars (`PUBLIC_SITE_URL`, `PUBLIC_STAGING`) live in `wrangler.jsonc` → `vars`.
 
 See `docs/RUNBOOK.md` part 2 for rollbacks, secret rotation, backups and monitoring.

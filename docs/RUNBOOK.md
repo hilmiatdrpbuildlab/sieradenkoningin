@@ -162,7 +162,7 @@ SvelteKit 3 op **Cloudflare Workers**, database **Neon Postgres** (EU), afbeeldi
 - Databasemigraties zijn vooruit-compatibel; draai `npm run db:migrate` vóór de deploy. Een migratie terugdraaien = herstellen naar een Neon-branch van vóór de migratie (§2.7).
 
 ### 2.5 Geplande taken (cron)
-`cloudflare/worker.js` roept via Cron Triggers `/api/jobs` aan (beveiligd met `CRON_SECRET`): elke 5 minuten verlopen voorraadreservaties vrijgeven, onbetaalde bestellingen laten verlopen, wachtrij-taken (e-mails, facturen, back-in-stock, media opruimen) uitvoeren; dagelijks sessies en oude winkelmandjes opruimen. Controle: *Instellingen → E-mails* toont verzonden mails; mislukte taken worden tot 5 keer opnieuw geprobeerd.
+`cloudflare/worker.js` roept via Cron Triggers `/api/jobs` aan (beveiligd met `CRON_SECRET`): elk uur verlopen voorraadreservaties opruimen, onbetaalde bestellingen laten verlopen, wachtrij-taken (e-mails, facturen, back-in-stock, media opruimen) uitvoeren; dagelijks sessies en oude winkelmandjes opruimen. **Niet vaker dan elk uur:** elke cron-tik maakt de Neon-database wakker, en die valt pas na 5 minuten stilte in slaap — een cron om de 5 minuten hield de database 24/7 aan (verbruik!). Verlopen reservaties tellen nu al niet meer mee voor de voorraad, dus het uurritme is veilig. Controle: *Instellingen → E-mails* toont verzonden mails; mislukte taken worden tot 5 keer opnieuw geprobeerd.
 
 ### 2.6 Noodtoegang beheer
 Met databanktoegang (laptop met de repo en `.env` met de productie-`DATABASE_URL`):
@@ -177,7 +177,7 @@ Het nieuwe wachtwoord wordt één keer getoond; de persoon wordt overal uitgelog
 - Dagelijkse logische export naar de opslag (P5-04). Herstel-oefening: zie §12 van `EXECUTION_PLAN.md`.
 
 ### 2.8 Bewaking
-- **Uptime:** `GET /api/health` → 200 met `{"ok":true,"db":"up"}`; 503 als de database onbereikbaar is. Stel een uptime-check in (bv. elke minuut).
+- **Uptime:** `GET /api/health` → 200 met `{"ok":true}` zonder de database aan te spreken — gebruik dit voor een uptime-check (bv. elke minuut). `GET /api/health?db=1` controleert ook de database (`"db":"up"`, 503 als ze onbereikbaar is); roep die **niet** vaak aan, want elke aanroep maakt de Neon-database wakker.
 - **Fouten:** Sentry (indien `SENTRY_DSN` gezet).
 - **Logs:** Cloudflare → Workers → Logs (observability staat aan).
 

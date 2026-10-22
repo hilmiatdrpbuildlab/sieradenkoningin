@@ -15,10 +15,13 @@
 		"directory": ".svelte-kit/cloudflare"
 	},
 	"observability": { "enabled": true },
-	// Cron trigger: cloudflare/worker.js `scheduled()` POSTs /api/jobs with CRON_SECRET (P5-04): every 5 min →
-	// release expired reservations + queued jobs; the 05:00 UTC tick also runs the daily report + cleanup
-	// (one trigger: Workers Free allows 5 crons per account).
-	"triggers": { "crons": ["*/5 * * * *"] },
+	// Cron trigger: cloudflare/worker.js `scheduled()` POSTs /api/jobs with CRON_SECRET (P5-04): hourly →
+	// sweep expired reservations, expire stale orders, retry queued jobs; the 05:00 UTC tick also runs the daily
+	// report + cleanup (one trigger: Workers Free allows 5 crons per account).
+	// HOURLY, not every 5 min: Neon suspends its compute after 5 idle minutes, so a 5-minute cron kept the
+	// database awake 24/7. Nothing depends on a faster tick — availability already ignores expired
+	// reservations, orders expire after 2 h, and jobs run inline right after they are queued.
+	"triggers": { "crons": ["0 * * * *"] },
 	"vars": {
 		"PUBLIC_SITE_URL": "https://sieradenkoningin.goosebumpsevents.workers.dev",
 		// Staging/demo deploy: noindex + staging notice. Remove (or set "") for the live launch.

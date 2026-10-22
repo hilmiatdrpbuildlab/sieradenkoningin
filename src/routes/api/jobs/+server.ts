@@ -1,5 +1,5 @@
 /**
- * Cron endpoint (every 5 min, Cloudflare Cron Trigger → POST with `Authorization: Bearer $CRON_SECRET`):
+ * Cron endpoint (hourly — see wrangler.jsonc for why not more often; Cloudflare Cron Trigger → POST with `Authorization: Bearer $CRON_SECRET`):
  *  1. release expired stock reservations (P2-05)
  *  2. reconcile / expire stale pending orders
  *  3. find restocked variants with pending back-in-stock alerts (P3-09)
